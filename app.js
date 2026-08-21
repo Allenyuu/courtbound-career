@@ -190,6 +190,236 @@ const CLUTCH_SCENARIOS = [
     id: 'answer_now', clock: '18.4', title: '追平或逆轉', score: '66：68', actionKeys: 'position',
     story: (opponent) => `對上「${opponent}」，第四節剩 18.4 秒，你們 66：68 落後並有一次暫停。時間足夠完成一波進攻；如果太早出手，對手還能拿到球，拖太久則沒有補救機會。`,
     quote: '教練：兩分可以追平，三分可以領先，重點是拿到好出手。', prompt: '18.4 秒，兩分追平、三分逆轉。你怎麼選？', hint: '落後 2 分 · 我方球權 · 還有一次暫停', difficulty: 2
+  },
+  {
+    id: 'one_point_chase', clock: '9.7', title: '差一分的最後機會', score: '84：85', actionKeys: 'position',
+    story: (opponent) => `對上「${opponent}」，第四節剩 9.7 秒，你們 84：85 落後。暫停後從前場發球，時間夠做一次完整進攻，但傳來傳去就會沒時間。`,
+    quote: '教練：不用硬投三分，找到最舒服的兩分也能贏。', prompt: '落後 1 分，最後一波要交給哪種打法？', hint: '落後 1 分 · 我方球權 · 一次完整進攻', difficulty: 2
+  },
+  {
+    id: 'protect_two', clock: '11.3', title: '別讓三分出手', score: '78：76', actionKeys: ['lock', 'switch', 'glass'],
+    story: (opponent) => `你們對「${opponent}」以 78：76 領先，第四節剩 11.3 秒。對手還有一次暫停，可能搶三分直接逆轉，也可能先拿兩分追平。`,
+    quote: '教練：先守住外線，籃板也一定要拿好。', prompt: '領先 2 分，這波防守你最在意什麼？', hint: '領先 2 分 · 對方球權 · 小心三分與二次進攻', difficulty: 2
+  },
+  {
+    id: 'three_point_clock', clock: '19.6', title: '先把球搶回來', score: '89：92', actionKeys: ['foul', 'trap', 'deny'],
+    story: (opponent) => `第四節剩 19.6 秒，你們對「${opponent}」以 89：92 落後，球還在對方手上。等進攻時間跑完一定來不及，現在每一秒都很貴。`,
+    quote: '教練：全隊選同一種方式，才不會有人夾、有人退。', prompt: '落後 3 分又沒有球，怎麼製造最後機會？', hint: '落後 3 分 · 對方球權 · 必須立刻停表或搶球', difficulty: 3
+  },
+  {
+    id: 'protect_one', clock: '7.1', title: '守住一分領先', score: '91：90', actionKeys: ['lock', 'switch', 'glass'],
+    story: (opponent) => `你們對「${opponent}」以 91：90 領先，第四節剩 7.1 秒。對手後場發球，推進後大概只剩一次出手機會。`,
+    quote: '教練：不要看比分發呆，先找到自己要守的人。', prompt: '只領先 1 分，最後防守要怎麼做？', hint: '領先 1 分 · 對方後場發球 · 一球定勝負', difficulty: 2
+  },
+  {
+    id: 'tie_breaker', clock: '14.2', title: '平手不用亂衝', score: '75：75', actionKeys: 'position',
+    story: (opponent) => `對上「${opponent}」，第四節剩 14.2 秒，比分 75：75。你們握有球權，時間足夠把戰術跑完，也能把最後一擊留在自己手上。`,
+    quote: '教練：穩穩拿到好球，不要被倒數計時嚇到。', prompt: '平手的最後一攻，你準備怎麼處理？', hint: '比分平手 · 我方球權 · 控制最後出手時間', difficulty: 1
+  }
+];
+
+// 每季前三週分別抽「成長、球隊、比賽」情境；三類各 10 個，共 30 個。
+// 抽取結果會寫進存檔，同一個生涯會先玩過未見情境，直到該類全數出現才重複。
+const CAREER_SCENARIOS = [
+  {
+    id: 'train_weak_link', phase: 'training', title: '弱點被教練點名',
+    story: ({ team }) => `練球結束後，${team.name} 的教練把你留下來。他沒有罵人，只說：「你現在最弱的地方，已經被對手看到了。」球館還能用四十分鐘。`,
+    quote: '先把一個問題練好，比每一招都摸一下更有用。', prompt: '剩下四十分鐘，你要補哪一塊？', hint: '補弱點最直接，但疲勞也會比較高。', valueLabel: 'EXTRA WORK', tint: '#dfff00',
+    actions: () => [
+      careerAction('A', '把最弱的一招練到順', '只練目前最低能力，先把動作做穩。', weakestStat(), 'iq', statTag(weakestStat()), -8, 2.2, { load: 9, rhythm: 4 }, '最後十次都做對了，這招終於不再卡卡的。', '練到後面動作跑掉了，但你已經找到最常出錯的位置。'),
+      careerAction('B', '請學長陪你拆動作', '慢慢做、慢慢問，先搞懂問題在哪。', 'iq', 'playmaking', 'connector', -10, 1.7, { trust: 5, load: 3 }, '學長一講你就懂，原來問題不是速度，而是起手太急。', '一下改太多細節，你反而有點亂；至少知道下次先改哪一個。'),
+      careerAction('C', '先恢復，明天再補', '伸展、冰敷、早點睡，不硬撐。', 'athletic', 'defense', 'iron', -14, .9, { load: -18, rhythm: -2 }, '身體恢復得很好，隔天訓練的動作明顯更穩。', '你還是有點焦慮，但至少沒有把小疲勞拖成大問題。')
+    ]
+  },
+  {
+    id: 'train_shooting_map', phase: 'training', title: '投籃熱區測試',
+    story: ({ country }) => `${country.name} 的助教在場上貼了五個標記，要你每個點投十球。測完後，他只讓你選一個區域繼續練。`,
+    quote: '不是站得越遠越厲害，能穩定命中才是真的武器。', prompt: '你想把哪種投籃變成固定得分點？', hint: '選安全出手、遠距離，或先練出手節奏。', valueLabel: 'SHOT MAP', tint: '#f0b35a',
+    actions: () => [
+      careerAction('A', '練最穩的接球跳投', '先站熟悉的位置，把命中率拉高。', 'shooting', 'iq', 'shooter', -9, 2, { rhythm: 7, load: 5 }, '你的腳步越來越固定，球一到手就知道怎麼出手。', '前幾球一直踩錯步，但調慢速度後開始找到節奏。'),
+      careerAction('B', '往後退一步練遠投', '難度更高，但練成後空間會更大。', 'shooting', 'athletic', 'shooter', -2, 2.3, { rhythm: 3, load: 9 }, '最後一組連進四球，助教終於點頭了。', '力量不夠時姿勢會歪，你決定先把下肢練好。'),
+      careerAction('C', '練跑動後快速出手', '先跑位甩開防守，再接球出手。', 'athletic', 'shooting', 'iron', -5, 1.9, { trust: 4, load: 8 }, '你不只跑到空檔，停下來出手也沒有失去平衡。', '跑太快讓出手變形，但你開始知道什麼速度最適合自己。')
+    ]
+  },
+  {
+    id: 'train_contact_finish', phase: 'training', title: '禁區碰撞課',
+    story: ({ team }) => `${team.name} 找來兩位大個子拿護墊守籃下。今天每一次上籃都會被撞，你得決定怎麼完成。`,
+    quote: '對抗不是硬撞，先保護好球才有下一步。', prompt: '面對禁區碰撞，你想練哪一招？', hint: '硬吃、換手和傳球，會長出不同能力。', valueLabel: 'CONTACT', tint: '#ff7b52',
+    actions: () => [
+      careerAction('A', '扛住碰撞直接打進', '練核心力量，出手時不怕被推歪。', 'finish', 'athletic', 'attack', -4, 2.2, { load: 11, rhythm: 5 }, '你被撞開還是把球放進，落地也站得很穩。', '護墊一撞球就掉了，但你知道自己核心還要更強。'),
+      careerAction('B', '空中換手躲封阻', '不比力氣，用角度避開長手。', 'finish', 'iq', 'attack', -6, 2, { rhythm: 6, load: 7 }, '你等防守手伸出來才換手，球漂亮擦板進框。', '換手太早被看穿，不過下一次你學會多等半拍。'),
+      careerAction('C', '吸引人後傳到底角', '看見協防就分球，不一定自己硬上。', 'playmaking', 'iq', 'creator', -8, 1.7, { trust: 7, load: 4 }, '協防一靠近你就傳，隊友得到完全空檔。', '傳球角度太低被碰掉，但判斷方向其實是對的。')
+    ]
+  },
+  {
+    id: 'train_film_room', phase: 'training', title: '影片裡的三次失誤',
+    story: ({ country }) => `${country.name} 教練剪出你上一場的三次失誤：一次漏人、一次傳球太慢、一次勉強出手。影片課只剩三十分鐘。`,
+    quote: '犯錯不丟臉，同一種錯一直出現才麻煩。', prompt: '你要先研究哪一段？', hint: '看懂影片，下一場的判斷會真的不一樣。', valueLabel: 'FILM ROOM', tint: '#93b9c9',
+    actions: () => [
+      careerAction('A', '重看每一次防守站位', '找出自己什麼時候離對手太遠。', 'defense', 'iq', 'stopper', -10, 1.9, { trust: 4, load: 1 }, '你發現自己總是先看球，才會漏掉身後的人。', '畫面資訊太多，但教練幫你圈出最重要的站位。'),
+      careerAction('B', '暫停畫面找傳球路線', '每一格都想一次，哪個隊友先空。', 'playmaking', 'iq', 'creator', -9, 2, { rhythm: 3, load: 1 }, '你看見原本忽略的底線空檔，下次不會再慢半拍。', '答案不只一個讓你有點亂，但閱讀速度已經開始變快。'),
+      careerAction('C', '分析自己的出手選擇', '分清楚好球、勉強球和該多傳一次的球。', 'iq', 'shooting', 'connector', -11, 1.7, { rhythm: 4, reputation: 1 }, '你整理出三個簡單規則，下一場出手會更乾淨。', '有些球很難判斷，但你至少不會再只看有沒有投進。')
+    ]
+  },
+  {
+    id: 'train_defense_feet', phase: 'training', title: '不能用手的單防',
+    story: ({ team }) => `${team.name} 今天玩一個狠規則：防守者不能伸手抄球，只能靠腳步擋住突破。全隊輪流挑戰你。`,
+    quote: '先站住路線，再想抄球；被過掉就什麼都沒有。', prompt: '你準備怎麼守住第一步？', hint: '腳步、力量和預判，三種方法都能守人。', valueLabel: '1 ON 1', tint: '#78a7ff',
+    actions: () => [
+      careerAction('A', '壓低重心跟住腳步', '不亂跳，先把人留在身前。', 'defense', 'athletic', 'stopper', -7, 2.1, { load: 8, trust: 4 }, '你連守三球都沒失位，隊友開始認真起來。', '第一個假動作就讓你重心歪掉，但你很快調回來。'),
+      careerAction('B', '先猜他最愛走哪邊', '用觀察縮小防守範圍。', 'iq', 'defense', 'connector', -8, 1.9, { rhythm: 4, load: 4 }, '你看出他每次都想走右邊，提前半步封住路線。', '你猜錯一次被直接過掉，現在知道不能只靠賭。'),
+      careerAction('C', '用身體守住碰撞', '讓對手撞到你也不會失去位置。', 'athletic', 'defense', 'iron', -5, 2, { load: 10, trust: 3 }, '對手撞上來，你一步都沒退，最後只能停球。', '你站太直被頂開，但找到該怎麼用核心撐住。')
+    ]
+  },
+  {
+    id: 'train_conditioning', phase: 'training', title: '體能教練的新菜單',
+    story: ({ season }) => `${season.age} 歲的你收到一張新菜單：衝刺、重訓和恢復各占一部分。今天只能加強其中一項。`,
+    quote: '體能不是一直操，能在比賽最後還做對動作才有用。', prompt: '你今天把時間放在哪裡？', hint: '爆發、力量或恢復，會影響不同的場上感覺。', valueLabel: 'BODY LAB', tint: '#c8ee46',
+    actions: () => [
+      careerAction('A', '短距離爆發衝刺', '每組時間很短，但每一步都要全力。', 'athletic', 'finish', 'iron', -5, 2.1, { load: 12, rhythm: 4 }, '最後一組速度沒有掉，你的第一步明顯更快。', '後半段速度掉了，但教練抓到你的起跑姿勢問題。'),
+      careerAction('B', '練核心和下肢力量', '增加對抗，也讓投籃落地更穩。', 'athletic', 'defense', 'iron', -8, 1.9, { load: 9, trust: 2 }, '重量沒有亂加，每一下都做得很標準。', '你想太快加重，姿勢差點跑掉，還好教練及時叫停。'),
+      careerAction('C', '做完整恢復課', '伸展、按摩和睡眠都算今天的功課。', 'iq', 'athletic', 'connector', -14, 1, { load: -24, rhythm: 2 }, '隔天起床身體很輕，訓練品質也跟著變好。', '疲勞沒有一次消失，但你沒有再硬撐下去。')
+    ]
+  },
+  {
+    id: 'train_empty_gym', phase: 'training', title: '球館只剩你一個',
+    story: ({ team }) => `${team.name} 的燈準備關了，管理員說還能再給你二十分鐘。沒有人看，你可以練招牌，也可以補基本功。`,
+    quote: '沒人看的練習，最後也會出現在有人看的比賽。', prompt: '最後二十分鐘，你想留下什麼？', hint: '強化招牌最有感，基本功則更穩。', valueLabel: 'AFTER HOURS', tint: '#b7b3a8',
+    actions: () => [
+      careerAction('A', '把招牌動作再磨快一點', '專練目前最強能力，讓優點更難被守。', strongestStat(), 'iq', statTag(strongestStat()), -4, 2, { rhythm: 8, load: 7 }, '你的招牌動作又快了一拍，連自己都覺得順。', '想加速反而失去細節，你決定先回到原本節奏。'),
+      careerAction('B', '做最普通的基本功', '傳球、運球、腳步，每樣都不偷懶。', 'playmaking', 'iq', 'creator', -11, 1.6, { trust: 3, load: 4 }, '看起來不炫，但每一下都更乾淨了。', '重複動作很無聊，不過你還是把整組做完。'),
+      careerAction('C', '錄影檢查自己的動作', '用手機慢放，自己找出不順的地方。', 'iq', strongestStat(), 'connector', -10, 1.5, { rhythm: 3, scout: 1, load: 2 }, '慢動作一看就懂，你找到平常完全沒注意的小問題。', '角度拍得不好看不清楚，下次你知道鏡頭該放哪裡。')
+    ]
+  },
+  {
+    id: 'train_new_playbook', phase: 'training', title: '戰術本突然變厚',
+    story: ({ country }) => `球隊加入一套${country.style}的新戰術。助教說明天就要實戰，你今晚只能先記熟自己的工作。`,
+    quote: '戰術不是背路線，是知道隊友下一步會去哪。', prompt: '新戰術來了，你先搞懂什麼？', hint: '持球、無球和防守溝通都會影響教練信任。', valueLabel: 'PLAYBOOK', tint: '#93b9c9',
+    actions: () => [
+      careerAction('A', '先背熟持球選擇', '知道什麼時候傳、什麼時候自己打。', 'playmaking', 'iq', 'creator', -8, 2, { trust: 5, load: 3 }, '你把每個閱讀順序寫成簡單口訣，隔天完全沒跑錯。', '選項太多一時記不住，但你先抓住第一個判斷。'),
+      careerAction('B', '練無球跑位和掩護', '沒有拿球也能幫球隊製造空檔。', 'iq', 'athletic', 'connector', -9, 1.8, { trust: 7, load: 5 }, '你每次都提早到位置，整套戰術突然跑得很順。', '有兩次擋到隊友路線，但你很快弄懂站位。'),
+      careerAction('C', '負責喊出防守輪轉', '用聲音提醒隊友誰該補位。', 'defense', 'iq', 'stopper', -7, 1.8, { trust: 8, rhythm: 2 }, '你的提醒讓全隊少漏兩次人，教練直接點名稱讚。', '你喊得有點慢，但隊友開始願意回應你。')
+    ]
+  },
+  {
+    id: 'train_free_throw_noise', phase: 'training', title: '全隊圍著你罰球',
+    story: ({ team }) => `${team.name} 練習結束前玩壓力罰球：投進全隊下課，沒進大家就再跑一組。現在球交到你手上。`,
+    quote: '壓力不會消失，但你可以把動作做得跟平常一樣。', prompt: '大家都在看，你怎麼處理這兩罰？', hint: '例行動作、呼吸和硬練，各有不同效果。', valueLabel: 'PRESSURE', tint: '#ffcf66',
+    actions: () => [
+      careerAction('A', '照平常節奏直接投', '不多想，做完固定的三個動作。', 'shooting', 'iq', 'shooter', -8, 1.9, { rhythm: 8, trust: 3 }, '兩球都空心，全隊大叫著衝回休息室。', '第一球彈框，但你第二球沒有改動作，穩穩投進。'),
+      careerAction('B', '先深呼吸再出手', '把心跳放慢，只盯著籃框後緣。', 'iq', 'shooting', 'connector', -11, 1.6, { rhythm: 5, load: -3 }, '你把外面的聲音都關掉，兩次出手像在空球館。', '還是聽得到隊友起鬨，但你的手沒有那麼僵了。'),
+      careerAction('C', '主動加碼投十球', '不管前兩球結果，再多練一組壓力球。', 'shooting', 'athletic', 'shooter', -5, 2.1, { load: 7, trust: 5 }, '你最後連進七球，隊友以後真的敢把技術犯規罰球交給你。', '命中率普通，但大家看見你願意扛。')
+    ]
+  },
+  {
+    id: 'train_scrimmage_role', phase: 'training', title: '隊內賽只剩五分鐘',
+    story: ({ team }) => `${team.name} 的隊內賽剩五分鐘，你這組落後 6 分。教練沒有喊戰術，只想看誰能把比賽拉回來。`,
+    quote: '接管比賽不一定是一直投，也可能是讓每個人都做對事。', prompt: '最後五分鐘，你要扮演什麼角色？', hint: '得分、控場或防守，都可能讓教練記住你。', valueLabel: 'SCRIMMAGE', tint: '#ff7057',
+    actions: () => [
+      careerAction('A', '連續攻擊籃框', '用最直接的方式追分，也承擔碰撞。', 'finish', 'athletic', 'attack', -3, 2.1, { rhythm: 7, load: 10, trust: 2 }, '你連拿 6 分，把比分真的追了回來。', '第一球被封阻，但你沒有停下來，下一波找到更好角度。'),
+      careerAction('B', '把每一球都組織好', '叫隊友站位，挑最好的出手機會。', 'playmaking', 'iq', 'creator', -6, 1.9, { trust: 8, load: 5 }, '全隊連續三次打出空檔，教練一直在場邊點頭。', '大家一開始聽不懂你的手勢，但後兩波配合順多了。'),
+      careerAction('C', '全場黏住對面主力', '先靠防守把節奏搶回來。', 'defense', 'athletic', 'stopper', -5, 2, { trust: 6, load: 9, rhythm: 3 }, '你逼出兩次失誤，落後分數一下就不見了。', '對手還是進了一球，但每次出手都被你逼得很難。')
+    ]
+  },
+  {
+    id: 'team_roster_board', phase: 'team', title: '名單板上少一個名字',
+    story: ({ season }) => `${season.age < 19 ? '明天的十二人名單' : '下一場登錄名單'} 還差最後一格。教練說今天的團練表現會直接影響決定。`,
+    quote: '想上場就要讓教練知道，把你放進去能解決什麼問題。', prompt: '最後一個名額，你要怎麼搶？', hint: '秀強項、幫全隊或降低疲勞，都是一種選擇。', valueLabel: 'ROSTER', tint: '#dfff00',
+    actions: () => [
+      careerAction('A', '把最強能力秀給教練看', '用你的招牌證明自己能馬上幫忙。', strongestStat(), 'athletic', statTag(strongestStat()), -3, 1.6, { trust: 5, reputation: 3, load: 7 }, '你的優點非常清楚，教練在名單板上寫下你的名字。', '今天沒有完全打出來，但教練知道你能提供什麼。'),
+      careerAction('B', '幫全隊把戰術跑順', '不搶鏡，專心補位、傳球和提醒。', 'playmaking', 'iq', 'connector', -8, 1.5, { trust: 10, load: 4 }, '你讓每一組都跑得更順，隊友第一個替你說話。', '戰術還是有點亂，但沒有人懷疑你的態度。'),
+      careerAction('C', '坦白說身體需要休息', '不硬撐，避免上場後反而拖累球隊。', 'iq', 'athletic', 'connector', -13, .8, { load: -20, trust: 2, rhythm: -2 }, '教練尊重你的誠實，也說健康後機會還在。', '你怕失去機會，但身體確實需要這一天。')
+    ]
+  },
+  {
+    id: 'team_language_gap', phase: 'team', title: '戰術聽懂一半',
+    story: ({ country }) => `在${country.name} 的戰術會議上，教練講得很快，你只聽懂一半。隊友已經準備離開，明天就要比賽。`,
+    quote: '不懂就問，裝懂才會在場上一起迷路。', prompt: '語言卡住了，你要怎麼補救？', hint: '問隊友、畫戰術或自己猜，結果會差很多。', valueLabel: 'ADAPT', tint: '#93b9c9',
+    actions: () => [
+      careerAction('A', '請隊友用最簡單的話重講', '直接承認沒聽懂，一個位置一個位置問。', 'playmaking', 'iq', 'connector', -10, 1.6, { trust: 9, load: 2 }, '隊友不只重講，還陪你在場上走了一遍。', '有些詞還是不熟，但你至少敢在場上繼續問。'),
+      careerAction('B', '把戰術畫成自己的圖', '用箭頭和顏色整理每一個輪轉。', 'iq', 'playmaking', 'creator', -9, 1.8, { rhythm: 4, load: 3 }, '圖畫完後整套戰術突然變簡單，你也能講給別人聽。', '第一張圖畫太亂，重畫後終於抓到重點。'),
+      careerAction('C', '先記住自己的第一步', '資訊太多，先確保開局不跑錯。', 'athletic', 'iq', 'iron', -7, 1.2, { rhythm: 3, trust: 2 }, '至少開局站位完全正確，後面也能跟著隊友調整。', '第二段變化還是慢了，但沒有整套戰術一起崩掉。')
+    ]
+  },
+  {
+    id: 'team_new_competitor', phase: 'team', title: '同位置來了新人',
+    story: ({ team }) => `${team.name} 新來一名跟你同位置的球員。第一堂訓練，他速度很快，教練也一直跟他說話。`,
+    quote: '競爭不是把隊友踩下去，是逼自己拿出更好的東西。', prompt: '新競爭者出現，你怎麼回應？', hint: '正面單挑、合作或默默加練，會走出不同路線。', valueLabel: 'COMPETE', tint: '#ff7b52',
+    actions: () => [
+      careerAction('A', '主動約他一對一', '正面比一次，看看自己的差距。', 'defense', 'finish', 'stopper', -3, 1.9, { rhythm: 6, load: 8, trust: 2 }, '你們互有輸贏，彼此也都摸清楚該進步哪裡。', '他今天佔上風，但你把每個被過的方式都記下來了。'),
+      careerAction('B', '先跟他一起練', '交換招式，也學他做得好的地方。', 'playmaking', 'iq', 'connector', -8, 1.6, { trust: 10, load: 5 }, '你們的競爭沒有變少，球隊配合卻直接變好。', '一開始有點尷尬，但至少沒有變成互相不傳球。'),
+      careerAction('C', '留下來加練自己的招牌', '不比較嘴巴，用場上表現回答。', strongestStat(), 'athletic', statTag(strongestStat()), -5, 2, { rhythm: 5, load: 10, reputation: 2 }, '你的招牌更穩了，隔天教練也把目光拉回你身上。', '疲勞讓效果沒有想像中好，但競爭心真的被點燃了。')
+    ]
+  },
+  {
+    id: 'team_bench_call', phase: 'team', title: '板凳最後一個叫到你',
+    story: ({ team }) => `${team.name} 的比賽打到第三節，先發球員陷入犯規麻煩。助教突然轉頭：「準備，下一個死球換你。」`,
+    quote: '機會不會先提醒你，板凳上的每一秒都要跟著比賽。', prompt: '臨時被叫上場，你先做哪件事？', hint: '安全、進攻或防守，第一印象很重要。', valueLabel: 'CHECK IN', tint: '#ffcf66',
+    actions: () => [
+      careerAction('A', '先打一個最安全的回合', '不搶戲，先把戰術跑對。', 'iq', 'playmaking', 'connector', -9, 1.6, { trust: 9, rhythm: 3 }, '你一上場就站對位置，教練放心讓你多打幾分鐘。', '第一個回合有點緊，但沒有送出無謂失誤。'),
+      careerAction('B', '第一個空檔就果斷出手', '讓對手知道不能放你。', 'shooting', 'iq', 'shooter', -3, 1.9, { rhythm: 8, trust: 3, reputation: 2 }, '你接球沒有猶豫，第一球就乾淨命中。', '球沒進，但出手選擇沒問題，教練要你繼續相信自己。'),
+      careerAction('C', '全力守住對面主力', '用防守證明自己能留在場上。', 'defense', 'athletic', 'stopper', -5, 1.9, { trust: 8, load: 7 }, '你連續守住兩波，換人牌又被教練放回桌上。', '第一次對位被速度嚇到，但第二波你已經跟上。')
+    ]
+  },
+  {
+    id: 'team_losing_streak', phase: 'team', title: '休息室安靜到不行',
+    story: ({ team }) => `${team.name} 吞下三連敗。練習結束後沒有人說話，有隊友開始互相怪罪，教練還沒走進來。`,
+    quote: '連敗時最容易各打各的，也最需要有人先把話說清楚。', prompt: '氣氛快爆了，你會做什麼？', hint: '開口、用訓練帶動，或先冷靜整理問題。', valueLabel: 'LOCKER ROOM', tint: '#78847c',
+    actions: () => [
+      careerAction('A', '把大家叫在一起講清楚', '不抓戰犯，只說下一場能改什麼。', 'playmaking', 'iq', 'connector', -8, 1.5, { trust: 12, rhythm: 3 }, '大家終於把真話講出來，氣氛沒有立刻變好，但方向一致了。', '一開始還是有人不爽，不過至少沒有繼續互相酸。'),
+      careerAction('B', '直接開始下一組加練', '少說話，用行動把隊友拉回球場。', 'athletic', 'defense', 'iron', -6, 1.8, { trust: 7, load: 9, rhythm: 4 }, '兩個隊友跟著你留下，最後整隊都回到場上。', '不是每個人都留下，但教練看見你沒有放掉。'),
+      careerAction('C', '整理三場失分原因', '先把情緒放旁邊，用影片找問題。', 'iq', 'defense', 'connector', -10, 1.7, { trust: 5, load: 1, scout: 1 }, '你找出共同問題：退防太慢。答案終於不是「誰打不好」。', '數據沒有唯一答案，但至少讓討論回到比賽本身。')
+    ]
+  },
+  {
+    id: 'team_scout_invite', phase: 'team', title: '球探測試撞上團練',
+    story: ({ season }) => `${season.age < 19 ? '外地學校' : '另一支球隊'} 臨時邀請你參加測試，但時間跟團練完全重疊。最後還是要由你自己決定。`,
+    quote: '曝光能打開下一扇門，信任則決定你現在能不能上場。', prompt: '同一個下午，你要去哪裡？', hint: '球探、球隊或折衷，都有明確代價。', valueLabel: 'CHOICE', tint: '#e591ff',
+    actions: () => [
+      careerAction('A', '去參加球探測試', '把最強能力秀給更多球隊看。', strongestStat(), 'athletic', statTag(strongestStat()), -2, 1.5, { scout: 10, reputation: 5, trust: -3, load: 6 }, '你的測試數字很亮眼，幾位球探真的把名字記下來了。', '沒有打出最好表現，但至少更多人知道你是誰。'),
+      careerAction('B', '留下完成整堂團練', '先守住現在的輪替位置和隊友信任。', 'playmaking', 'iq', 'connector', -9, 1.5, { trust: 11, scout: -1, load: 5 }, '你幫全隊把戰術跑順，教練當場多給你一組輪替。', '訓練普通，隊友還是知道你把球隊擺在前面。'),
+      careerAction('C', '請對方改成線上訪談', '不缺席團練，也試著保留曝光。', 'iq', 'playmaking', 'creator', -7, 1.2, { scout: 5, trust: 5, load: 3 }, '訪談和團練都完成，雖然不算完美，但兩邊都沒斷線。', '時間排得很趕，你兩邊都只做到及格。')
+    ]
+  },
+  {
+    id: 'team_teammate_slump', phase: 'team', title: '隊友投到不敢出手',
+    story: ({ team }) => `${team.name} 的射手連三場手感低迷。今天他在空檔接到球，卻又傳了回來。練習後，他一個人坐在場邊。`,
+    quote: '真正的隊友不是只在對方進球時拍手。', prompt: '你要怎麼幫他找回感覺？', hint: '陪練、聊天或場上創造空檔，都能建立默契。', valueLabel: 'TEAMMATE', tint: '#93b9c9',
+    actions: () => [
+      careerAction('A', '留下陪他投一百球', '只負責傳球和撿球，讓他慢慢找節奏。', 'playmaking', 'shooting', 'creator', -10, 1.5, { trust: 12, load: 5 }, '最後二十球他進了十七球，離開時終於笑了。', '命中率還沒回來，但他知道不是自己一個人在撐。'),
+      careerAction('B', '跟他聊自己低潮的經驗', '不教訓，只告訴他你也曾經懷疑自己。', 'iq', 'playmaking', 'connector', -12, 1.3, { trust: 10, load: -2, rhythm: 2 }, '他沒有立刻變開心，但說明天會繼續投。', '你不太會安慰人，不過陪著坐一下也有用。'),
+      careerAction('C', '下一場一直幫他做空檔', '用掩護和傳球給他最舒服的出手機會。', 'iq', 'athletic', 'connector', -7, 1.7, { trust: 11, load: 6, reputation: 1 }, '你連續創造兩個大空檔，他第二球終於投進了。', '他還是沒進，但出手已經不像之前那麼猶豫。')
+    ]
+  },
+  {
+    id: 'team_role_change', phase: 'team', title: '教練要你換一種打法',
+    story: ({ team }) => `${team.name} 的教練說球隊現在缺的不是更多得分，而是有人能防守、傳球和穩住節奏。他問你願不願意改角色。`,
+    quote: '改角色不是放棄自己，是多一種留在場上的理由。', prompt: '面對新角色，你怎麼選？', hint: '接受、保留招牌或要求更多說明。', valueLabel: 'NEW ROLE', tint: '#d9ed83',
+    actions: () => [
+      careerAction('A', '直接接受新任務', '先把球隊缺的工作做好。', 'defense', 'iq', 'stopper', -8, 1.8, { trust: 12, rhythm: 1 }, '你第一堂就全力執行，教練馬上把你排進新輪替。', '新工作比想像中難，但態度讓教練願意繼續教。'),
+      careerAction('B', '保留招牌，也增加傳球', '不完全改掉自己，慢慢變得更全面。', 'playmaking', strongestStat(), 'creator', -5, 1.7, { trust: 7, rhythm: 5, load: 4 }, '你既沒有消失，也讓隊友拿到更多好球。', '兩種任務一起做有點亂，但方向是對的。'),
+      careerAction('C', '請教練把要求講清楚', '先確認上場時最重要的前三件事。', 'iq', 'playmaking', 'connector', -11, 1.5, { trust: 8, load: 1 }, '教練列出三個簡單目標，你終於知道怎麼搶時間。', '教練講得還是很快，但你至少問到最重要的一件事。')
+    ]
+  },
+  {
+    id: 'team_road_trip', phase: 'team', title: '客場行李不見了',
+    story: ({ country }) => `球隊抵達${country.name}客場後，你的行李沒有跟著出來。球鞋、護具和換洗衣物都在裡面，晚上的訓練照常。`,
+    quote: '旅外不只是在場上打球，場外的小事也要自己處理。', prompt: '行李找不到，你先怎麼處理？', hint: '求助、自己買或調整訓練，會影響不同狀態。', valueLabel: 'ROAD TRIP', tint: '#65d9ff',
+    actions: () => [
+      careerAction('A', '馬上請領隊和隊友幫忙', '把資料準備好，分頭找行李和借裝備。', 'iq', 'playmaking', 'connector', -12, 1.2, { trust: 9, load: -2 }, '大家很快幫你借齊裝備，行李也在隔天送到。', '流程比想像中慢，但你沒有一個人亂跑。'),
+      careerAction('B', '自己去附近買基本裝備', '花錢換時間，確保不缺席訓練。', 'athletic', 'iq', 'iron', -9, 1.3, { reputation: 2, trust: 5, load: 3 }, '你準時回到球館，教練只說了一句：「處理得不錯。」', '尺寸不完全合，但至少沒有錯過整堂訓練。'),
+      careerAction('C', '改做低強度影片和伸展', '沒有自己的鞋就不硬練，先保護身體。', 'iq', 'defense', 'connector', -13, 1.1, { load: -14, rhythm: -1, trust: 3 }, '你把不能練球的時間用來整理對手，身體也得到休息。', '手感有點掉，但避免穿不合腳的鞋受傷更重要。')
+    ]
+  },
+  {
+    id: 'team_contract_pressure', phase: 'team', title: '未來去向傳來消息',
+    story: ({ season }) => `${season.age < 19 ? '下一階段的邀請' : '目前合約'}突然傳來消息，條件沒有想像中穩。偏偏明天就是重要比賽，你的腦袋一直想到未來。`,
+    quote: '未來很重要，但你真正能控制的還是下一次上場。', prompt: '壓力跑進腦袋，你怎麼整理？', hint: '專心比賽、研究條件或請人協助。', valueLabel: 'FUTURE', tint: '#e591ff',
+    actions: () => [
+      careerAction('A', '先請信任的人幫忙', '把手機交給家人或經紀人，比賽前不再看消息。', 'iq', 'athletic', 'connector', -10, 1.4, { rhythm: 9, load: -4, trust: 3 }, '通知沒有消失，但你的注意力真的回到球場。', '還是會想到未來，但至少沒有一直刷新手機。'),
+      careerAction('B', '把條件全部研究清楚', '先知道風險，心裡才不會一直猜。', 'iq', 'playmaking', 'creator', -7, 1.5, { scout: 4, reputation: 2, load: 4, rhythm: -2 }, '你整理出真正要問的三個問題，不再被一堆數字嚇到。', '資訊越看越多，但至少知道自己還缺什麼。'),
+      careerAction('C', '找教練談現在的定位', '直接問怎麼做才能得到更多機會。', 'playmaking', 'iq', 'connector', -8, 1.5, { trust: 9, scout: 2, load: 1 }, '教練沒有保證合約，但把你下一步該做什麼講得很清楚。', '答案不算好聽，不過比自己亂猜更有用。')
+    ]
   }
 ];
 
@@ -519,6 +749,8 @@ function ensureStateSchema(parsed) {
   parsed.version = 3;
   parsed.contractHistory = Array.isArray(parsed.contractHistory) ? parsed.contractHistory : [];
   parsed.agingHistory = Array.isArray(parsed.agingHistory) ? parsed.agingHistory : [];
+  parsed.seenScenarioIds = Array.isArray(parsed.seenScenarioIds) ? parsed.seenScenarioIds : [];
+  parsed.seasonScenarioIds = Array.isArray(parsed.seasonScenarioIds) ? parsed.seasonScenarioIds : [];
   const upgradeSummary = (item) => {
     if (!item) return item;
     const team = TEAMS[item.teamId] || Object.values(TEAMS).find((candidate) => candidate.name === item.team) || TEAMS.tw_ms;
@@ -610,6 +842,8 @@ function createState(profile) {
     history: [],
     seasonMargins: [],
     seasonSuccesses: 0,
+    seenScenarioIds: [],
+    seasonScenarioIds: [],
     pendingResult: null,
     mode: 'event',
     rng: seedProfile.hash,
@@ -771,46 +1005,52 @@ function renderWorldPanel() {
     <div class="career-feed"><small>CAREER LOG</small>${state.history.slice(-3).reverse().map((item) => `<p><b>${item.year}</b><span>${COUNTRIES[item.country].flag} ${item.team}</span><em>${item.record}</em></p>`).join('') || '<p class="empty">第一筆紀錄會在賽季結束後出現。</p>'}</div>`;
 }
 
-function countryTrainingCopy(country) {
-  return {
-    TW: ['放學後的空球館', '隊友先去搭車了，你還留在球館。學長把球傳過來：「別什麼都練，今天先把最弱的地方做好。」'],
-    JP: ['早上六點四十分集合', '天還沒亮，全隊已經開始跑戰術。助教把個人訓練表交給你，要你先選一個最需要改善的問題。'],
-    KR: ['晚餐後的影片課', '教練剪出你上一場的三次失誤。影片課只剩四十分鐘，你得先找出最常重複的那個問題。'],
-    CN: ['二十二人搶十二個位置', '青年隊有二十二人，但正式名單只有十二格。今天教練會記錄每一組訓練，你得讓自己的優點被看見。'],
-    US: ['三組球探坐在場邊', '球探沒有一直看得分，他們也在記錄傳球、防守和失誤後的反應。輪到你上場前，你要先準備哪一項？']
-  }[country];
+function careerAction(code, title, desc, primary, secondary, tag, difficultyOffset, growth, deltas, success, failure) {
+  return { code, title, desc, primary, secondary, tag, difficulty: currentTeam().difficulty + difficultyOffset, growth, deltas, success, failure };
+}
+
+function scenarioPoolForWeek(week = state.week) {
+  if (week === 2) return CLUTCH_SCENARIOS;
+  const phase = week === 0 ? 'training' : 'team';
+  return CAREER_SCENARIOS.filter((scenario) => scenario.phase === phase);
+}
+
+function selectWeeklyScenario() {
+  const pool = scenarioPoolForWeek();
+  const savedId = state.seasonScenarioIds?.[state.week];
+  const savedScenario = pool.find((scenario) => scenario.id === savedId);
+  if (savedScenario) return savedScenario;
+
+  const seasonIds = state.seasonScenarioIds || (state.seasonScenarioIds = []);
+  const seenIds = state.seenScenarioIds || (state.seenScenarioIds = []);
+  const unused = pool.filter((scenario) => !seenIds.includes(scenario.id));
+  const candidates = unused.length ? unused : pool.filter((scenario) => !seasonIds.includes(scenario.id));
+  const drawPool = candidates.length ? candidates : pool;
+  const season = currentSeason();
+  const index = hashSeed(`${state.profile.seed}|${season.year}|${currentTeam().id}|${state.week}|WEEKLY-${seenIds.length}`) % drawPool.length;
+  const selected = drawPool[index];
+  seasonIds[state.week] = selected.id;
+  if (!seenIds.includes(selected.id)) seenIds.push(selected.id);
+  saveGame();
+  return selected;
 }
 
 function buildEvent() {
   const season = currentSeason();
   const team = currentTeam();
   const country = COUNTRIES[team.country];
-  if (state.week === 0) {
-    const copy = countryTrainingCopy(team.country);
+  const scenario = selectWeeklyScenario();
+  if (state.week < 2) {
+    const context = { season, team, country };
     return {
-      kicker: `WEEK 01 · ${country.flag} / DEVELOPMENT`, title: copy[0], story: copy[1], quote: '每天進步一點，久了就真的會變強。', value: '01', valueLabel: 'TRAINING', tint: team.color,
-      actions: [
-        { code: 'A', title: '狂練最弱的那一招', desc: '挑目前最低的能力，專心練到動作變順。', primary: weakestStat(), secondary: 'iq', tag: statTag(weakestStat()), difficulty: team.difficulty - 8, growth: 2.2, deltas: { load: 9, rhythm: 4 }, success: '最後十次都做對了。這個動作開始變成你的肌肉記憶。', failure: '你太累，動作開始跑掉。先停一下，明天再練會更有效。' },
-        { code: 'B', title: '看影片研究對手', desc: '找出對手最常做的動作，先想好怎麼守。', primary: 'iq', secondary: 'playmaking', tag: 'creator', difficulty: team.difficulty - 10, growth: 1.8, deltas: { trust: 4, load: 2 }, success: '你發現對手每次都會先往右晃。下一場，你知道怎麼守了。', failure: '影片看太多，重點反而亂掉。你決定只記住最重要的一件事。' },
-        { code: 'C', title: '練力量和體能', desc: '跟著教練做重訓，也練習安全落地。', primary: 'athletic', secondary: 'defense', tag: 'iron', difficulty: team.difficulty - 7, growth: 2, deltas: { load: 11, rhythm: -1 }, success: '最後一組還是很穩。你的身體越來越能扛住碰撞。', failure: '身體真的累了。你少做一組，避免受傷才是正解。' }
-      ]
-    };
-  }
-  if (state.week === 1) {
-    return {
-      kicker: `WEEK 02 · ${country.flag} / TEAM`, title: season.age < 19 ? '明天誰能上場？' : '球隊和合約，先選哪邊？',
-      story: season.age < 19 ? '明天的十二人名單還沒公布。你可以留下來幫全隊跑熟戰術，也可以去加強自己最有機會被教練看見的能力。' : '經紀人安排了臨時測試，隊友同時約你留下加練。測試會增加曝光，團練則會影響你在隊內的信任。',
-      quote: '教練：一次選擇不會決定全部，但隊友會記得你有沒有一起扛。', value: '02', valueLabel: 'LOCKER ROOM', tint: '#dfff00',
-      actions: [
-        { code: 'A', title: '陪隊友把戰術練熟', desc: '留下來幫替補隊友，讓大家都知道該怎麼跑。', primary: 'playmaking', secondary: 'iq', tag: 'connector', difficulty: team.difficulty - 7, growth: 1.4, deltas: { trust: 10, load: 4, reputation: -1 }, success: '大家終於跑對位置。明天不管誰上場，球隊都更有默契。', failure: '大家都很累，戰術還是有點亂。但隊友知道你沒有先跑掉。' },
-        { code: 'B', title: '去參加球探測試', desc: '秀出你最強的能力，讓更多球隊看到你。', primary: strongestStat(), secondary: 'athletic', tag: statTag(strongestStat()), difficulty: team.difficulty - 3, growth: 1.2, deltas: { scout: 9, reputation: 4, load: 6, trust: -2 }, success: '你的測試數字很亮眼。球探真的把你的名字記下來了。', failure: '今天沒有打出最好表現，但球探看到你失誤後有馬上調整。' },
-        { code: 'C', title: '今天先好好休息', desc: '放下手機，讓身體和腦袋都充滿電。', primary: 'athletic', secondary: 'iq', tag: 'iron', difficulty: team.difficulty - 13, growth: .8, deltas: { load: -22, rhythm: -3, trust: 1 }, success: '你睡飽了，隔天整個人都輕很多。休息也是訓練的一部分。', failure: '你還是有點緊張，但身體沒那麼累了。先穩住就好。' }
-      ]
+      kicker: `WEEK 0${state.week + 1} · ${country.flag} / ${scenario.phase === 'training' ? 'DEVELOPMENT' : 'TEAM LIFE'}`,
+      title: typeof scenario.title === 'function' ? scenario.title(context) : scenario.title,
+      story: typeof scenario.story === 'function' ? scenario.story(context) : scenario.story,
+      quote: scenario.quote, value: `0${state.week + 1}`, valueLabel: scenario.valueLabel, tint: scenario.tint || team.color,
+      prompt: scenario.prompt, hint: scenario.hint, scenarioId: scenario.id, actions: scenario.actions(context)
     };
   }
   const opponent = country.opponent[(state.seasonIndex + state.profile.name.length + team.name.length) % country.opponent.length];
-  const scenarioIndex = hashSeed(`${state.profile.seed}|${season.year}|${team.id}|CLUTCH`) % CLUTCH_SCENARIOS.length;
-  const scenario = CLUTCH_SCENARIOS[scenarioIndex];
   return {
     kicker: `WEEK 03 · ${team.league.toUpperCase()}`, title: `${season.name} · ${scenario.title}`, story: scenario.story(opponent), quote: scenario.quote,
     value: scenario.clock, valueLabel: 'SECONDS', tint: '#ff5a1f', game: true, prompt: scenario.prompt, hint: scenario.hint, score: scenario.score,
@@ -857,7 +1097,7 @@ function renderArena() {
 
 function renderDecisions(event) {
   $('#decision-zone').innerHTML = `
-    <div class="decision-head"><div><small>${event.game ? 'CLUTCH DECISION' : 'CAREER DECISION'} · PULSE ENGINE</small><h2>${event.game ? event.prompt : '這週要練什麼？'}</h2></div><p>${event.game ? event.hint : '看能力、手感、隊友信任和疲勞，再做選擇。'}</p></div>
+    <div class="decision-head"><div><small>${event.game ? 'CLUTCH DECISION' : 'CAREER DECISION'} · PULSE ENGINE</small><h2>${event.prompt || '這週要做什麼？'}</h2></div><p>${event.hint || '看能力、手感、隊友信任和疲勞，再做選擇。'}</p></div>
     <div class="option-grid">
       ${event.actions.map((action, index) => {
         const forecast = estimateActionChance(action);
@@ -1287,6 +1527,7 @@ function startNextSeason(team, transfer) {
   state.summary = null;
   state.seasonMargins = [];
   state.seasonSuccesses = 0;
+  state.seasonScenarioIds = [];
   state.rosterStatus = rosterStatus;
   state.rhythm = clamp(48 + (state.rhythm - 50) * .35);
   state.trust = transfer ? (team.country === previousCountry ? clamp(state.trust * .7) : 20) : clamp(state.trust * .82 + 6);
@@ -1552,3 +1793,4 @@ function init() {
 }
 
 init();
+
