@@ -678,7 +678,7 @@ function finishSeason() {
   state.income += team.salary;
   state.load = clamp(state.load - 18);
   const summary = {
-    year: season.year, age: season.age, country: team.country, team: team.name, league: team.league,
+    year: season.year, age: season.age, stage: season.stage, teamId: team.id, country: team.country, team: team.name, league: team.league,
     record: `${wins}–${losses}`, wins, losses, ppg, rpg, apg, champion, ovr: overall(), averageMargin
   };
   state.history.push(summary);
@@ -787,23 +787,101 @@ function renderAll() {
   renderArena();
 }
 
+function legacyScore() {
+  return overall() + state.trophies * 5 + state.visited.length * 3 + state.wins * 1.5 + state.reputation * .08;
+}
+
+function hallOfFameProfile() {
+  const score = legacyScore();
+  const finalSeason = SEASONS.at(-1);
+  const careerComplete = state.seasonIndex === SEASONS.length - 1 && state.history.some((item) => item.year === finalSeason.year);
+  const inducted = careerComplete && score >= 125;
+  let label = '尚未進入討論';
+  let note = '繼續累積冠軍、旅外經歷與關鍵戰勝場。';
+  if (careerComplete) {
+    label = inducted ? '正式入選名人堂' : '名人堂遺珠';
+    note = inducted ? '你的生涯成就已經通過名人堂門檻。' : '生涯已結束，最終履歷差一點進入名人堂。';
+  } else if (score >= 125) {
+    label = '名人堂等級';
+    note = '目前履歷已經達標，完成生涯就有機會正式入選。';
+  } else if (score >= 108) {
+    label = '名人堂熱門候選';
+    note = '再補上冠軍或更多關鍵戰勝場，就很接近了。';
+  } else if (score >= 92) {
+    label = '開始受到討論';
+    note = '球迷已經開始討論，但履歷還需要一座代表作。';
+  }
+  return { score, careerComplete, inducted, label, note, progress: clamp((score / 125) * 100) };
+}
+
+function careerRouteEntries() {
+  const route = state.history.map((item) => {
+    const team = TEAMS[item.teamId] || Object.values(TEAMS).find((candidate) => candidate.name === item.team);
+    const season = SEASONS.find((candidate) => candidate.year === item.year);
+    return {
+      year: item.year,
+      stage: item.stage || season?.stage || (team?.level === 'pro' ? '職業' : '養成'),
+      country: item.country || team?.country || 'TW',
+      team: item.team || team?.name || '未知球隊',
+      record: item.record || '—',
+      champion: Boolean(item.champion),
+      current: false
+    };
+  });
+  const season = currentSeason();
+  const team = currentTeam();
+  const alreadyRecorded = route.some((item) => item.year === season.year && item.team === team.name);
+  if (!alreadyRecorded) {
+    route.push({ year: season.year, stage: season.stage, country: team.country, team: team.name, record: '進行中', champion: false, current: true });
+  }
+  return route;
+}
+
+function careerAchievements(hall = hallOfFameProfile()) {
+  const achievements = [
+    { unlocked: true, title: '13 歲開打', desc: '從台灣國中校隊開始生涯' },
+    { unlocked: state.history.length >= 1, title: '完成第一季', desc: '正式留下第一筆球季紀錄' },
+    { unlocked: state.visited.length >= 2, title: '旅外第一站', desc: `已踏上 ${state.visited.length} 個國家的球場` },
+    { unlocked: state.visited.length >= 5, title: '五國行者', desc: '完成台、日、韓、中、美生涯版圖' },
+    { unlocked: state.trophies >= 1, title: `${state.trophies} 座冠軍`, desc: '把球季打到最後並拿下獎盃' },
+    { unlocked: state.wins >= 5, title: '關鍵戰專家', desc: `關鍵回合累積 ${state.wins} 勝` },
+    { unlocked: overall() >= 70, title: '70 OVR CLUB', desc: `目前綜合評分 ${overall()}` },
+    { unlocked: state.badges.length >= 3, title: '打法收藏家', desc: `已解鎖 ${state.badges.length} 個打法印記` },
+    { unlocked: hall.inducted, title: '名人堂成員', desc: '生涯履歷正式通過名人堂門檻' }
+  ];
+  return achievements.filter((item) => item.unlocked);
+}
+
 function renderCard() {
   const team = currentTeam();
   const season = currentSeason();
+  const route = careerRouteEntries();
+  const hall = hallOfFameProfile();
+  const achievements = careerAchievements(hall);
   const seedIdentity = `<span><b>神秘種子</b><em>${state.profile.seed} · 隱藏能力會在生涯中慢慢展現</em></span>`;
+  const playIdentity = state.badges.map((badge) => `<span><b>${BADGES[badge].label}</b><em>${BADGES[badge].desc}</em></span>`).join('') || '<span><b>打法尚未成形</b><em>持續做選擇，三次後會形成你的打法印記。</em></span>';
   $('#card-content').innerHTML = `
     <div class="card-kicker"><span>COURTBOUND / ${state.profile.seed || 'PLAYER DOSSIER'}</span><b>${overall()}</b></div>
     <div class="big-player-name"><small>${state.profile.position} · ${POSITIONS[state.profile.position].name}</small><h2>${escapeHtml(state.profile.name)}</h2><p>${state.profile.hometown}出身 · ${state.profile.hand} · ${season.age} 歲 · ${team.name}</p></div>
     <div class="card-stat-grid">${Object.entries(STAT_META).map(([key, meta]) => `<div><small>${meta.code}</small><b>${Math.round(state.stats[key])}</b><span>${meta.label}</span></div>`).join('')}</div>
+    <section class="hall-card ${hall.inducted ? 'inducted' : ''}">
+      <div><small>HALL OF FAME WATCH</small><h3>${hall.label}</h3><p>${hall.note}</p></div>
+      <strong>${Math.round(hall.score)}<small>/ 125</small></strong>
+      <i style="--hof:${hall.progress}%"><b></b></i>
+    </section>
     <div class="card-columns">
-      <section><small>MYSTERY SEED & PLAY IDENTITY</small><div class="badge-list">${seedIdentity}${state.badges.map((badge) => `<span><b>${BADGES[badge].label}</b><em>${BADGES[badge].desc}</em></span>`).join('') || '<span><b>打法尚未成形</b><em>持續做選擇，三次後會形成你的打法印記。</em></span>'}</div></section>
-      <section><small>CAREER NUMBERS</small><dl><div><dt>國家</dt><dd>${state.visited.length}</dd></div><div><dt>冠軍</dt><dd>${state.trophies}</dd></div><div><dt>關鍵勝負</dt><dd>${state.wins}–${state.losses}</dd></div><div><dt>生涯收入</dt><dd>${Math.round(state.income)} 萬</dd></div></dl></section>
+      <section><small>MYSTERY SEED & PLAY IDENTITY</small><div class="badge-list">${seedIdentity}${playIdentity}</div></section>
+      <section><small>CAREER NUMBERS</small><dl><div><dt>球季</dt><dd>${state.history.length}</dd></div><div><dt>國家</dt><dd>${state.visited.length}</dd></div><div><dt>冠軍</dt><dd>${state.trophies}</dd></div><div><dt>關鍵勝負</dt><dd>${state.wins}–${state.losses}</dd></div><div><dt>生涯得分</dt><dd>${state.careerPoints || 0}</dd></div><div><dt>生涯收入</dt><dd>${Math.round(state.income)} 萬</dd></div></dl></section>
+    </div>
+    <div class="career-card-details">
+      <section><small>SCHOOLS & TEAMS / 生涯學校與球隊</small><div class="career-path-list">${route.map((item) => `<div class="${item.current ? 'current' : ''}"><i>${item.year}</i><b>${COUNTRIES[item.country]?.flag || item.country}</b><span><strong>${escapeHtml(item.team)}</strong><small>${item.stage} · ${item.record}${item.champion ? ' · 冠軍' : ''}</small></span></div>`).join('')}</div></section>
+      <section><small>ACHIEVEMENTS / 生涯成就</small><div class="achievement-grid">${achievements.map((item, index) => `<div><i>${String(index + 1).padStart(2, '0')}</i><span><b>${item.title}</b><small>${item.desc}</small></span></div>`).join('')}</div></section>
     </div>`;
   $('#card-dialog').showModal();
 }
 
 function endingProfile() {
-  const score = overall() + state.trophies * 5 + state.visited.length * 3 + state.wins * 1.5 + state.reputation * .08;
+  const score = legacyScore();
   let grade = 'B';
   if (score >= 145) grade = 'S+';
   else if (score >= 125) grade = 'S';
@@ -817,11 +895,12 @@ function endingProfile() {
 
 function showEnding() {
   const ending = endingProfile();
+  const hall = hallOfFameProfile();
   const first = state.history[0];
   const last = state.history.at(-1);
   $('#ending-content').innerHTML = `
     <div class="ending-grade"><small>CAREER GRADE</small><b>${ending.grade}</b><span>${Math.round(ending.score)} LEGACY</span></div>
-    <div class="ending-copy"><small>2060 · CAREER COMPLETE</small><h2>${ending.title}</h2><p>${escapeHtml(state.profile.name)} 從 ${first.team} 開始打球，最後來到 ${last.team}。你去過 ${state.visited.length} 個國家、拿到 ${state.trophies} 座冠軍。每一站、每一個選擇，都是你自己決定的。</p></div>
+    <div class="ending-copy"><small>2060 · CAREER COMPLETE</small><h2>${ending.title}</h2><p>${escapeHtml(state.profile.name)} 從 ${first.team} 開始打球，最後來到 ${last.team}。你去過 ${state.visited.length} 個國家、拿到 ${state.trophies} 座冠軍。每一站、每一個選擇，都是你自己決定的。名人堂評選：${hall.label}。</p></div>
     <div class="ending-numbers"><span><b>${overall()}</b> 最終 OVR</span><span><b>${state.wins}–${state.losses}</b> 關鍵回合</span><span><b>${state.trophies}</b> 冠軍</span><span><b>${state.visited.length}</b> 國家</span></div>
     <div class="ending-route">${state.history.map((item) => `<div><i>${item.year}</i><b>${COUNTRIES[item.country].flag}</b><span>${item.team}<small>${item.record} · ${item.ppg} PTS</small></span></div>`).join('')}</div>
     <div class="ending-actions"><button type="button" id="download-card">下載生涯卡</button><button type="button" id="restart-ending">再走一條路</button></div>`;
@@ -832,24 +911,50 @@ function showEnding() {
 
 function downloadCareerCard() {
   const canvas = $('#share-canvas');
+  canvas.width = 1080;
+  canvas.height = 1750;
   const ctx = canvas.getContext('2d');
   const ending = endingProfile();
-  ctx.fillStyle = '#11110e'; ctx.fillRect(0, 0, 1080, 1350);
+  const hall = hallOfFameProfile();
+  const route = careerRouteEntries();
+  const achievements = careerAchievements(hall);
+  ctx.fillStyle = '#11110e'; ctx.fillRect(0, 0, 1080, 1750);
   ctx.fillStyle = '#ff5a1f'; ctx.fillRect(56, 56, 968, 18);
   ctx.fillStyle = '#dfff00'; ctx.font = '700 28px sans-serif'; ctx.fillText('籃途 / COURTBOUND', 68, 132);
   ctx.fillStyle = '#f1efe8'; ctx.font = '900 88px sans-serif'; ctx.fillText(state.profile.name, 68, 255);
   ctx.fillStyle = '#8b8980'; ctx.font = '500 28px sans-serif'; ctx.fillText(`${state.profile.position} · ${POSITIONS[state.profile.position].name} · ${state.visited.length} 國生涯`, 72, 310);
   ctx.fillStyle = '#ff5a1f'; ctx.font = '900 280px sans-serif'; ctx.fillText(ending.grade, 62, 595);
   ctx.fillStyle = '#f1efe8'; ctx.font = '800 47px sans-serif'; ctx.fillText(ending.title, 72, 680);
-  const labels = [['最終 OVR', overall()], ['冠軍', state.trophies], ['關鍵勝負', `${state.wins}–${state.losses}`], ['生涯收入', `${Math.round(state.income)} 萬`]];
+  const labels = [['目前 OVR', overall()], ['冠軍', state.trophies], ['關鍵勝負', `${state.wins}–${state.losses}`], ['生涯國家', state.visited.length]];
   labels.forEach(([label, value], index) => {
-    const x = 68 + (index % 2) * 480; const y = 790 + Math.floor(index / 2) * 155;
+    const x = 68 + (index % 2) * 480; const y = 755 + Math.floor(index / 2) * 145;
     ctx.strokeStyle = '#393934'; ctx.strokeRect(x, y, 440, 120);
     ctx.fillStyle = '#8b8980'; ctx.font = '600 22px sans-serif'; ctx.fillText(label, x + 22, y + 35);
     ctx.fillStyle = '#f1efe8'; ctx.font = '900 50px sans-serif'; ctx.fillText(String(value), x + 22, y + 91);
   });
-  ctx.fillStyle = '#8b8980'; ctx.font = '500 22px sans-serif'; ctx.fillText('13 歲開打。每一站，都由你自己選。', 68, 1235);
-  ctx.fillStyle = '#dfff00'; ctx.fillRect(68, 1270, 944, 8);
+  ctx.fillStyle = hall.inducted ? '#dfff00' : '#ff5a1f'; ctx.fillRect(68, 1060, 944, 112);
+  ctx.fillStyle = '#11110e'; ctx.font = '800 20px sans-serif'; ctx.fillText('HALL OF FAME WATCH', 90, 1096);
+  ctx.font = '900 36px sans-serif'; ctx.fillText(hall.label, 90, 1143, 700);
+  ctx.textAlign = 'right'; ctx.font = '900 44px sans-serif'; ctx.fillText(`${Math.round(hall.score)} / 125`, 990, 1139);
+  ctx.textAlign = 'left';
+
+  ctx.fillStyle = '#dfff00'; ctx.font = '800 22px sans-serif'; ctx.fillText('生涯學校 / 球隊', 68, 1228);
+  const routeLines = [];
+  for (let index = 0; index < route.length; index += 3) {
+    routeLines.push(route.slice(index, index + 3).map((item) => `${item.year} ${item.team}${item.champion ? ' ★' : ''}`).join('  →  '));
+  }
+  ctx.fillStyle = '#f1efe8'; ctx.font = '600 23px sans-serif';
+  routeLines.slice(-4).forEach((line, index) => ctx.fillText(line, 68, 1272 + index * 39, 944));
+
+  const achievementStart = 1450;
+  ctx.fillStyle = '#ff5a1f'; ctx.font = '800 22px sans-serif'; ctx.fillText('生涯成就', 68, achievementStart);
+  const achievementLines = [];
+  for (let index = 0; index < achievements.length; index += 3) achievementLines.push(achievements.slice(index, index + 3).map((item) => item.title).join('  ·  '));
+  ctx.fillStyle = '#f1efe8'; ctx.font = '600 23px sans-serif';
+  achievementLines.slice(0, 3).forEach((line, index) => ctx.fillText(line, 68, achievementStart + 43 + index * 38, 944));
+
+  ctx.fillStyle = '#8b8980'; ctx.font = '500 22px sans-serif'; ctx.fillText(`球季 ${state.history.length} · 生涯收入 ${Math.round(state.income)} 萬 · 13 歲開打，每一站都由你自己選。`, 68, 1670, 944);
+  ctx.fillStyle = '#dfff00'; ctx.fillRect(68, 1705, 944, 8);
   const link = document.createElement('a');
   link.download = `${state.profile.name}-籃途生涯卡.png`;
   link.href = canvas.toDataURL('image/png');

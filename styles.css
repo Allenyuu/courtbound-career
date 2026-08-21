@@ -298,6 +298,35 @@ legend { margin-bottom:7px; color:var(--muted); font-size:8px; }
 .card-columns dl div { padding:7px; background:#11110f; }
 .card-columns dt { color:var(--muted); font-size:7px; }
 .card-columns dd { margin:3px 0 0; font:800 17px 'Barlow Condensed'; }
+.hall-card { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:12px; margin:12px 0; padding:14px; border:1px solid rgba(255,90,31,.55); background:linear-gradient(110deg,#20130e,#11110f 60%); }
+.hall-card.inducted { border-color:var(--lime); background:linear-gradient(110deg,#242b08,#11110f 60%); }
+.hall-card > div > small { color:var(--orange); font:800 8px 'Barlow Condensed'; letter-spacing:.14em; }
+.hall-card.inducted > div > small { color:var(--lime); }
+.hall-card h3 { margin:4px 0 3px; font-size:21px; }
+.hall-card p { margin:0; color:var(--muted); font-size:9px; line-height:1.5; }
+.hall-card > strong { color:var(--orange); font:900 38px 'Barlow Condensed'; }
+.hall-card.inducted > strong { color:var(--lime); }
+.hall-card > strong small { color:var(--muted); font-size:10px; }
+.hall-card > i { grid-column:1/3; height:5px; overflow:hidden; background:#30302b; }
+.hall-card > i b { display:block; width:var(--hof); height:100%; background:linear-gradient(90deg,var(--orange),var(--lime)); }
+.career-card-details { display:grid; grid-template-columns:1.2fr .8fr; gap:12px; margin-top:12px; }
+.career-card-details > section { min-width:0; padding:13px; border:1px solid #363630; }
+.career-card-details > section > small { color:var(--orange); font:700 8px 'Barlow Condensed'; letter-spacing:.12em; }
+.career-path-list,.achievement-grid { display:grid; gap:5px; margin-top:9px; }
+.career-path-list > div { display:grid; grid-template-columns:42px 25px minmax(0,1fr); align-items:center; gap:7px; padding:7px; border:1px solid #2f2f2a; background:#11110f; }
+.career-path-list > div.current { border-color:rgba(223,255,0,.55); }
+.career-path-list i { color:var(--orange); font:800 9px 'Barlow Condensed'; font-style:normal; }
+.career-path-list > div > b { color:var(--lime); font:800 9px 'Barlow Condensed'; }
+.career-path-list span { min-width:0; }
+.career-path-list strong,.career-path-list small { display:block; }
+.career-path-list strong { overflow:hidden; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }
+.career-path-list small { margin-top:2px; color:var(--muted); font-size:8px; }
+.achievement-grid { grid-template-columns:1fr; }
+.achievement-grid > div { display:grid; grid-template-columns:28px minmax(0,1fr); align-items:center; gap:7px; padding:7px; background:#11110f; }
+.achievement-grid > div > i { width:26px; height:26px; display:grid; place-items:center; color:#111; background:var(--lime); font:900 8px 'Barlow Condensed'; font-style:normal; }
+.achievement-grid b,.achievement-grid small { display:block; }
+.achievement-grid b { font-size:9px; }
+.achievement-grid small { margin-top:2px; color:var(--muted); font-size:7px; line-height:1.4; }
 
 .offer-heading { display:flex; align-items:end; justify-content:space-between; gap:15px; }
 .offer-heading small { color:var(--lime); font:700 8px 'Barlow Condensed'; letter-spacing:.14em; }
@@ -380,6 +409,7 @@ legend { margin-bottom:7px; color:var(--muted); font-size:8px; }
   .style-grid { grid-template-columns:1fr 1fr; }
   .style-grid span { display:block; }
   .engine-grid,.card-columns { grid-template-columns:1fr; }
+  .career-card-details { grid-template-columns:1fr; }
   .offer-grid { grid-template-columns:1fr; }
   .offer-grid > button { min-height:0; }
   .offer-grid dl { grid-template-columns:repeat(3,1fr); }
@@ -614,6 +644,7 @@ body.interface-mobile .setup-fields label:first-child { grid-column:auto; }
 body.interface-mobile .style-grid { grid-template-columns:1fr 1fr; }
 body.interface-mobile .setup-footer { align-items:stretch; flex-direction:column; }
 body.interface-mobile .setup-footer button { width:100%; }
+body.interface-mobile .career-card-details,body.interface-mobile .card-columns { grid-template-columns:1fr; }
 
 /* Compact desktop layout — keeps the full game and new-career screen in one viewport. */
 @media (min-width:761px) {
@@ -725,4 +756,14 @@ body.interface-mobile .setup-footer button { width:100%; }
   .growth-feedback > div { grid-template-columns:1fr; }
 }
 body.interface-mobile .growth-feedback > div { grid-template-columns:1fr; }
+
+/* Expanded career-card readability. */
+.hall-card > div > small,.career-card-details > section > small { font-size:10px; }
+.hall-card h3 { font-size:24px; }
+.hall-card p { font-size:11px; }
+.career-path-list i,.career-path-list > div > b { font-size:10px; }
+.career-path-list strong { font-size:12px; }
+.career-path-list small { font-size:9px; }
+.achievement-grid b { font-size:11px; }
+.achievement-grid small { font-size:9px; }
 
