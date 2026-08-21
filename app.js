@@ -365,9 +365,9 @@ function bindStart() {
     sync();
     if (!setup.name.trim() || !setup.handle.trim()) return toast("請先填入姓名與選手 ID。");
     if (setup.seed.length < 4) return toast("世界種子至少需要 4 個英數字元。");
-    state = createState(); saveGame(); beep("success"); renderGame();
+    state = createState(); saveGame(); beep("success"); renderGame({ resetScroll: true });
   };
-  document.querySelector("#continue-game")?.addEventListener("click", () => { state = loadGame(); beep("success"); renderGame(); });
+  document.querySelector("#continue-game")?.addEventListener("click", () => { state = loadGame(); beep("success"); renderGame({ resetScroll: true }); });
 }
 
 function escapeHtml(value = "") { const d = document.createElement("div"); d.textContent = value; return d.innerHTML; }
@@ -419,8 +419,9 @@ function getOVR() {
   return Math.round(values.reduce((a,b) => a+b, 0) / values.length);
 }
 
-function renderGame() {
+function renderGame({ resetScroll = false } = {}) {
   if (!state) return renderStart();
+  const previousScroll = window.scrollY;
   ensureStateShape();
   checkMissions();
   if (state.phase === "ending") return renderEnding();
@@ -435,7 +436,7 @@ function renderGame() {
     </div>
   </div>`;
   bindGame(); updateHallCount();
-  window.scrollTo({ top: 0 });
+  window.scrollTo(0, resetScroll ? 0 : previousScroll);
 }
 
 function careerHeader(season) {
