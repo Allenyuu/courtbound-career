@@ -28,3 +28,8 @@ python -m http.server 8000
 
 遊戲中的聯盟、隊伍、賽事、人物與競技遊戲皆為虛構設定。
 
+## 製作資訊
+
+- 原創：[最先生 Mr.TheMost](https://www.threads.com/@mr.themost)
+- 參考：[YaKyoLife](https://www.yakyolife.com/)・[jarvanthevoyager](https://www.threads.com/@jarvanthevoyager)
+
