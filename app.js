@@ -1,4 +1,5 @@
 const SAVE_KEY = 'court-atlas-career-v1';
+const UI_MODE_KEY = 'courtbound-interface-v1';
 
 const STAT_META = {
   finish: { label: '終結', code: 'FIN', icon: '↗' },
@@ -312,6 +313,36 @@ function showToast(message) {
   toast.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+}
+
+function renderInterfaceSettings(mode) {
+  document.querySelectorAll('[data-interface-mode]').forEach((button) => {
+    const active = button.dataset.interfaceMode === mode;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+  const status = $('#interface-status');
+  if (status) status.textContent = `目前使用：${mode === 'mobile' ? '手機版介面' : '電腦版介面'}`;
+}
+
+function applyInterfaceMode(mode, notify = false) {
+  const selectedMode = mode === 'mobile' ? 'mobile' : 'desktop';
+  document.body.classList.toggle('interface-mobile', selectedMode === 'mobile');
+  document.body.classList.toggle('interface-desktop', selectedMode === 'desktop');
+  localStorage.setItem(UI_MODE_KEY, selectedMode);
+  renderInterfaceSettings(selectedMode);
+  if (notify) showToast(`已切換為${selectedMode === 'mobile' ? '手機版' : '電腦版'}介面`);
+}
+
+function initialInterfaceMode() {
+  const savedMode = localStorage.getItem(UI_MODE_KEY);
+  if (savedMode === 'desktop' || savedMode === 'mobile') return savedMode;
+  return window.matchMedia('(max-width: 760px)').matches ? 'mobile' : 'desktop';
+}
+
+function openSettings() {
+  renderInterfaceSettings(document.body.classList.contains('interface-mobile') ? 'mobile' : 'desktop');
+  $('#settings-dialog').showModal();
 }
 
 function renderSetupOptions() {
@@ -828,11 +859,15 @@ function bindStaticEvents() {
   });
   $('#rules-button').addEventListener('click', () => $('#info-dialog').showModal());
   $('#card-button').addEventListener('click', () => state && renderCard());
-  $('#new-button').addEventListener('click', restartGame);
+  $('#settings-button').addEventListener('click', openSettings);
+  $('#restart-career-button').addEventListener('click', restartGame);
+  $('#close-settings-button').addEventListener('click', () => $('#settings-dialog').close());
+  document.querySelectorAll('[data-interface-mode]').forEach((button) => button.addEventListener('click', () => applyInterfaceMode(button.dataset.interfaceMode, true)));
   document.querySelectorAll('[data-close]').forEach((button) => button.addEventListener('click', () => $(`#${button.dataset.close}`).close()));
 }
 
 function init() {
+  applyInterfaceMode(initialInterfaceMode());
   renderSetupOptions();
   bindStaticEvents();
   prepareNewProfile(false);

@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0b0b09" />
   <meta name="description" content="《籃途 COURTBOUND》原創籃球生涯模擬器——從台灣國中出發，走向台、日、韓、中、美職業舞台。" />
   <title>籃途 COURTBOUND｜原創籃球生涯模擬器</title>
-  <link rel="stylesheet" href="styles.css?v=courtbound3" />
+  <link rel="stylesheet" href="styles.css?v=courtbound4" />
 </head>
 <body>
   <div class="noise" aria-hidden="true"></div>
@@ -20,7 +20,7 @@
       <div class="top-actions">
         <button type="button" id="card-button">球員卡</button>
         <button type="button" id="rules-button">引擎</button>
-        <button type="button" id="new-button">重開</button>
+        <button type="button" id="settings-button">設定</button>
       </div>
     </header>
 
@@ -45,6 +45,7 @@
   <dialog id="setup-dialog" class="game-dialog">
     <form class="setup-card" id="setup-form">
       <div class="setup-top"><span>NEW SAVE / ORIGIN 13</span><b>01</b></div>
+      <div class="setup-game-name"><span>籃途</span><b>COURTBOUND</b></div>
       <div class="setup-title"><div><p>一座球場，五個國家，<br>一條只屬於你的路。</p><h1>從國中開始。</h1></div><div class="setup-logo">CB<br><i>13</i></div></div>
       <p class="setup-lead">每一季由你的打法、身體狀態、人際信任與球探市場即時生成。沒有預寫好的唯一旅外路線。</p>
       <div class="setup-fields">
@@ -69,7 +70,21 @@
         <span>單局約 20–30 分鐘 · 本機自動存檔</span>
         <button class="start-button" type="submit">建立球員檔案 <b>→</b></button>
       </div>
+      <div class="setup-version">籃途 COURTBOUND · v0.1</div>
     </form>
+  </dialog>
+
+  <dialog id="settings-dialog" class="game-dialog">
+    <article class="settings-card">
+      <div class="settings-heading"><small>SYSTEM / COURTBOUND</small><h2>遊戲設定</h2><p>選擇最適合目前裝置的介面；偏好會自動保存在這台裝置。</p></div>
+      <div class="settings-actions">
+        <button type="button" class="settings-danger" id="restart-career-button"><small>CAREER</small><b>重新生涯</b><span>清除目前存檔並建立新球員</span></button>
+        <button type="button" data-interface-mode="desktop"><small>LAYOUT</small><b>電腦版介面</b><span>完整三欄生涯控制台</span></button>
+        <button type="button" data-interface-mode="mobile"><small>LAYOUT</small><b>手機版介面</b><span>單欄直向操作介面</span></button>
+        <button type="button" class="settings-return" id="close-settings-button"><small>RETURN</small><b>返回主介面</b><span>保留目前生涯並繼續遊戲</span></button>
+      </div>
+      <div class="settings-status" id="interface-status"></div>
+    </article>
   </dialog>
 
   <dialog id="info-dialog" class="game-dialog">
@@ -109,7 +124,7 @@
 
   <canvas id="share-canvas" width="1080" height="1350" hidden></canvas>
   <div class="toast" id="toast" role="status"></div>
-  <script src="app.js?v=courtbound2"></script>
+  <script src="app.js?v=courtbound3"></script>
 </body>
 </html>
 

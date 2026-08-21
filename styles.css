@@ -4,6 +4,8 @@
 * { box-sizing:border-box; }
 html, body { margin:0; min-height:100%; color:var(--paper); background:#0c0c0a; font-family:'Noto Sans TC',sans-serif; }
 body { min-height:100dvh; overflow:hidden; }
+html,body { scrollbar-width:none; -ms-overflow-style:none; }
+html::-webkit-scrollbar,body::-webkit-scrollbar { width:0; height:0; display:none; }
 button, input, select { font:inherit; }
 button { color:inherit; }
 .noise { position:fixed; inset:0; opacity:.12; pointer-events:none; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E"); }
@@ -96,8 +98,13 @@ dialog { width:100%; height:100%; max-width:none; max-height:none; margin:0; pad
 dialog::backdrop { background:rgba(7,7,5,.88); backdrop-filter:blur(6px); }
 dialog[open] { display:grid; place-items:center; }
 .setup-card,.info-card { width:min(880px,100%); max-height:calc(100dvh - 28px); overflow:auto; padding:clamp(20px,3vw,34px); border:1px solid #45453e; background:#171713; box-shadow:0 30px 100px #000; }
+.setup-card,.info-card,.settings-card,.player-panel,.world-panel,.decision-zone,.card-dialog-card,.offer-dialog-card,.ending-card,.ending-route { scrollbar-width:none; -ms-overflow-style:none; }
+.setup-card::-webkit-scrollbar,.info-card::-webkit-scrollbar,.settings-card::-webkit-scrollbar,.player-panel::-webkit-scrollbar,.world-panel::-webkit-scrollbar,.decision-zone::-webkit-scrollbar,.card-dialog-card::-webkit-scrollbar,.offer-dialog-card::-webkit-scrollbar,.ending-card::-webkit-scrollbar,.ending-route::-webkit-scrollbar { width:0; height:0; display:none; }
 .setup-top { display:flex; justify-content:space-between; color:var(--lime); font:700 9px 'Barlow Condensed'; letter-spacing:.17em; }
 .setup-top b { font-size:28px; line-height:.8; }
+.setup-game-name { display:flex; align-items:baseline; gap:10px; margin-top:8px; text-transform:uppercase; }
+.setup-game-name span { color:var(--orange); font:900 28px 'Barlow Condensed','Noto Sans TC'; letter-spacing:.08em; }
+.setup-game-name b { color:var(--paper); font:900 19px 'Barlow Condensed'; letter-spacing:.12em; }
 .setup-title { display:flex; justify-content:space-between; align-items:end; margin:14px 0 10px; }
 .setup-title p { margin:0 0 3px; color:#a7a59b; font:600 clamp(15px,2vw,21px)/1.4 'Noto Sans TC'; }
 .setup-title h1 { margin:0; font:900 clamp(42px,7vw,76px)/.95 'Barlow Condensed','Noto Sans TC'; letter-spacing:-.06em; }
@@ -135,6 +142,22 @@ legend { margin-bottom:7px; color:var(--muted); font-size:8px; }
 .setup-footer > span { margin-right:auto; color:var(--muted); font-size:8px; }
 .setup-footer button { min-height:45px; min-width:210px; padding:0 15px; color:#111; border:0; background:var(--orange); cursor:pointer; font-size:10px; font-weight:900; }
 .setup-footer button b { margin-left:18px; font-size:17px; }
+.setup-version { margin-top:12px; padding-top:9px; color:#77766e; border-top:1px solid #30302b; font:700 9px 'Barlow Condensed'; letter-spacing:.16em; text-align:center; }
+.settings-card { width:min(720px,100%); max-height:calc(100dvh - 28px); overflow:auto; padding:clamp(22px,4vw,38px); border:1px solid #45453e; background:#171713; box-shadow:0 30px 100px #000; }
+.settings-heading small { color:var(--lime); font:700 10px 'Barlow Condensed'; letter-spacing:.16em; }
+.settings-heading h2 { margin:7px 0 4px; font-size:clamp(32px,5vw,50px); line-height:1; }
+.settings-heading p { margin:0; color:var(--muted); font-size:11px; }
+.settings-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:22px; }
+.settings-actions button { min-height:108px; display:grid; align-content:center; gap:5px; padding:16px; color:var(--paper); border:1px solid #3d3d37; background:#11110f; text-align:left; cursor:pointer; transition:border-color .15s ease,background-color .15s ease; }
+.settings-actions button:hover,.settings-actions button.active { border-color:var(--lime); background:#1e2117; }
+.settings-actions button small { color:var(--muted); font:700 9px 'Barlow Condensed'; letter-spacing:.14em; }
+.settings-actions button b { font-size:17px; }
+.settings-actions button span { color:var(--muted); font-size:10px; }
+.settings-actions .settings-danger { border-color:rgba(255,90,31,.45); }
+.settings-actions .settings-danger b { color:var(--orange); }
+.settings-actions .settings-return { border-color:rgba(223,255,0,.45); }
+.settings-actions .settings-return b { color:var(--lime); }
+.settings-status { margin-top:12px; color:var(--muted); font-size:10px; text-align:right; }
 .info-card { position:relative; width:min(560px,100%); }
 .info-card > button { position:absolute; right:15px; top:12px; border:0; color:var(--muted); background:transparent; font-size:25px; cursor:pointer; }
 .info-card small { color:var(--lime); font:700 9px 'Barlow Condensed'; letter-spacing:.16em; }
@@ -188,7 +211,7 @@ legend { margin-bottom:7px; color:var(--muted); font-size:8px; }
 .decision-zone { min-height:0; display:grid; grid-template-rows:auto minmax(0,1fr); gap:12px; padding:16px 20px 20px; overflow:auto; }
 .option-grid button small { display:grid; gap:4px; }
 .option-grid button small i { color:var(--muted); font-size:6.5px; font-style:normal; }
-.option-grid button:focus-visible,.top-actions button:focus-visible,.next-button:focus-visible { outline:2px solid var(--lime); outline-offset:2px; }
+.option-grid button:focus-visible,.top-actions button:focus-visible,.next-button:focus-visible,.settings-actions button:focus-visible { outline:2px solid var(--lime); outline-offset:2px; }
 
 .result-zone { min-height:100%; display:grid; grid-template-columns:170px minmax(0,1fr); align-items:center; gap:20px; }
 .pulse-gauge { display:grid; justify-items:center; padding:13px; border:1px solid #373731; background:#11110f; text-align:center; }
@@ -547,4 +570,37 @@ body { font-size:13px; }
   .scene-copy p { font-size:12px; }
   .option-grid button { padding:13px; }
 }
+
+@media (max-width:700px) {
+  .setup-game-name span { font-size:23px; }
+  .setup-game-name b { font-size:16px; }
+  .settings-actions { grid-template-columns:1fr; }
+  .settings-actions button { min-height:88px; }
+}
+
+/* Manual mobile interface preview, available from Settings on any device. */
+body.interface-mobile { overflow:auto; }
+body.interface-mobile .app-shell { width:min(480px,100%); height:auto; min-height:100dvh; grid-template-rows:64px auto; margin-inline:auto; padding:7px; }
+body.interface-mobile .topbar { grid-template-columns:1fr auto; gap:8px; padding:0 10px; }
+body.interface-mobile .season-track { display:none; }
+body.interface-mobile .dashboard { display:block; }
+body.interface-mobile .player-panel,body.interface-mobile .world-panel { display:none; }
+body.interface-mobile .court-panel { min-height:calc(100dvh - 122px); grid-template-rows:auto 270px auto; }
+body.interface-mobile .decision-zone { overflow:visible; padding:13px; }
+body.interface-mobile .mobile-hud { display:flex; position:sticky; bottom:0; z-index:10; justify-content:space-around; gap:4px; padding:8px; }
+body.interface-mobile .mobile-hud span { min-width:0; display:grid; }
+body.interface-mobile .mobile-hud small { color:var(--muted); font-size:9px; }
+body.interface-mobile .mobile-hud b { overflow:hidden; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }
+body.interface-mobile .top-actions #rules-button { display:none; }
+body.interface-mobile .option-grid button { grid-template-columns:32px minmax(0,1fr); grid-template-rows:auto auto auto; }
+body.interface-mobile .option-grid em { grid-row:1/4; }
+body.interface-mobile .option-grid span { display:block; }
+body.interface-mobile .option-grid small { grid-column:2; }
+body.interface-mobile .result-zone,body.interface-mobile .summary-zone { grid-template-columns:1fr; gap:12px; }
+body.interface-mobile .setup-card { width:min(480px,100%); }
+body.interface-mobile .setup-fields,body.interface-mobile .seed-builder,body.interface-mobile .settings-actions { grid-template-columns:1fr; }
+body.interface-mobile .setup-fields label:first-child { grid-column:auto; }
+body.interface-mobile .style-grid { grid-template-columns:1fr 1fr; }
+body.interface-mobile .setup-footer { align-items:stretch; flex-direction:column; }
+body.interface-mobile .setup-footer button { width:100%; }
 
