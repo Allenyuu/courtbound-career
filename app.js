@@ -19,10 +19,10 @@ const POSITIONS = {
 };
 
 const STYLES = {
-  street: { name: '巷口魔術師', code: 'CREATOR', desc: '節奏 +8；擅長用不可預測的路線製造機會。', bonus: { playmaking: 4, finish: 2 }, pulse: { rhythm: 8 } },
-  sniper: { name: '沉默射手', code: 'SNIPER', desc: '投射 +6；空間越小，出手越乾淨。', bonus: { shooting: 6 }, pulse: { rhythm: 3 } },
-  stopper: { name: '黏人防線', code: 'STOPPER', desc: '防守 +5、體能 +2；先讓對位的人失去耐心。', bonus: { defense: 5, athletic: 2 }, pulse: { trust: 4 } },
-  engine: { name: '球場引擎', code: 'ENGINE', desc: '球商 +4、組織 +3；永遠比比賽早一拍。', bonus: { iq: 4, playmaking: 3 }, pulse: { trust: 5 } }
+  street: { name: '巷口魔術師', code: 'CREATOR', desc: '節奏 +8；愛變速、愛傳妙球，防守很難猜。', bonus: { playmaking: 4, finish: 2 }, pulse: { rhythm: 8 } },
+  sniper: { name: '沉默射手', code: 'SNIPER', desc: '投射 +6；只要有一點空間，就敢出手。', bonus: { shooting: 6 }, pulse: { rhythm: 3 } },
+  stopper: { name: '黏人防線', code: 'STOPPER', desc: '防守 +5、體能 +2；黏緊對手，不給他好投。', bonus: { defense: 5, athletic: 2 }, pulse: { trust: 4 } },
+  engine: { name: '球場引擎', code: 'ENGINE', desc: '球商 +4、組織 +3；看得懂場上狀況，知道下一球怎麼打。', bonus: { iq: 4, playmaking: 3 }, pulse: { trust: 5 } }
 };
 
 const PLAYER_NAMES = [
@@ -32,20 +32,20 @@ const PLAYER_NAMES = [
 ];
 
 const SEED_TRAITS = [
-  { id: 'genius', code: 'GENIUS', name: '天才型', base: 3, growth: 1.12, load: 1, bonus: { iq: 2 }, desc: '起步能力較高，讀懂新技術的速度也比同齡球員快。' },
-  { id: 'grinder', code: 'GRIND', name: '苦練型', base: -2, growth: 1.24, load: 1.06, bonus: {}, desc: '起點不突出，但每次訓練都能累積更多成長。' },
-  { id: 'early', code: 'EARLY', name: '早熟型', base: 5, growth: .94, load: 1.02, bonus: {}, desc: '國中階段就有成熟即戰力，後續成長曲線較平穩。' },
-  { id: 'late', code: 'LATE', name: '晚成型', base: -4, growth: 1.32, load: .96, bonus: {}, desc: '前期需要耐心，生涯越往後越能追過天賦差距。' },
-  { id: 'iron', code: 'IRON', name: '鐵人型', base: 0, growth: 1.05, load: .72, bonus: { athletic: 3, defense: 1 }, desc: '身體恢復與耐受度出色，正向負荷累積降低 28%。' },
-  { id: 'instinct', code: 'INSTINCT', name: '直覺型', base: 1, growth: 1.10, load: 1, bonus: { playmaking: 2, iq: 1 }, desc: '臨場理解敏銳，擅長能力在關鍵判定中更加可靠。' }
+  { id: 'genius', code: 'GENIUS', name: '天才型', base: 3, growth: 1.12, load: 1, bonus: { iq: 2 }, desc: '一開始就比別人強，學新招也很快。' },
+  { id: 'grinder', code: 'GRIND', name: '苦練型', base: -2, growth: 1.24, load: 1.06, bonus: {}, desc: '起步普通，但每次練球都進步更多。' },
+  { id: 'early', code: 'EARLY', name: '早熟型', base: 5, growth: .94, load: 1.02, bonus: {}, desc: '國中就很能打，前期比較容易搶到上場時間。' },
+  { id: 'late', code: 'LATE', name: '晚成型', base: -4, growth: 1.32, load: .96, bonus: {}, desc: '前面比較慢，但越練越強，後期很有機會追上來。' },
+  { id: 'iron', code: 'IRON', name: '鐵人型', base: 0, growth: 1.05, load: .72, bonus: { athletic: 3, defense: 1 }, desc: '不容易累，訓練增加的疲勞會少 28%。' },
+  { id: 'instinct', code: 'INSTINCT', name: '直覺型', base: 1, growth: 1.10, load: 1, bonus: { playmaking: 2, iq: 1 }, desc: '反應很快，關鍵時刻更敢做自己會的事。' }
 ];
 
 const COUNTRIES = {
-  TW: { name: '台灣', flag: 'TW', accent: '#dfff00', style: '轉換快、角色彈性高', opponent: ['北岸聯隊', '南城雷雨', '港都礦工', '東海岸獵人'] },
-  JP: { name: '日本', flag: 'JP', accent: '#ff6a72', style: '紀律輪轉與高速傳導', opponent: ['千葉白浪', '名古屋軸心', '大阪電塔', '秋田雪線'] },
-  KR: { name: '韓國', flag: 'KR', accent: '#78a7ff', style: '強硬對抗與精密執行', opponent: ['水原火線', '釜山港灣', '大邱黑鷹', '首爾北門'] },
-  CN: { name: '中國', flag: 'CN', accent: '#ff7057', style: '尺寸、深度與半場壓迫', opponent: ['廣州赤潮', '北京穹頂', '成都遠山', '上海重工'] },
-  US: { name: '美國', flag: 'US', accent: '#65d9ff', style: '空間、速度與單點爆破', opponent: ['Mesa Falcons', 'Pacific Union', 'Brooklyn Forge', 'Austin Comets'] }
+  TW: { name: '台灣', flag: 'TW', accent: '#dfff00', style: '跑得快，每個人都能做很多事', opponent: ['北岸聯隊', '南城雷雨', '港都礦工', '東海岸獵人'] },
+  JP: { name: '日本', flag: 'JP', accent: '#ff6a72', style: '跑位整齊，傳球速度很快', opponent: ['千葉白浪', '名古屋軸心', '大阪電塔', '秋田雪線'] },
+  KR: { name: '韓國', flag: 'KR', accent: '#78a7ff', style: '身體對抗強，戰術很清楚', opponent: ['水原火線', '釜山港灣', '大邱黑鷹', '首爾北門'] },
+  CN: { name: '中國', flag: 'CN', accent: '#ff7057', style: '球員高大，禁區壓力很大', opponent: ['廣州赤潮', '北京穹頂', '成都遠山', '上海重工'] },
+  US: { name: '美國', flag: 'US', accent: '#65d9ff', style: '速度超快，單打機會很多', opponent: ['Mesa Falcons', 'Pacific Union', 'Brooklyn Forge', 'Austin Comets'] }
 };
 
 const TEAMS = {
@@ -71,38 +71,38 @@ const TEAMS = {
 };
 
 const SEASONS = [
-  { age: 13, year: 2039, stage: '國中', name: '菜鳥季', target: '爭取校隊輪替', pressure: 0 },
-  { age: 14, year: 2040, stage: '國中', name: '主力競爭', target: '進入先發名單', pressure: 1 },
+  { age: 13, year: 2039, stage: '國中', name: '菜鳥季', target: '搶到第一次上場機會', pressure: 0 },
+  { age: 14, year: 2040, stage: '國中', name: '主力競爭', target: '成為先發球員', pressure: 1 },
   { age: 15, year: 2041, stage: '國中', name: '全國國中盃', target: '拿到第一份跨國邀請', pressure: 3 },
-  { age: 16, year: 2042, stage: '高中', name: '陌生體系', target: '在新舞台站穩腳步', pressure: 4 },
-  { age: 17, year: 2043, stage: '高中', name: '先發之爭', target: '成為球隊不可替代的拼圖', pressure: 5 },
-  { age: 18, year: 2044, stage: '高中', name: '畢業賽季', target: '把名字送進國際球探名單', pressure: 7 },
-  { age: 19, year: 2045, stage: '養成', name: '成人賽場', target: '撐過尺寸與速度的跳級', pressure: 7 },
-  { age: 21, year: 2047, stage: '養成', name: '門檻之年', target: '取得真正的職業席位', pressure: 9 },
-  { age: 23, year: 2049, stage: '職業', name: '職業新秀', target: '證明合約不是市場誤判', pressure: 10 },
-  { age: 26, year: 2052, stage: '職業', name: '黃金曲線', target: '成為能改變季後賽的核心', pressure: 12 },
-  { age: 30, year: 2056, stage: '職業', name: '爭冠窗口', target: '把巔峰兌現成一座獎盃', pressure: 14 },
-  { age: 34, year: 2060, stage: '傳奇', name: '最後一舞', target: '決定球場會怎麼記住你', pressure: 16 }
+  { age: 16, year: 2042, stage: '高中', name: '新環境', target: '快點適應新球隊', pressure: 4 },
+  { age: 17, year: 2043, stage: '高中', name: '先發之爭', target: '搶下固定先發位置', pressure: 5 },
+  { age: 18, year: 2044, stage: '高中', name: '畢業賽季', target: '讓國外球探記住你', pressure: 7 },
+  { age: 19, year: 2045, stage: '養成', name: '大人賽場', target: '跟上更高、更快的對手', pressure: 7 },
+  { age: 21, year: 2047, stage: '養成', name: '關鍵一年', target: '拿到職業合約', pressure: 9 },
+  { age: 23, year: 2049, stage: '職業', name: '職業新秀', target: '證明你值得這份合約', pressure: 10 },
+  { age: 26, year: 2052, stage: '職業', name: '巔峰時期', target: '帶隊打進季後賽', pressure: 12 },
+  { age: 30, year: 2056, stage: '職業', name: '爭冠時刻', target: '拼下一座冠軍', pressure: 14 },
+  { age: 34, year: 2060, stage: '傳奇', name: '最後一舞', target: '打出你的最後代表作', pressure: 16 }
 ];
 
 const BADGES = {
   attack: { label: '破框者', stat: 'finish', desc: '攻框選項脈衝 +3' },
   shooter: { label: '深距威脅', stat: 'shooting', desc: '投射選項脈衝 +3' },
-  creator: { label: '節拍製造者', stat: 'playmaking', desc: '組織選項脈衝 +3' },
-  stopper: { label: '進攻終止點', stat: 'defense', desc: '防守選項脈衝 +3' },
-  iron: { label: '耐久核心', stat: 'athletic', desc: '體能選項脈衝 +3' },
-  connector: { label: '更衣室連結者', stat: 'iq', desc: '團隊選項脈衝 +3' }
+  creator: { label: '傳球高手', stat: 'playmaking', desc: '組織選項脈衝 +3' },
+  stopper: { label: '防守大鎖', stat: 'defense', desc: '防守選項脈衝 +3' },
+  iron: { label: '體能怪物', stat: 'athletic', desc: '體能選項脈衝 +3' },
+  connector: { label: '團隊玩家', stat: 'iq', desc: '團隊選項脈衝 +3' }
 };
 
 const TACTICS = {
-  pace: { code: 'PACE', title: '把節奏推到防守失去形狀', desc: '抓到球就推進，用第一道縫隙決定這個回合。', primary: 'playmaking', secondary: 'athletic', tag: 'creator', deltas: { rhythm: 7, load: 6, trust: 1 }, success: '你在對手完成站位前送出最後一傳，整座球館只來得及看見籃網翻起。', failure: '速度先於隊友的理解，快攻在最擁擠的位置停了下來。' },
-  pullup: { code: 'PULL', title: '借半步空間直接拔起', desc: '不等戰術跑完，測試防守者願意退到哪裡。', primary: 'shooting', secondary: 'iq', tag: 'shooter', deltas: { rhythm: 5, load: 4 }, success: '防守只退了半步；這已經足夠。球穿過籃框時，他還停在錯誤的距離。', failure: '你讀對了空間，卻沒處理好落地前的對抗。短了一點。' },
-  drive: { code: 'RIM', title: '對準禁區最窄的縫隙', desc: '把碰撞當成路線的一部分，攻擊護框者的重心。', primary: 'finish', secondary: 'athletic', tag: 'attack', deltas: { rhythm: 6, load: 8 }, success: '你沒有避開碰撞。哨聲與擦板聲幾乎同時抵達，回合被硬生生改寫。', failure: '第二道協防比球探報告快。球碰到籃板，沒有碰到框。' },
-  create: { code: 'READ', title: '多等一拍，讓弱邊自己打開', desc: '吸住兩名防守者，再把球送進沒人看見的窗口。', primary: 'playmaking', secondary: 'iq', tag: 'creator', deltas: { trust: 7, rhythm: 2 }, success: '那條傳球路線只存在半秒。隊友接到球時，籃框前已經沒有第二種答案。', failure: '你看見了窗口，接球的人卻還沒準備好。球滑過他的指尖。' },
-  lock: { code: 'LOCK', title: '接管對方最後一個箭頭', desc: '放掉數據，把整個回合押在一次防守站位。', primary: 'defense', secondary: 'athletic', tag: 'stopper', deltas: { trust: 5, load: 6 }, success: '你沒有抄到球，卻拿走了他所有想去的地方。二十四秒歸零。', failure: '第一次假動作沒有騙到你，第二次身體接觸卻讓路線斷開。' },
-  glass: { code: 'GLASS', title: '把這個回合延長一次', desc: '不追第一個封阻，先卡死最危險的二次進攻。', primary: 'athletic', secondary: 'defense', tag: 'iron', deltas: { trust: 5, load: 7 }, success: '籃板落下前，你已經先贏了位置。對手的最後機會被抱進懷裡。', failure: '你卡住第一個人，弱邊卻飛進另一雙手。回合沒有結束。' },
-  screen: { code: 'LINK', title: '用一次掩護改變四個人的站位', desc: '不急著碰球，先替持球者創造新的角度。', primary: 'iq', secondary: 'athletic', tag: 'connector', deltas: { trust: 7, load: 4 }, success: '防守換人慢了半拍，你在短擋拆區接球，下一傳把整條防線拆成兩半。', failure: '角度差了幾公分，防守者穿過掩護，戰術回到原點。' },
-  post: { code: 'POST', title: '把低位變成你的房間', desc: '用肩膀確認重心，再選擇轉身的方向。', primary: 'finish', secondary: 'iq', tag: 'attack', deltas: { rhythm: 4, load: 7 }, success: '第二下運球逼出協防，你轉向底線，擦板角度乾淨得像練習。', failure: '協防來得更早，球在收球瞬間被切掉。' }
+  pace: { code: 'PACE', title: '搶到球就快攻', desc: '趁防守還沒站好，直接往前衝。', primary: 'playmaking', secondary: 'athletic', tag: 'creator', deltas: { rhythm: 7, load: 6, trust: 1 }, success: '你衝得超快，再把球傳給空檔隊友。球進，這波很順！', failure: '你衝太快，隊友還沒跟上。快攻卡住了。' },
+  pullup: { code: 'PULL', title: '有空檔就直接投', desc: '防守退了半步，現在就出手。', primary: 'shooting', secondary: 'iq', tag: 'shooter', deltas: { rhythm: 5, load: 4 }, success: '你一停、一跳，球空心進網。乾淨！', failure: '對手撞了你一下，球短了一點。' },
+  drive: { code: 'RIM', title: '直接殺進禁區', desc: '不怕碰撞，往籃框衝。', primary: 'finish', secondary: 'athletic', tag: 'attack', deltas: { rhythm: 6, load: 8 }, success: '你扛住碰撞把球放進，還拿到加罰！', failure: '協防來得很快，你的上籃被干擾了。' },
+  create: { code: 'READ', title: '吸引包夾再傳球', desc: '先把兩個防守者吸過來，再找空檔隊友。', primary: 'playmaking', secondary: 'iq', tag: 'creator', deltas: { trust: 7, rhythm: 2 }, success: '兩個人都來守你，隊友完全空了。助攻到手！', failure: '你看到空檔，但隊友還沒準備好，球傳出界。' },
+  lock: { code: 'LOCK', title: '我要守住最後一球', desc: '緊貼對方主將，不讓他舒服出手。', primary: 'defense', secondary: 'athletic', tag: 'stopper', deltas: { trust: 5, load: 6 }, success: '你一路黏住他，時間到！他連球都沒投出去。', failure: '對手用身體頂開空間，成功出手。' },
+  glass: { code: 'GLASS', title: '先把籃板抓下來', desc: '卡好位置，不給對手第二次進攻。', primary: 'athletic', secondary: 'defense', tag: 'iron', deltas: { trust: 5, load: 7 }, success: '你先卡位，再把籃板抱緊。這回合結束！', failure: '你卡住一個人，但另一個人衝進來搶走籃板。' },
+  screen: { code: 'LINK', title: '幫隊友做一個好掩護', desc: '站好角度，讓持球隊友甩開防守。', primary: 'iq', secondary: 'athletic', tag: 'connector', deltas: { trust: 7, load: 4 }, success: '掩護成功，你接到回傳，再助攻隊友得分。', failure: '角度沒站好，防守直接繞了過去。' },
+  post: { code: 'POST', title: '背框單打', desc: '用身體卡住對手，轉身打板。', primary: 'finish', secondary: 'iq', tag: 'attack', deltas: { rhythm: 4, load: 7 }, success: '你頂出空間，轉身擦板得分。穩！', failure: '協防太快，你一收球就被切掉。' }
 };
 
 let state = null;
@@ -441,11 +441,11 @@ function renderWorldPanel() {
 
 function countryTrainingCopy(country) {
   return {
-    TW: ['沒有攝影機的星期一', '鐵門拉下後，體育館只剩球鞋摩擦聲。學長把最後一顆球推給你：「想進輪替，先讓教練知道你每天在改什麼。」'],
-    JP: ['晨間練習第兩百次折返', '清晨六點四十分，全隊動作像同一支秒針。助教沒有叫你的名字，只把訓練表上的空格圈了起來。'],
-    KR: ['宿舍門禁前的錄影室', '晚餐後只剩四十分鐘。教練把上一場被針對的十七個回合剪成一段，等你先說出答案。'],
-    CN: ['基地裡的加練名單', '青年隊有二十二個人，正式名單只有十二格。體能教練把今天的負荷數據放在你面前，沒有催你選。'],
-    US: ['空球館裡的個人時段', '訓練館同時有三組球探。沒有人告訴你他們想看什麼，只知道每個籃框前都有人排隊證明自己。']
+    TW: ['放學後再練一下', '大家都走了，你還留在球館。學長把球丟給你：「想上場，就把最弱的地方練好。」'],
+    JP: ['早上六點四十分集合', '天還沒亮，全隊已經開始跑動。助教指著訓練表，要你選一項今天最想加強的能力。'],
+    KR: ['晚餐後看比賽影片', '教練剪出你上一場的失誤。時間只有四十分鐘，你要先找出最重要的問題。'],
+    CN: ['二十二人搶十二個位置', '青年隊有二十二人，但正式名單只有十二格。今天怎麼練，可能會決定你能不能留下。'],
+    US: ['三組球探都在看', '球館裡有三組球探，每個人都想秀出最強的一招。輪到你了，你要先練什麼？']
   }[country];
 }
 
@@ -456,29 +456,29 @@ function buildEvent() {
   if (state.week === 0) {
     const copy = countryTrainingCopy(team.country);
     return {
-      kicker: `WEEK 01 · ${country.flag} / DEVELOPMENT`, title: copy[0], story: copy[1], quote: '能力不是加上去的，是每天把錯誤減掉一點。', value: '01', valueLabel: 'TRAINING', tint: team.color,
+      kicker: `WEEK 01 · ${country.flag} / DEVELOPMENT`, title: copy[0], story: copy[1], quote: '每天進步一點，久了就真的會變強。', value: '01', valueLabel: 'TRAINING', tint: team.color,
       actions: [
-        { code: 'A', title: '把一個動作磨到沒有雜音', desc: '選擇目前最弱的技術，進行高密度個人訓練。', primary: weakestStat(), secondary: 'iq', tag: statTag(weakestStat()), difficulty: team.difficulty - 8, growth: 2.2, deltas: { load: 9, rhythm: 4 }, success: '最後十次動作像同一段影格。你終於不必思考每一個細節。', failure: '疲勞讓動作變形，你及時停下，至少知道問題真正卡在哪裡。' },
-        { code: 'B', title: '拆解下一個對手的習慣', desc: '把訓練時間交給影片、筆記與情境推演。', primary: 'iq', secondary: 'playmaking', tag: 'creator', difficulty: team.difficulty - 10, growth: 1.8, deltas: { trust: 4, load: 2 }, success: '影片裡重複出現的半步成了線索。比賽還沒開始，你已經找到第一個答案。', failure: '資訊太多，答案反而模糊。你決定把筆記縮成一件真正能執行的事。' },
-        { code: 'C', title: '把重量留在腿裡', desc: '跟著體能教練完成力量與落地控制課表。', primary: 'athletic', secondary: 'defense', tag: 'iron', difficulty: team.difficulty - 7, growth: 2, deltas: { load: 11, rhythm: -1 }, success: '最後一組落地仍然穩定。你的身體開始追上腦中想做的動作。', failure: '負荷逼近紅線。你減少一組，避免今天的努力變成下週的傷勢。' }
+        { code: 'A', title: '狂練最弱的那一招', desc: '挑目前最低的能力，專心練到動作變順。', primary: weakestStat(), secondary: 'iq', tag: statTag(weakestStat()), difficulty: team.difficulty - 8, growth: 2.2, deltas: { load: 9, rhythm: 4 }, success: '最後十次都做對了。這個動作開始變成你的肌肉記憶。', failure: '你太累，動作開始跑掉。先停一下，明天再練會更有效。' },
+        { code: 'B', title: '看影片研究對手', desc: '找出對手最常做的動作，先想好怎麼守。', primary: 'iq', secondary: 'playmaking', tag: 'creator', difficulty: team.difficulty - 10, growth: 1.8, deltas: { trust: 4, load: 2 }, success: '你發現對手每次都會先往右晃。下一場，你知道怎麼守了。', failure: '影片看太多，重點反而亂掉。你決定只記住最重要的一件事。' },
+        { code: 'C', title: '練力量和體能', desc: '跟著教練做重訓，也練習安全落地。', primary: 'athletic', secondary: 'defense', tag: 'iron', difficulty: team.difficulty - 7, growth: 2, deltas: { load: 11, rhythm: -1 }, success: '最後一組還是很穩。你的身體越來越能扛住碰撞。', failure: '身體真的累了。你少做一組，避免受傷才是正解。' }
       ]
     };
   }
   if (state.week === 1) {
     return {
-      kicker: `WEEK 02 · ${country.flag} / TEAM`, title: season.age < 19 ? '輪替名單公布前一晚' : '合約與更衣室之間',
-      story: season.age < 19 ? '助教把明天的輪替表蓋在桌上。你可以為自己多爭一個回合，也可以先處理球隊最近開始出現的裂縫。' : '經紀人帶來新的市場消息；同一時間，隊友傳來訊息，希望你留下來把最後一套戰術走完。職業選擇從來不只發生在球場。',
-      quote: '被信任不是因為你從不失誤，而是失誤之後仍有人願意把球交給你。', value: '02', valueLabel: 'LOCKER ROOM', tint: '#dfff00',
+      kicker: `WEEK 02 · ${country.flag} / TEAM`, title: season.age < 19 ? '明天誰能上場？' : '球隊和合約，先選哪邊？',
+      story: season.age < 19 ? '明天的出賽名單還沒公布。你要替自己加練，還是先幫球隊把戰術弄懂？' : '經紀人叫你去測試，隊友也找你一起加練。兩邊都很重要，你只能先選一個。',
+      quote: '失誤沒關係。隊友在意的是，你下一球還敢不敢一起打。', value: '02', valueLabel: 'LOCKER ROOM', tint: '#dfff00',
       actions: [
-        { code: 'A', title: '留下來陪替補組跑完戰術', desc: '把個人曝光換成全隊都能理解的節奏。', primary: 'playmaking', secondary: 'iq', tag: 'connector', difficulty: team.difficulty - 7, growth: 1.4, deltas: { trust: 10, load: 4, reputation: -1 }, success: '替補控衛終於喊出正確口令。明天不論誰上場，球隊都多了一種活法。', failure: '大家很累，練習沒有突然變好；但更衣室知道你沒有先離開。' },
-        { code: 'B', title: '接受球探安排的單獨測試', desc: '把最好的動作交給市場，也承擔被放大檢視的壓力。', primary: strongestStat(), secondary: 'athletic', tag: statTag(strongestStat()), difficulty: team.difficulty - 3, growth: 1.2, deltas: { scout: 9, reputation: 4, load: 6, trust: -2 }, success: '測試表上的數字讓房間安靜了幾秒。下一站開始把你的名字寫進名單。', failure: '你沒有打出最好的一組，但球探看見了你如何在失手後修正。' },
-        { code: 'C', title: '關掉手機，完整休息一天', desc: '不追趕任何人，讓身體重新成為可靠的隊友。', primary: 'athletic', secondary: 'iq', tag: 'iron', difficulty: team.difficulty - 13, growth: .8, deltas: { load: -22, rhythm: -3, trust: 1 }, success: '隔天起床時，膝蓋沒有先替你發出聲音。慢下來也可以是一種投資。', failure: '焦慮沒有立刻消失，但疲勞退了一點。你至少拿回一次完整呼吸。' }
+        { code: 'A', title: '陪隊友把戰術練熟', desc: '留下來幫替補隊友，讓大家都知道該怎麼跑。', primary: 'playmaking', secondary: 'iq', tag: 'connector', difficulty: team.difficulty - 7, growth: 1.4, deltas: { trust: 10, load: 4, reputation: -1 }, success: '大家終於跑對位置。明天不管誰上場，球隊都更有默契。', failure: '大家都很累，戰術還是有點亂。但隊友知道你沒有先跑掉。' },
+        { code: 'B', title: '去參加球探測試', desc: '秀出你最強的能力，讓更多球隊看到你。', primary: strongestStat(), secondary: 'athletic', tag: statTag(strongestStat()), difficulty: team.difficulty - 3, growth: 1.2, deltas: { scout: 9, reputation: 4, load: 6, trust: -2 }, success: '你的測試數字很亮眼。球探真的把你的名字記下來了。', failure: '今天沒有打出最好表現，但球探看到你失誤後有馬上調整。' },
+        { code: 'C', title: '今天先好好休息', desc: '放下手機，讓身體和腦袋都充滿電。', primary: 'athletic', secondary: 'iq', tag: 'iron', difficulty: team.difficulty - 13, growth: .8, deltas: { load: -22, rhythm: -3, trust: 1 }, success: '你睡飽了，隔天整個人都輕很多。休息也是訓練的一部分。', failure: '你還是有點緊張，但身體沒那麼累了。先穩住就好。' }
       ]
     };
   }
   const opponent = country.opponent[(state.seasonIndex + state.profile.name.length + team.name.length) % country.opponent.length];
   return {
-    kicker: `WEEK 03 · ${team.league.toUpperCase()}`, title: `${season.name} · 決勝回合`, story: `對上「${opponent}」，比賽剩下 31.8 秒，雙方只差一個球權。暫停結束前，教練看向你：這個回合要用你的方式解。`, quote: `對手球探：他們會逼你走左邊，然後從底角收網。`, value: '31.8', valueLabel: 'SECONDS', tint: '#ff5a1f', game: true, actions: gameActions()
+    kicker: `WEEK 03 · ${team.league.toUpperCase()}`, title: `${season.name} · 最後一球`, story: `對上「${opponent}」，只剩 31.8 秒，比分超接近。教練把戰術板交給你：「最後一球，你來決定。」`, quote: '球探提醒：對手猜你會往左切。', value: '31.8', valueLabel: 'SECONDS', tint: '#ff5a1f', game: true, actions: gameActions()
   };
 }
 
@@ -521,7 +521,7 @@ function renderArena() {
 
 function renderDecisions(event) {
   $('#decision-zone').innerHTML = `
-    <div class="decision-head"><div><small>${event.game ? 'POSSESSION DECISION' : 'CAREER DECISION'} · PULSE ENGINE</small><h2>${event.game ? '最後一個球權，你相信哪一種自己？' : '這一週，你把時間投資在哪裡？'}</h2></div><p>主要能力 × 次要能力 × 三條脈衝軌道。選擇後立即推演。</p></div>
+    <div class="decision-head"><div><small>${event.game ? 'POSSESSION DECISION' : 'CAREER DECISION'} · PULSE ENGINE</small><h2>${event.game ? '最後一球，你要怎麼打？' : '這週要練什麼？'}</h2></div><p>看能力、手感、隊友信任和疲勞，再做選擇。</p></div>
     <div class="option-grid">
       ${event.actions.map((action, index) => `<button type="button" data-action="${index}"><em>${action.code || String(index + 1).padStart(2, '0')}</em><b>${action.title}</b><span>${action.desc}</span><small>${STAT_META[action.primary].label} ＋ ${STAT_META[action.secondary].label}<i>${formatDeltas(action.deltas)}</i></small></button>`).join('')}
     </div>`;
@@ -592,7 +592,7 @@ function renderResult() {
       </div>
       <div class="result-copy">
         <small>${result.success ? 'READ COMPLETE' : 'READ BROKEN'} · ${margin >= 0 ? '+' : ''}${margin.toFixed(1)}</small>
-        <h2>${result.success ? '這個選擇站住了。' : '球場把答案推了回來。'}</h2>
+        <h2>${result.success ? '成功！這波有料。' : '沒成功，再調整就好。'}</h2>
         <p>${result.success ? action.success : action.failure}</p>
         <div class="formula-strip"><span>技術 <b>${result.calc.skill.toFixed(1)}</b></span><span>節奏 <b>${signed(result.calc.rhythm)}</b></span><span>信任 <b>${signed(result.calc.trust)}</b></span><span>負荷 <b>${signed(result.calc.load)}</b></span><span>打法 <b>+${result.calc.identity}</b></span>${result.calc.seedSpecialty ? `<span>種子專長 <b>+${result.calc.seedSpecialty}</b></span>` : ''}<span>臨場 <b>${signed(result.calc.variation)}</b></span></div>
         ${result.badges.length ? `<div class="badge-unlock">打法印記解鎖：<b>${result.badges.join('、')}</b></div>` : ''}
@@ -651,7 +651,7 @@ function renderSummary() {
   $('#decision-zone').innerHTML = `
     <div class="summary-zone">
       <div class="summary-mark ${summary.champion ? 'champion' : ''}"><small>${summary.champion ? 'CHAMPION' : 'SEASON COMPLETE'}</small><b>${summary.record}</b><span>${summary.league}</span></div>
-      <div class="summary-copy"><small>${summary.year} · AGE ${summary.age}</small><h2>${summary.champion ? '你把這一季留在了旗幟上。' : '一季結束，市場開始重新估價。'}</h2>
+      <div class="summary-copy"><small>${summary.year} · AGE ${summary.age}</small><h2>${summary.champion ? '冠軍拿到了！這季真的頂。' : '球季結束，來看看你打得怎麼樣。'}</h2>
         <div class="box-score"><span><b>${summary.ppg}</b> PTS</span><span><b>${summary.rpg}</b> REB</span><span><b>${summary.apg}</b> AST</span><span><b>${summary.ovr}</b> OVR</span></div>
         <p>${seasonSummaryLine(summary)}</p>
         <button type="button" class="next-button" id="market-button">${state.seasonIndex === SEASONS.length - 1 ? '完成生涯' : '查看下一站邀請'} <b>→</b></button>
@@ -664,10 +664,10 @@ function renderSummary() {
 }
 
 function seasonSummaryLine(summary) {
-  if (summary.champion) return '這座冠軍提高了你的跨國能見度，也讓下一份合約不再只談潛力。';
-  if (summary.averageMargin > 3) return '你在關鍵回合的穩定度已被多國球探注意，旅外窗口正在打開。';
-  if (summary.averageMargin > -4) return '沒有爆發式躍升，但你的能力曲線仍在上升。下一站會更在意你如何適應。';
-  return '這季留下了幾道裂縫。好消息是，你已經知道下一次訓練該先修哪裡。';
+  if (summary.champion) return '你拿到冠軍，更多國家的球隊開始注意你。下一份邀請會更好。';
+  if (summary.averageMargin > 3) return '你在關鍵時刻很穩，已經有國外球探來看你。';
+  if (summary.averageMargin > -4) return '這季沒有大爆發，但你一直有進步。換個環境也許更適合你。';
+  return '這季有點卡，但你已經知道要練什麼。下季再來！';
 }
 
 function marketScore() {
@@ -703,8 +703,8 @@ function showOffers() {
   const score = marketScore();
   const nextSeason = SEASONS[state.seasonIndex + 1];
   $('#offer-count').textContent = `${offers.filter((team) => score >= team.entry).length} OPEN / ${offers.length}`;
-  $('#offer-title').textContent = nextSeason.age >= 23 ? '職業市場，等你簽名' : '下一站，由你簽名';
-  $('#offer-lead').textContent = `市場評級 ${score.toFixed(1)}。門檻不是單看 OVR，也包含球探值、聲望與大場面履歷。`;
+  $('#offer-title').textContent = nextSeason.age >= 23 ? '職業球隊來找你了' : '下一站要去哪？';
+  $('#offer-lead').textContent = `市場評級 ${score.toFixed(1)}。球隊會看 OVR，也會看球探值、聲望和重要比賽表現。`;
   $('#offer-grid').innerHTML = offers.map((team) => {
     const eligible = score >= (team.entry || 0) || team.id === 'tw_ms';
     const country = COUNTRIES[team.country];
@@ -770,7 +770,7 @@ function endingProfile() {
   else if (score >= 108) grade = 'A';
   const topTag = Object.entries(state.choices).sort((a, b) => b[1] - a[1])[0][0];
   const titles = {
-    attack: '穿過所有縫隙的人', shooter: '讓半步成為射程的人', creator: '替球場改寫節拍的人', stopper: '讓王牌沉默的人', iron: '比時間更耐久的人', connector: '把五個人連成一隊的人'
+    attack: '禁區就是你的遊樂場', shooter: '一有空檔就會進', creator: '全隊都跟著你的節奏', stopper: '王牌看到你就頭痛', iron: '跑到最後還有力', connector: '讓隊友一起變強'
   };
   return { score, grade, title: titles[topTag] };
 }
@@ -781,7 +781,7 @@ function showEnding() {
   const last = state.history.at(-1);
   $('#ending-content').innerHTML = `
     <div class="ending-grade"><small>CAREER GRADE</small><b>${ending.grade}</b><span>${Math.round(ending.score)} LEGACY</span></div>
-    <div class="ending-copy"><small>2060 · CAREER COMPLETE</small><h2>${ending.title}</h2><p>${escapeHtml(state.profile.name)} 從 ${first.team} 的木地板出發，最後在 ${last.team} 留下生涯終章。走過 ${state.visited.length} 個國家、拿下 ${state.trophies} 座冠軍，沒有一段路是系統預先替你選的。</p></div>
+    <div class="ending-copy"><small>2060 · CAREER COMPLETE</small><h2>${ending.title}</h2><p>${escapeHtml(state.profile.name)} 從 ${first.team} 開始打球，最後來到 ${last.team}。你去過 ${state.visited.length} 個國家、拿到 ${state.trophies} 座冠軍。每一站、每一個選擇，都是你自己決定的。</p></div>
     <div class="ending-numbers"><span><b>${overall()}</b> 最終 OVR</span><span><b>${state.wins}–${state.losses}</b> 關鍵回合</span><span><b>${state.trophies}</b> 冠軍</span><span><b>${state.visited.length}</b> 國家</span></div>
     <div class="ending-route">${state.history.map((item) => `<div><i>${item.year}</i><b>${COUNTRIES[item.country].flag}</b><span>${item.team}<small>${item.record} · ${item.ppg} PTS</small></span></div>`).join('')}</div>
     <div class="ending-actions"><button type="button" id="download-card">下載生涯卡</button><button type="button" id="restart-ending">再走一條路</button></div>`;
@@ -808,7 +808,7 @@ function downloadCareerCard() {
     ctx.fillStyle = '#8b8980'; ctx.font = '600 22px sans-serif'; ctx.fillText(label, x + 22, y + 35);
     ctx.fillStyle = '#f1efe8'; ctx.font = '900 50px sans-serif'; ctx.fillText(String(value), x + 22, y + 91);
   });
-  ctx.fillStyle = '#8b8980'; ctx.font = '500 22px sans-serif'; ctx.fillText('從國中開始。每一條路，都是你親手選的。', 68, 1235);
+  ctx.fillStyle = '#8b8980'; ctx.font = '500 22px sans-serif'; ctx.fillText('13 歲開打。每一站，都由你自己選。', 68, 1235);
   ctx.fillStyle = '#dfff00'; ctx.fillRect(68, 1270, 944, 8);
   const link = document.createElement('a');
   link.download = `${state.profile.name}-籃途生涯卡.png`;

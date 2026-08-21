@@ -46,8 +46,8 @@
     <form class="setup-card" id="setup-form">
       <div class="setup-top"><span>NEW SAVE / ORIGIN 13</span><b>01</b></div>
       <div class="setup-game-name"><span>籃途</span><b>COURTBOUND</b></div>
-      <div class="setup-title"><div><p>一座球場，五個國家，<br>一條只屬於你的路。</p><h1>從國中開始。</h1></div><div class="setup-logo">CB<br><i>13</i></div></div>
-      <p class="setup-lead">每一季由你的打法、身體狀態、人際信任與球探市場即時生成。沒有預寫好的唯一旅外路線。</p>
+      <div class="setup-title"><div><p>從台灣國中校隊出發，<br>下一站由你自己選。</p><h1>13 歲，開打。</h1></div><div class="setup-logo">CB<br><i>13</i></div></div>
+      <p class="setup-lead">每一季都要練球、做選擇、打關鍵比賽。表現夠好，就有機會去日本、韓國、中國或美國打球。</p>
       <div class="setup-fields">
         <label><span>球員姓名</span><div class="field-action"><input id="player-name" maxlength="12" value="林拓海" autocomplete="off" required /><button type="button" id="random-name-button">隨機</button></div></label>
         <label><span>家鄉</span><select id="hometown"><option>北部</option><option>中部</option><option>南部</option><option>東部</option><option>離島</option></select></label>
@@ -76,12 +76,12 @@
 
   <dialog id="settings-dialog" class="game-dialog">
     <article class="settings-card">
-      <div class="settings-heading"><small>SYSTEM / COURTBOUND</small><h2>遊戲設定</h2><p>選擇最適合目前裝置的介面；偏好會自動保存在這台裝置。</p></div>
+      <div class="settings-heading"><small>SYSTEM / COURTBOUND</small><h2>遊戲設定</h2><p>選擇你想用的畫面。下次開啟時會繼續使用。</p></div>
       <div class="settings-actions">
-        <button type="button" class="settings-danger" id="restart-career-button"><small>CAREER</small><b>重新生涯</b><span>清除目前存檔並建立新球員</span></button>
-        <button type="button" data-interface-mode="desktop"><small>LAYOUT</small><b>電腦版介面</b><span>完整三欄生涯控制台</span></button>
-        <button type="button" data-interface-mode="mobile"><small>LAYOUT</small><b>手機版介面</b><span>單欄直向操作介面</span></button>
-        <button type="button" class="settings-return" id="close-settings-button"><small>RETURN</small><b>返回主介面</b><span>保留目前生涯並繼續遊戲</span></button>
+        <button type="button" class="settings-danger" id="restart-career-button"><small>CAREER</small><b>重新生涯</b><span>清除這次存檔，重新建立球員</span></button>
+        <button type="button" data-interface-mode="desktop"><small>LAYOUT</small><b>電腦版介面</b><span>一次看到球員、比賽和世界地圖</span></button>
+        <button type="button" data-interface-mode="mobile"><small>LAYOUT</small><b>手機版介面</b><span>改成比較好滑的單欄畫面</span></button>
+        <button type="button" class="settings-return" id="close-settings-button"><small>RETURN</small><b>返回主介面</b><span>保留存檔，回到遊戲</span></button>
       </div>
       <div class="settings-status" id="interface-status"></div>
     </article>
@@ -92,14 +92,14 @@
       <button class="dialog-close" type="button" data-close="info-dialog" aria-label="關閉">×</button>
       <small>ENGINE / PULSE-01</small>
       <h2>球場脈衝引擎</h2>
-      <p>這套原創系統不使用骰子，也不照搬既有球經遊戲。每一個結果都從六項能力與三條即時軌道交叉推演：</p>
+      <p>這個系統不擲骰子。每次結果都會看你的能力、手感、隊友信任和疲勞：</p>
       <div class="engine-grid">
-        <div><b>01 / 能力</b><span>主要技術與次要技術形成回合底值。</span></div>
-        <div><b>02 / 脈衝</b><span>近期節奏、隊友信任與身體負荷會放大或抵銷實力。</span></div>
-        <div><b>03 / 對位</b><span>不同國家的球風、比賽壓力與對手策略改變門檻。</span></div>
-        <div><b>04 / 身分</b><span>你反覆做的選擇會長成打法印記，並開出專屬選項。</span></div>
+        <div><b>01 / 能力</b><span>主要能力越高，成功機會越大。</span></div>
+        <div><b>02 / 狀態</b><span>手感好、隊友信任高，就更容易成功。太累會扣分。</span></div>
+        <div><b>03 / 對手</b><span>不同國家和球隊，難度都不一樣。</span></div>
+        <div><b>04 / 打法</b><span>常做同一類選擇，就會解鎖你的專屬強項。</span></div>
       </div>
-      <p class="engine-note">公式會顯示在每次判定結果中。隨機只占小部分；準備方式與生涯累積才是主體。</p>
+      <p class="engine-note">每次結果都會告訴你加分和扣分在哪裡。運氣只占一小部分，練球和選擇更重要。</p>
     </article>
   </dialog>
 
@@ -112,7 +112,7 @@
 
   <dialog id="offer-dialog" class="game-dialog">
     <article class="offer-dialog-card">
-      <div class="offer-heading"><div><small>MARKET WINDOW</small><h2 id="offer-title">下一站，由你簽名</h2></div><span id="offer-count"></span></div>
+      <div class="offer-heading"><div><small>MARKET WINDOW</small><h2 id="offer-title">下一站要去哪？</h2></div><span id="offer-count"></span></div>
       <p class="offer-lead" id="offer-lead"></p>
       <div class="offer-grid" id="offer-grid"></div>
     </article>
@@ -124,7 +124,7 @@
 
   <canvas id="share-canvas" width="1080" height="1350" hidden></canvas>
   <div class="toast" id="toast" role="status"></div>
-  <script src="app.js?v=courtbound3"></script>
+  <script src="app.js?v=courtbound4"></script>
 </body>
 </html>
 
