@@ -207,6 +207,15 @@ legend { margin-bottom:7px; color:var(--muted); font-size:8px; }
 .contract-card dd { overflow:hidden; margin:2px 0 0; font:800 8px 'Barlow Condensed'; text-overflow:ellipsis; white-space:nowrap; }
 .contract-card.contract-alert { border-color:rgba(255,90,31,.65); background:rgba(255,90,31,.07); }
 .contract-card.contract-alert > div small { color:var(--orange); }
+.roster-card { display:grid; gap:4px; padding:9px; border:1px solid rgba(223,255,0,.24); background:rgba(223,255,0,.04); }
+.roster-card > div { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.roster-card small { color:var(--lime); font:800 7px 'Barlow Condensed'; letter-spacing:.12em; }
+.roster-card b { font-size:9px; }
+.roster-card p,.roster-card span { margin:0; font-size:7px; line-height:1.4; }
+.roster-card p { color:var(--paper); }
+.roster-card span { color:var(--muted); }
+.roster-card.roster-alert { border-color:rgba(255,90,31,.55); background:rgba(255,90,31,.06); }
+.roster-card.roster-alert small,.roster-card.roster-alert b { color:var(--orange); }
 .goal-card { padding:11px; border:1px solid rgba(223,255,0,.25); background:rgba(223,255,0,.04); }
 .goal-card > small,.career-feed > small { color:var(--lime); font:700 7px 'Barlow Condensed'; letter-spacing:.13em; }
 .goal-card b { display:block; margin:4px 0; font-size:9px; }
@@ -910,7 +919,7 @@ body {
 /* Quiet surfaces keep information grouped without rebuilding the boxed frame. */
 .mini-stats span,.stat-row,.identity-strip,.route-list > div,.market-score div,
 .contract-card,.contract-card dl div,.goal-card,.option-grid button,
-.pulse-gauge,.formula-strip span,.box-score span,.season-report-grid span {
+.roster-card,.pulse-gauge,.formula-strip span,.box-score span,.season-report-grid span {
   border-color:transparent;
   border-radius:12px;
   background:rgba(7,10,8,.24);
@@ -1031,6 +1040,11 @@ body {
   body:not(.interface-mobile) .contract-card dl div { padding:7px; }
   body:not(.interface-mobile) .contract-card dt { font-size:9px; }
   body:not(.interface-mobile) .contract-card dd { font-size:11px; }
+  body:not(.interface-mobile) .roster-card { gap:6px; padding:11px; }
+  body:not(.interface-mobile) .roster-card small { font-size:9px; }
+  body:not(.interface-mobile) .roster-card b { font-size:12px; }
+  body:not(.interface-mobile) .roster-card p,
+  body:not(.interface-mobile) .roster-card span { font-size:10px; }
   body:not(.interface-mobile) .goal-card { padding:13px; }
   body:not(.interface-mobile) .goal-card > small,
   body:not(.interface-mobile) .career-feed > small { font-size:10px; }
