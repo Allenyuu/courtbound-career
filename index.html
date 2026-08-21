@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0b0b09" />
   <meta name="description" content="《籃途 COURTBOUND》原創籃球生涯模擬器——從台灣國中出發，走向台、日、韓、中、美職業舞台。" />
   <title>籃途 COURTBOUND｜原創籃球生涯模擬器</title>
-  <link rel="stylesheet" href="styles.css?v=courtbound15" />
+  <link rel="stylesheet" href="styles.css?v=courtbound16" />
 </head>
 <body>
   <div class="noise" aria-hidden="true"></div>
@@ -61,6 +61,19 @@
         <legend>場上位置</legend>
         <div class="position-grid" id="position-grid"></div>
       </fieldset>
+      <div class="build-lab">
+        <section class="body-builder">
+          <div class="build-heading"><span>預估成年體型</span><small id="body-archetype">依位置校準合理範圍</small></div>
+          <label><span>身高 <b id="height-value">188 cm</b></span><input type="range" id="player-height" min="170" max="198" value="188" /></label>
+          <label><span>體重 <b id="weight-value">84 kg</b></span><input type="range" id="player-weight" min="65" max="100" value="84" /></label>
+          <p id="body-impact">較高有利終結與防守；較輕則移動更快。</p>
+        </section>
+        <section class="dice-builder">
+          <div class="build-heading"><span>骰點建模</span><button type="button" id="roll-dice-button">擲骰開點</button></div>
+          <div class="dice-result" id="dice-result"><b>尚未擲骰</b><small>隨機 1–6 顆骰子，每顆會出現 1–6 點。</small></div>
+          <div class="attribute-builder" id="attribute-builder"></div>
+        </section>
+      </div>
       <div class="setup-footer">
         <button class="continue-button" type="button" id="continue-button" hidden>繼續上次生涯</button>
         <span>單局約 20–30 分鐘 · 本機自動存檔</span>
@@ -87,7 +100,7 @@
       <button class="dialog-close" type="button" data-close="info-dialog" aria-label="關閉">×</button>
       <small>ENGINE / PULSE-01</small>
       <h2>球場脈衝引擎</h2>
-      <p>這個系統不擲骰子。每次結果都會看你的能力、手感、隊友信任和疲勞：</p>
+      <p>建立球員時會用骰子決定可分配點數；進入生涯後，每次結果都會看能力、手感、隊友信任和疲勞：</p>
       <div class="engine-grid">
         <div><b>01 / 能力</b><span>能力到 60、70、80、90 會升級，永久提高同類選擇的成功率。</span></div>
         <div><b>02 / 狀態</b><span>手感好、隊友信任高，就更容易成功。太累會扣分。</span></div>
@@ -98,6 +111,8 @@
         <div><b>07 / 年齡與薪資</b><span>30 歲後能力可能下滑，下一份約的月薪與簽約金也會跟著調整；已簽好的保障合約不會被追扣。</span></div>
         <div><b>08 / 一軍與二軍</b><span>台、日、韓、中、美依各國制度分成一軍與二軍／次級；球隊都有地名，一軍高薪高壓，二軍更容易獲得機會。</span></div>
         <div><b>09 / 板凳與升降</b><span>第一次進入某國職業環境，要先完成當地二軍一季；升上一軍或轉進新隊後，先從板凳觀察，再搶輪替與先發。</span></div>
+        <div><b>10 / 骰點與體型</b><span>開局隨機擲出 1–6 顆骰子並自由分配能力；位置、成年身高與體重會調整能力上限與場上取捨。</span></div>
+        <div><b>11 / 訓練與品牌</b><span>訓練師、職業球員夏令營與代言事件會帶來能力、收入、聲望或曝光，但也可能增加疲勞。</span></div>
       </div>
       <p class="engine-note">每次結果都會告訴你加分和扣分在哪裡。運氣只占一小部分，練球和選擇更重要。</p>
     </article>
@@ -126,7 +141,7 @@
 
   <canvas id="share-canvas" width="1080" height="1750" hidden></canvas>
   <div class="toast" id="toast" role="status"></div>
-  <script src="app.js?v=courtbound15"></script>
+  <script src="app.js?v=courtbound16"></script>
 </body>
 </html>
 

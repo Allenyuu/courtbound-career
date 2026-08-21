@@ -19,11 +19,12 @@ const STAT_TIERS = [
 ];
 
 const POSITIONS = {
-  PG: { name: '控球後衛', desc: '創造與球商', number: 3, height: 174, bonus: { playmaking: 5, iq: 4, shooting: 1 } },
-  SG: { name: '得分後衛', desc: '投射與終結', number: 7, height: 181, bonus: { shooting: 5, finish: 4, athletic: 1 } },
-  SF: { name: '小前鋒', desc: '全能與防守', number: 13, height: 187, bonus: { defense: 3, finish: 3, athletic: 3, iq: 1 } },
-  PF: { name: '大前鋒', desc: '對抗與空間', number: 21, height: 193, bonus: { finish: 4, defense: 3, athletic: 3 } },
-  C: { name: '中鋒', desc: '護框與籃板', number: 34, height: 199, bonus: { defense: 5, athletic: 3, finish: 2 } }
+  // 預估成年體型範圍以 2025–26 NBA 官方名單與選秀體測為基準，再放寬給台、日、韓、中、美多聯賽生涯。
+  PG: { name: '控球後衛', desc: '創造與球商', number: 3, height: 188, weight: 84, heightRange: [170, 198], weightRange: [65, 100], bonus: { playmaking: 5, iq: 4, shooting: 1 }, caps: { finish: 9, shooting: 11, playmaking: 13, defense: 10, athletic: 11, iq: 13 } },
+  SG: { name: '得分後衛', desc: '投射與終結', number: 7, height: 195, weight: 92, heightRange: [178, 205], weightRange: [72, 108], bonus: { shooting: 5, finish: 4, athletic: 1 }, caps: { finish: 12, shooting: 13, playmaking: 10, defense: 11, athletic: 11, iq: 10 } },
+  SF: { name: '小前鋒', desc: '全能與防守', number: 13, height: 201, weight: 100, heightRange: [185, 211], weightRange: [78, 118], bonus: { defense: 3, finish: 3, athletic: 3, iq: 1 }, caps: { finish: 12, shooting: 11, playmaking: 10, defense: 12, athletic: 12, iq: 10 } },
+  PF: { name: '大前鋒', desc: '對抗與空間', number: 21, height: 207, weight: 109, heightRange: [192, 218], weightRange: [85, 130], bonus: { finish: 4, defense: 3, athletic: 3 }, caps: { finish: 13, shooting: 10, playmaking: 8, defense: 13, athletic: 12, iq: 10 } },
+  C: { name: '中鋒', desc: '護框與籃板', number: 34, height: 213, weight: 118, heightRange: [198, 226], weightRange: [92, 142], bonus: { defense: 5, athletic: 3, finish: 2 }, caps: { finish: 13, shooting: 8, playmaking: 7, defense: 14, athletic: 12, iq: 10 } }
 };
 
 const STYLES = {
@@ -218,7 +219,7 @@ const CLUTCH_SCENARIOS = [
   }
 ];
 
-// 每季前三週分別抽「成長、球隊、比賽」情境；三類各 10 個，共 30 個。
+// 每季前三週分別抽「成長、球隊、比賽」情境；建角版本起加入專業訓練與品牌合作事件。
 // 抽取結果會寫進存檔，同一個生涯會先玩過未見情境，直到該類全數出現才重複。
 const CAREER_SCENARIOS = [
   {
@@ -322,6 +323,26 @@ const CAREER_SCENARIOS = [
     ]
   },
   {
+    id: 'train_personal_trainer', phase: 'training', title: '訓練師先拆掉你的壞習慣',
+    story: ({ season }) => `${season.age < 19 ? '學校介紹的' : '經紀團隊找來的'}訓練師沒有先叫你狂操，而是拍下起步、急停和落地動作。他說今天只改一個細節，練好才往下走。`,
+    quote: '練得累不一定有進步，動作做對才算真的升級。', prompt: '一對一檢測後，你最想先修哪一項？', hint: '訓練師會針對腳步、出手或身體控制給你專屬菜單。', valueLabel: 'SKILL LAB', tint: '#65d9ff',
+    actions: () => [
+      careerAction('A', '重做第一步和急停腳步', '降低重心，學會不多踩那一下。', 'athletic', 'finish', 'attack', -8, 2.35, { rhythm: 6, load: 7 }, '訓練師把動作拆成三段，你的啟動更快，停下來也不再東倒西歪。', '改動作的前幾組很卡，但你終於知道速度為什麼一直上不去。'),
+      careerAction('B', '校正出手路線', '從手肘、手腕到落地，一格一格修。', 'shooting', 'iq', 'shooter', -9, 2.3, { rhythm: 7, load: 4 }, '慢動作畫面變得乾淨，連續出手也能維持同一條路線。', '新姿勢暫時不順，訓練師要你先求穩，不准急著投遠。'),
+      careerAction('C', '練碰撞後的身體控制', '不是硬撞，先學會核心出力和安全落地。', 'finish', 'athletic', 'iron', -6, 2.25, { load: 9, trust: 2 }, '你被護墊撞到還能保住球，落地也沒有亂跨一步。', '碰撞後球還是掉了，但你沒有用危險姿勢硬撐。')
+    ]
+  },
+  {
+    id: 'train_pro_camp', phase: 'training', title: '職業球員夏令營開放挑戰',
+    story: ({ country, season }) => `一名在${country.name}打球的職業球員舉辦夏令營。${season.age < 19 ? '現場有各校好手，教練也在場邊記名字。' : '不少職業球員休季也來練，強度比一般團練更快。'}你拿到一整天的入場證。`,
+    quote: '先看懂高手怎麼準備，再想著跟他單挑。', prompt: '難得進到職業球員的訓練場，你要抓住什麼？', hint: '挑戰高手曝光高；學角色和看影片比較穩定。', valueLabel: 'PRO CAMP', tint: '#e591ff',
+    actions: () => [
+      careerAction('A', '排隊挑戰營隊主將', '直接跟最強的人對位，看看差距有多大。', strongestStat(), 'athletic', statTag(strongestStat()), -1, 2.1, { scout: 8, reputation: 5, load: 10 }, '你沒有每球都贏，但打出一個漂亮回合，全場都記住你的名字。', '對方連續抓到你的弱點；有點痛，但這堂課比剪輯精華更真實。'),
+      careerAction('B', '跟著職業角色球員練', '觀察他怎麼跑位、溝通和搶上場時間。', 'iq', 'defense', 'connector', -10, 2.05, { trust: 5, scout: 4, load: 5 }, '你發現職業球員每個小動作都有理由，回隊後馬上更會站位置。', '資訊很多記不完，但你先帶走三個能直接用的習慣。'),
+      careerAction('C', '拿自己的影片去問診', '請營隊教練指出最該先改的一段。', 'iq', weakestStat(), 'creator', -11, 1.95, { scout: 5, rhythm: 5, load: 1 }, '教練沒有講空話，直接圈出一個影響你上場時間的問題。', '問到的答案不太好聽，但至少比自己亂練省下很多時間。')
+    ]
+  },
+  {
     id: 'team_roster_board', phase: 'team', title: '名單板上少一個名字',
     story: ({ season }) => `${season.age < 19 ? '明天的十二人名單' : '下一場登錄名單'} 還差最後一格。教練說今天的團練表現會直接影響決定。`,
     quote: '想上場就要讓教練知道，把你放進去能解決什麼問題。', prompt: '最後一個名額，你要怎麼搶？', hint: '秀強項、幫全隊或降低疲勞，都是一種選擇。', valueLabel: 'ROSTER', tint: '#dfff00',
@@ -420,11 +441,67 @@ const CAREER_SCENARIOS = [
       careerAction('B', '把條件全部研究清楚', '先知道風險，心裡才不會一直猜。', 'iq', 'playmaking', 'creator', -7, 1.5, { scout: 4, reputation: 2, load: 4, rhythm: -2 }, '你整理出真正要問的三個問題，不再被一堆數字嚇到。', '資訊越看越多，但至少知道自己還缺什麼。'),
       careerAction('C', '找教練談現在的定位', '直接問怎麼做才能得到更多機會。', 'playmaking', 'iq', 'connector', -8, 1.5, { trust: 9, scout: 2, load: 1 }, '教練沒有保證合約，但把你下一步該做什麼講得很清楚。', '答案不算好聽，不過比自己亂猜更有用。')
     ]
+  },
+  {
+    id: 'team_local_sponsor', phase: 'team', title: '在地品牌想拍你的第一支短片',
+    story: ({ season }) => `虛構運動飲料品牌「VOLT+」看上你最近的表現，想拍一支球館短片。${season.age < 19 ? '家長和學校都要先同意，酬勞不高，但同齡球迷會看到。' : '球隊同意合作，只提醒你別影響訓練。'}`,
+    quote: '曝光不是白送的，每一次合作也都在累積你的形象。', prompt: '第一個品牌邀請來了，你怎麼回覆？', hint: '合作能增加收入和曝光，也可能吃掉休息與訓練時間。', valueLabel: 'BRAND CALL', tint: '#ffcf66',
+    actions: ({ season }) => {
+      const income = season.age < 19 ? 2 : 10;
+      return [
+        careerAction('A', '接下球館短片', '把訓練日常拍得真實，不硬演。', 'iq', 'shooting', 'connector', -7, 1.35, { income, reputation: 7, scout: 3, load: 4 }, '成品沒有浮誇台詞，球迷反而喜歡你的真實感，合作也順利上線。', '鏡頭前有點僵，但品牌仍留下可用畫面。', { endorsement: { brand: 'VOLT+', type: '運動飲料短片' } }),
+        careerAction('B', '改成全隊一起入鏡', '把曝光分給隊友，也讓內容更自然。', 'playmaking', 'iq', 'connector', -10, 1.25, { income: Math.max(1, Math.round(income * .7)), reputation: 4, trust: 9, load: 2 }, '隊友玩得很開心，影片像真正的球隊日常，品牌也願意再合作。', '大家時間難喬，最後只拍到簡單片段。', { endorsement: { brand: 'VOLT+', type: '球隊聯名短片' } }),
+        careerAction('C', '先拒絕，保留休息時間', '這週身體太累，不勉強接工作。', 'athletic', 'iq', 'iron', -13, .85, { load: -14, rhythm: 3 }, '你把休息補回來，隔天訓練的速度明顯更好。', '品牌機會先離開了，但你的身體沒有被硬榨。')
+      ];
+    }
+  },
+  {
+    id: 'team_endorsement_pitch', phase: 'team', eligible: ({ season }) => season.age >= 16, title: '品牌簡報要你選個人形象',
+    story: ({ season }) => `虛構機能服品牌「NORTH ARC」帶著三套提案來球隊。${season.age < 19 ? '這是校園合作，監護人會一起審合約。' : '這份季中合作會直接影響你的收入和市場曝光。'}品牌只問：你希望大家記得哪一面的你？`,
+    quote: '代言不是換一件衣服而已，球迷會從內容認識你。', prompt: '你要把品牌合作做成什麼樣子？', hint: '訓練、團隊或潮流路線，會吸引不同目光。', valueLabel: 'PITCH DAY', tint: '#93b9c9',
+    actions: ({ season }) => {
+      const income = season.age < 19 ? 4 : 18;
+      return [
+        careerAction('A', '拍「苦練日常」企劃', '紀錄清晨訓練，不需要演戲。', 'athletic', 'iq', 'iron', -6, 1.5, { income, reputation: 8, scout: 4, load: 7 }, '你真的完成清晨訓練，片子上線後大家開始用「很拚」形容你。', '早起讓狀態有點差，還好拍攝沒有拖太久。', { endorsement: { brand: 'NORTH ARC', type: '機能服訓練企劃' } }),
+        careerAction('B', '拍「隊友讓我變強」', '讓助攻、防守和休息室互動成為主角。', 'playmaking', 'iq', 'connector', -9, 1.35, { income: Math.round(income * .9), reputation: 6, trust: 10, load: 3 }, '隊友願意幫忙，品牌片不只好看，球隊氣氛也被更多人看見。', '片子節奏普通，但隊友很在意你沒有只拍自己。', { endorsement: { brand: 'NORTH ARC', type: '團隊形象企劃' } }),
+        careerAction('C', '拍場外穿搭內容', '風格最搶眼，籃球內容則比較少。', 'shooting', 'iq', 'shooter', -3, 1.15, { income: Math.round(income * 1.15), reputation: 12, scout: 1, load: 4 }, '照片快速被轉發，你的場外辨識度一下拉高。', '造型很有話題，籃球圈的評價卻沒有明顯改變。', { endorsement: { brand: 'NORTH ARC', type: '場外形象企劃' } })
+      ];
+    }
+  },
+  {
+    id: 'team_shoe_trial', phase: 'team', eligible: ({ season }) => season.age >= 19, title: '球鞋品牌送來三雙測試鞋',
+    story: () => '虛構球鞋品牌「NOVA STEP」想簽一份短期體驗合作。合約還不是明星等級，但會提供裝備、拍攝費和曝光。品牌要求你實戰穿鞋，再交出真實回饋。',
+    quote: '好裝備是幫助，不會替你投進下一球。', prompt: '球鞋體驗合作，你要怎麼測？', hint: '實戰、科學測試或只收裝備，收益與口碑都不同。', valueLabel: 'SHOE DEAL', tint: '#dfff00',
+    actions: ({ season }) => {
+      const income = season.age >= 23 ? 35 : 12;
+      return [
+        careerAction('A', '重要比賽直接實戰穿', '曝光最高，但新鞋需要馬上適應。', 'athletic', 'finish', 'attack', -1, 1.45, { income, reputation: 12, scout: 6, load: 7, rhythm: -2 }, '鞋子撐住整場，你也打出一次漂亮切入，品牌把畫面剪進主廣告。', '鞋感還不熟影響第一步，品牌仍接受你的真實回饋。', { endorsement: { brand: 'NOVA STEP', type: '球鞋實戰體驗' } }),
+        careerAction('B', '先做完整體測再上場', '測抓地、緩震和落地，安全後才比賽。', 'iq', 'athletic', 'iron', -10, 1.5, { income: Math.round(income * .85), reputation: 7, scout: 3, load: 2 }, '你的回饋非常具體，品牌把你列進下一輪長約觀察名單。', '測試沒有爆點，但避免了不合腳就硬上的風險。', { endorsement: { brand: 'NOVA STEP', type: '球鞋性能測試' } }),
+        careerAction('C', '只接受裝備，不拍廣告', '收入較少，保留自己的使用空間。', 'iq', 'defense', 'connector', -12, 1.15, { income: Math.max(3, Math.round(income * .3)), reputation: 2, load: -2 }, '品牌尊重你的選擇，你也拿到一季裝備支援。', '合作沒有太多聲量，但至少沒有打亂場上準備。', { endorsement: { brand: 'NOVA STEP', type: '裝備支援' } })
+      ];
+    }
+  },
+  {
+    id: 'team_brand_content', phase: 'team', eligible: ({ season }) => season.age >= 16, title: '品牌日撞上球隊恢復課',
+    story: () => '虛構耳機品牌「ECHO RUN」臨時想加拍一支社群短片，時間剛好和球隊恢復課重疊。經紀人說收入不錯，體能教練則提醒你最近負荷偏高。',
+    quote: '能接工作不代表每一份都要接，長期生涯要會排時間。', prompt: '收入、曝光和身體撞在一起，你怎麼排？', hint: '全拍、縮短或婉拒，會留下不同的品牌與球隊評價。', valueLabel: 'MEDIA DAY', tint: '#65d9ff',
+    actions: ({ season }) => {
+      const income = season.age >= 23 ? 28 : 7;
+      return [
+        careerAction('A', '照原企劃全部拍完', '收入最高，但恢復課只能缺席。', 'shooting', 'iq', 'shooter', -2, 1.2, { income, reputation: 14, scout: 3, load: 12, trust: -3 }, '成品很有話題，你的追蹤數明顯上升，身體卻需要多一天恢復。', '拍攝拖太久，隔天訓練狀態明顯不在線。', { endorsement: { brand: 'ECHO RUN', type: '社群影音合作' } }),
+        careerAction('B', '把內容縮成三十分鐘', '少賺一點，恢復課也不缺席。', 'iq', 'playmaking', 'connector', -10, 1.35, { income: Math.round(income * .65), reputation: 7, trust: 6, load: 3 }, '你準時收工，品牌拿到素材，球隊也沒被放鳥。', '時間很趕，影片普通但行程至少沒有爆掉。', { endorsement: { brand: 'ECHO RUN', type: '精簡社群合作' } }),
+        careerAction('C', '這次先婉拒拍攝', '把恢復和下一場比賽放在前面。', 'athletic', 'iq', 'iron', -13, .9, { load: -18, trust: 7, rhythm: 4 }, '品牌沒有翻臉，體能教練也幫你把身體拉回好狀態。', '少了一筆收入，但下一場的雙腿很有感。')
+      ];
+    }
   }
 ];
 
 let state = null;
 let selectedPosition = 'PG';
+let selectedHeight = POSITIONS.PG.height;
+let selectedWeight = POSITIONS.PG.weight;
+let setupDiceRoll = null;
+let setupAllocations = { finish: 0, shooting: 0, playmaking: 0, defense: 0, athletic: 0, iq: 0 };
 let toastTimer = null;
 let offerCountryFilter = 'ALL';
 let offerSquadFilter = 'ALL';
@@ -477,6 +554,68 @@ function normalizeSeedCode(value) {
   return `CB-${compact.slice(0, 4)}${compact.length > 4 ? `-${compact.slice(4)}` : ''}`;
 }
 
+function emptyAllocations() {
+  return { finish: 0, shooting: 0, playmaking: 0, defense: 0, athletic: 0, iq: 0 };
+}
+
+function diceRollForSeed(seedCode) {
+  const code = normalizeSeedCode(seedCode) || generateSeedCode();
+  const random = makeSeedRandom(hashSeed(`${code}|DICE-DRAFT-V1`));
+  const count = 1 + Math.floor(random() * 6);
+  const faces = Array.from({ length: count }, () => 1 + Math.floor(random() * 6));
+  return { count, faces, total: faces.reduce((sum, face) => sum + face, 0) };
+}
+
+function physicalModifiers(profile) {
+  const position = POSITIONS[profile.position] || POSITIONS.PG;
+  const height = clamp(Number(profile.height) || position.height, position.heightRange[0], position.heightRange[1]);
+  const weight = clamp(Number(profile.weight) || position.weight, position.weightRange[0], position.weightRange[1]);
+  const heightUnits = (height - position.height) / 7;
+  const weightUnits = (weight - position.weight) / 12;
+  const round = (value) => Math.round(value * 10) / 10;
+  return {
+    height,
+    weight,
+    bonuses: {
+      finish: round(heightUnits * .55 + weightUnits * .7),
+      shooting: round(-Math.max(0, weightUnits) * .25),
+      playmaking: round(-heightUnits * .45 - weightUnits * .28),
+      defense: round(heightUnits * .75 + weightUnits * .35),
+      athletic: round(-Math.max(0, weightUnits) * .75 + Math.max(0, -weightUnits) * .35 - Math.max(0, heightUnits) * .15),
+      iq: 0
+    }
+  };
+}
+
+function allocationCap(stat, positionKey = selectedPosition, height = selectedHeight, weight = selectedWeight) {
+  const position = POSITIONS[positionKey] || POSITIONS.PG;
+  const tall = height >= position.height + 6;
+  const short = height <= position.height - 6;
+  const heavy = weight >= position.weight + 10;
+  let cap = position.caps[stat] || 10;
+  if (tall && ['finish', 'defense'].includes(stat)) cap += 1;
+  if (tall && ['playmaking', 'athletic'].includes(stat)) cap -= 1;
+  if (short && ['playmaking', 'athletic'].includes(stat)) cap += 1;
+  if (heavy && ['finish', 'defense'].includes(stat)) cap += 1;
+  if (heavy && stat === 'athletic') cap -= 1;
+  return clamp(cap, 6, 15);
+}
+
+function bodyAtAge(profile, age) {
+  const position = POSITIONS[profile.position] || POSITIONS.PG;
+  const adultHeight = Number(profile.height) || position.height;
+  const adultWeight = Number(profile.weight) || position.weight;
+  const progress = clamp((age - 13) / 5, 0, 1);
+  const heightGap = clamp(10 + (adultHeight - 180) * .22, 10, 22);
+  const weightGap = clamp(16 + (adultWeight - 80) * .2, 15, 30);
+  return {
+    height: Math.round(adultHeight - heightGap * (1 - progress)),
+    weight: Math.round(adultWeight - weightGap * (1 - progress)),
+    adultHeight,
+    adultWeight
+  };
+}
+
 function buildSeedProfile(seedCode) {
   const code = normalizeSeedCode(seedCode) || generateSeedCode();
   const hash = hashSeed(code);
@@ -497,8 +636,10 @@ function statsForProfile(profile, seedProfile = buildSeedProfile(profile.seed)) 
   addMap(stats, seedProfile.trait.bonus);
   addMap(stats, { [seedProfile.specialties[0]]: 5, [seedProfile.specialties[1]]: 2 });
   addMap(stats, POSITIONS[profile.position].bonus);
+  addMap(stats, physicalModifiers(profile).bonuses);
+  addMap(stats, profile.allocations || {});
   addMap(stats, STYLES[profile.style]?.bonus || {});
-  Object.keys(stats).forEach((key) => { stats[key] = clamp(stats[key], 35, 72); });
+  Object.keys(stats).forEach((key) => { stats[key] = clamp(stats[key], 35, 78); });
   return stats;
 }
 
@@ -507,13 +648,13 @@ function renderSeedPreview() {
   const preview = $('#seed-preview');
   if (!input || !preview) return;
   if (!input.value) {
-    preview.innerHTML = '<strong>?</strong><span><b>等待開獎</b><small>輸入種子碼，或按「重抽」交給命運決定。</small></span><em>能力保密</em>';
+    preview.innerHTML = '<strong>?</strong><span><b>隱藏天賦未生成</b><small>輸入種子碼，或按「重抽」產生新的隱藏能力。</small></span><em>能力保密</em>';
     return;
   }
   preview.innerHTML = `
     <strong>?</strong>
-    <span><b>命運已鎖定</b><small>初始能力、隱藏專長與成長速度都不公開，進場後自己感受。</small></span>
-    <em>開獎中</em>`;
+    <span><b>隱藏天賦不公開</b><small>種子碼控制底層專長與成長速度；你仍能用骰點打造自己的球員。</small></span>
+    <em>${setupDiceRoll ? `${setupDiceRoll.count} 顆骰子` : '等待擲骰'}</em>`;
 }
 
 function randomizeName() {
@@ -526,7 +667,12 @@ function randomizeName() {
 function prepareNewProfile(randomName = false) {
   if (randomName) randomizeName();
   $('#career-seed').value = generateSeedCode();
+  setupDiceRoll = null;
+  setupAllocations = emptyAllocations();
+  selectedHeight = POSITIONS[selectedPosition].height;
+  selectedWeight = POSITIONS[selectedPosition].weight;
   renderSeedPreview();
+  renderBuildLab();
 }
 
 function statTemplate(value = 49) {
@@ -749,8 +895,14 @@ function ensureStateSchema(parsed) {
   parsed.version = 3;
   parsed.contractHistory = Array.isArray(parsed.contractHistory) ? parsed.contractHistory : [];
   parsed.agingHistory = Array.isArray(parsed.agingHistory) ? parsed.agingHistory : [];
+  parsed.endorsements = Array.isArray(parsed.endorsements) ? parsed.endorsements : [];
   parsed.seenScenarioIds = Array.isArray(parsed.seenScenarioIds) ? parsed.seenScenarioIds : [];
   parsed.seasonScenarioIds = Array.isArray(parsed.seasonScenarioIds) ? parsed.seasonScenarioIds : [];
+  const savedPosition = POSITIONS[parsed.profile.position] || POSITIONS.PG;
+  parsed.profile.height = Number(parsed.profile.height) || savedPosition.height;
+  parsed.profile.weight = Number(parsed.profile.weight) || savedPosition.weight;
+  parsed.profile.allocations = parsed.profile.allocations || emptyAllocations();
+  parsed.profile.diceRoll = parsed.profile.diceRoll || { count: 0, faces: [], total: 0 };
   const upgradeSummary = (item) => {
     if (!item) return item;
     const team = TEAMS[item.teamId] || Object.values(TEAMS).find((candidate) => candidate.name === item.team) || TEAMS.tw_ms;
@@ -830,6 +982,7 @@ function createState(profile) {
     contract,
     contractHistory: [{ ...contract }],
     agingHistory: [],
+    endorsements: [],
     rosterStatus,
     careerStatus: 'active',
     wins: 0,
@@ -904,6 +1057,88 @@ function openSettings() {
   $('#settings-dialog').showModal();
 }
 
+function allocationSpent() {
+  return Object.values(setupAllocations).reduce((sum, value) => sum + value, 0);
+}
+
+function allocationRemaining() {
+  return Math.max(0, (setupDiceRoll?.total || 0) - allocationSpent());
+}
+
+function normalizeAllocationsToCaps() {
+  Object.keys(setupAllocations).forEach((stat) => {
+    setupAllocations[stat] = clamp(setupAllocations[stat], 0, allocationCap(stat));
+  });
+}
+
+function renderBuildLab() {
+  const position = POSITIONS[selectedPosition];
+  const heightInput = $('#player-height');
+  const weightInput = $('#player-weight');
+  if (!position || !heightInput || !weightInput) return;
+
+  heightInput.min = position.heightRange[0];
+  heightInput.max = position.heightRange[1];
+  heightInput.value = selectedHeight;
+  weightInput.min = position.weightRange[0];
+  weightInput.max = position.weightRange[1];
+  weightInput.value = selectedWeight;
+  $('#height-value').textContent = `${selectedHeight} cm`;
+  $('#weight-value').textContent = `${selectedWeight} kg`;
+
+  const physical = physicalModifiers({ position: selectedPosition, height: selectedHeight, weight: selectedWeight });
+  const impact = Object.entries(physical.bonuses)
+    .filter(([, value]) => Math.abs(value) >= .2)
+    .map(([stat, value]) => `${STAT_META[stat].label} ${value > 0 ? '+' : ''}${value.toFixed(1)}`);
+  const heightStyle = selectedHeight >= position.height + 6 ? '高大型' : selectedHeight <= position.height - 6 ? '低重心' : '標準身材';
+  const weightStyle = selectedWeight >= position.weight + 10 ? '厚實' : selectedWeight <= position.weight - 10 ? '輕量' : '均衡';
+  $('#body-archetype').textContent = `${heightStyle} · ${weightStyle} · ${position.name}`;
+  $('#body-impact').textContent = impact.length ? `體型影響：${impact.join(' · ')}` : '標準體型：沒有額外能力加減。';
+
+  normalizeAllocationsToCaps();
+
+  const dice = $('#dice-result');
+  const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+  if (setupDiceRoll) {
+    dice.innerHTML = `<div>${setupDiceRoll.faces.map((face) => `<i aria-label="${face} 點">${diceFaces[face - 1]}</i>`).join('')}</div><b>總共 ${setupDiceRoll.total} 點 · 剩下 ${allocationRemaining()} 點</b><small>${setupDiceRoll.count} 顆骰子，每一點都由你自己分配。</small>`;
+  } else {
+    dice.innerHTML = '<b>尚未擲骰</b><small>隨機 1–6 顆骰子，每顆會出現 1–6 點。</small>';
+  }
+  $('#roll-dice-button').disabled = Boolean(setupDiceRoll);
+  $('#roll-dice-button').textContent = setupDiceRoll ? '骰點已開出' : '擲骰開點';
+
+  $('#attribute-builder').innerHTML = Object.entries(STAT_META).map(([stat, meta]) => {
+    const value = setupAllocations[stat];
+    const cap = allocationCap(stat);
+    const canAdd = setupDiceRoll && allocationRemaining() > 0 && value < cap;
+    return `<div class="attribute-pick"><span><i>${meta.code}</i><b>${meta.label}</b><small>上限 +${cap}</small></span><div><button type="button" data-allocate="${stat}" data-direction="-1" ${value <= 0 ? 'disabled' : ''}>−</button><strong>+${value}</strong><button type="button" data-allocate="${stat}" data-direction="1" ${canAdd ? '' : 'disabled'}>＋</button></div></div>`;
+  }).join('');
+  document.querySelectorAll('[data-allocate]').forEach((button) => button.addEventListener('click', () => {
+    const stat = button.dataset.allocate;
+    const direction = Number(button.dataset.direction);
+    if (direction > 0 && (!setupDiceRoll || allocationRemaining() <= 0 || setupAllocations[stat] >= allocationCap(stat))) return;
+    setupAllocations[stat] = clamp(setupAllocations[stat] + direction, 0, allocationCap(stat));
+    renderBuildLab();
+  }));
+
+  const startButton = $('#setup-form .start-button');
+  if (startButton) {
+    const ready = Boolean(setupDiceRoll) && allocationRemaining() === 0;
+    startButton.disabled = !ready;
+    startButton.title = ready ? '建立球員檔案' : setupDiceRoll ? `還有 ${allocationRemaining()} 點尚未分配` : '請先擲骰';
+  }
+  renderSeedPreview();
+}
+
+function rollBuildDice() {
+  const seedInput = $('#career-seed');
+  const seed = normalizeSeedCode(seedInput.value) || generateSeedCode();
+  seedInput.value = seed;
+  setupDiceRoll = diceRollForSeed(seed);
+  setupAllocations = emptyAllocations();
+  renderBuildLab();
+}
+
 function renderSetupOptions() {
   $('#position-grid').innerHTML = Object.entries(POSITIONS).map(([key, item]) => `
     <button type="button" data-position="${key}" class="${key === selectedPosition ? 'selected' : ''}">
@@ -911,9 +1146,12 @@ function renderSetupOptions() {
     </button>`).join('');
   document.querySelectorAll('[data-position]').forEach((button) => button.addEventListener('click', () => {
     selectedPosition = button.dataset.position;
+    selectedHeight = POSITIONS[selectedPosition].height;
+    selectedWeight = POSITIONS[selectedPosition].weight;
+    setupAllocations = emptyAllocations();
     renderSetupOptions();
   }));
-  if ($('#career-seed')?.value) renderSeedPreview();
+  renderBuildLab();
 }
 
 function stageProgress() {
@@ -943,13 +1181,14 @@ function renderPlayerPanel() {
   const squad = teamSquadProfile(team);
   const roster = state.rosterStatus;
   const ovr = overall();
+  const body = bodyAtAge(state.profile, season.age);
   const ageTrend = state.agingHistory?.find((item) => item.year === season.year);
   const badge = state.badges.length ? BADGES[state.badges[state.badges.length - 1]].label : '尚未形成打法';
   $('#player-panel').innerHTML = `
     <div class="eyebrow">PLAYER FILE / ${state.profile.seed || String(state.seasonIndex + 1).padStart(4, '0')}</div>
     <div class="player-card">
       <div class="jersey" style="--team:${team.color}">${POSITIONS[state.profile.position].number}</div>
-      <div><h2>${escapeHtml(state.profile.name)}</h2><p>${COUNTRIES[team.country].name} · ${season.age} 歲 · ${state.profile.position}${squad ? ` · ${squad.label}` : ''}</p><small>${badge}${roster ? ` · ${roster.label}` : ''}</small></div>
+      <div><h2>${escapeHtml(state.profile.name)}</h2><p>${COUNTRIES[team.country].name} · ${season.age} 歲 · ${state.profile.position}${squad ? ` · ${squad.label}` : ''}</p><small>${body.height} cm · ${body.weight} kg · ${badge}${roster ? ` · ${roster.label}` : ''}</small></div>
     </div>
     <div class="rating-block"><span>綜合評分</span><strong>${ovr}</strong><small>${ageTrend ? `年齡曲線 ${ageTrend.before}→${ageTrend.after}` : 'OVR'}</small></div>
     <div class="stat-list">
@@ -1005,14 +1244,15 @@ function renderWorldPanel() {
     <div class="career-feed"><small>CAREER LOG</small>${state.history.slice(-3).reverse().map((item) => `<p><b>${item.year}</b><span>${COUNTRIES[item.country].flag} ${item.team}</span><em>${item.record}</em></p>`).join('') || '<p class="empty">第一筆紀錄會在賽季結束後出現。</p>'}</div>`;
 }
 
-function careerAction(code, title, desc, primary, secondary, tag, difficultyOffset, growth, deltas, success, failure) {
-  return { code, title, desc, primary, secondary, tag, difficulty: currentTeam().difficulty + difficultyOffset, growth, deltas, success, failure };
+function careerAction(code, title, desc, primary, secondary, tag, difficultyOffset, growth, deltas, success, failure, extras = {}) {
+  return { code, title, desc, primary, secondary, tag, difficulty: currentTeam().difficulty + difficultyOffset, growth, deltas, success, failure, ...extras };
 }
 
 function scenarioPoolForWeek(week = state.week) {
   if (week === 2) return CLUTCH_SCENARIOS;
   const phase = week === 0 ? 'training' : 'team';
-  return CAREER_SCENARIOS.filter((scenario) => scenario.phase === phase);
+  const context = { season: currentSeason(), team: currentTeam(), country: COUNTRIES[currentTeam().country] };
+  return CAREER_SCENARIOS.filter((scenario) => scenario.phase === phase && (!scenario.eligible || scenario.eligible(context)));
 }
 
 function selectWeeklyScenario() {
@@ -1109,7 +1349,7 @@ function renderDecisions(event) {
 }
 
 function formatDeltas(deltas = {}) {
-  const labels = { rhythm: '節奏', trust: '信任', load: '負荷', scout: '球探', reputation: '聲望' };
+  const labels = { rhythm: '節奏', trust: '信任', load: '負荷', scout: '球探', reputation: '聲望', income: '收入' };
   return Object.entries(deltas).map(([key, value]) => `${labels[key] || key} ${value > 0 ? '+' : ''}${value}`).join(' · ');
 }
 
@@ -1164,6 +1404,16 @@ function resolveAction(action) {
   const calc = pulseCalculation(action);
   const success = calc.margin >= 0;
   applyDeltas(action.deltas);
+  if (action.endorsement) {
+    state.endorsements = state.endorsements || [];
+    state.endorsements.push({
+      year: currentSeason().year,
+      brand: action.endorsement.brand,
+      type: action.endorsement.type,
+      income: action.deltas?.income || 0,
+      exposure: (action.deltas?.scout || 0) + (action.deltas?.reputation || 0)
+    });
+  }
   const specialtyGrowth = state.profile.seedSpecialties?.includes(action.primary) ? 1.08 : 1;
   const growth = action.growth * 1.35 * (state.profile.growthModifier || 1) * specialtyGrowth * (success ? 1 : .7);
   state.stats[action.primary] = clamp(state.stats[action.primary] + growth, 0, 99);
@@ -1608,6 +1858,7 @@ function careerAchievements(hall = hallOfFameProfile()) {
     { unlocked: overall() >= 70, title: '70 OVR CLUB', desc: `目前綜合評分 ${overall()}` },
     { unlocked: state.badges.length >= 3, title: '打法收藏家', desc: `已解鎖 ${state.badges.length} 個打法印記` },
     { unlocked: state.contractHistory?.some((contract) => contract.yearsTotal >= 3), title: '長約到手', desc: '用表現換到至少三年的球隊保障' },
+    { unlocked: state.endorsements?.length >= 1, title: '第一份代言', desc: `已完成 ${state.endorsements?.length || 0} 次品牌合作` },
     { unlocked: state.income >= 500, title: '五百萬俱樂部', desc: `生涯收入累積 ${Math.round(state.income)} 萬` },
     { unlocked: hall.inducted, title: '名人堂成員', desc: '生涯履歷正式通過名人堂門檻' }
   ];
@@ -1617,15 +1868,17 @@ function careerAchievements(hall = hallOfFameProfile()) {
 function renderCard() {
   const team = currentTeam();
   const season = currentSeason();
+  const body = bodyAtAge(state.profile, season.age);
   const route = careerRouteEntries();
   const hall = hallOfFameProfile();
   const achievements = careerAchievements(hall);
   const contractHistory = state.contractHistory || [];
+  const endorsements = state.endorsements || [];
   const seedIdentity = `<span><b>神秘種子</b><em>${state.profile.seed} · 隱藏能力會在生涯中慢慢展現</em></span>`;
   const playIdentity = state.badges.map((badge) => `<span><b>${BADGES[badge].label}</b><em>${BADGES[badge].desc}</em></span>`).join('') || '<span><b>打法尚未成形</b><em>持續做選擇，三次後會形成你的打法印記。</em></span>';
   $('#card-content').innerHTML = `
     <div class="card-kicker"><span>COURTBOUND / ${state.profile.seed || 'PLAYER DOSSIER'}</span><b>${overall()}</b></div>
-    <div class="big-player-name"><small>${state.profile.position} · ${POSITIONS[state.profile.position].name}</small><h2>${escapeHtml(state.profile.name)}</h2><p>${state.profile.hometown}出身 · ${state.profile.hand} · ${season.age} 歲 · ${team.name}</p></div>
+    <div class="big-player-name"><small>${state.profile.position} · ${POSITIONS[state.profile.position].name}</small><h2>${escapeHtml(state.profile.name)}</h2><p>${state.profile.hometown}出身 · ${state.profile.hand} · ${season.age} 歲 · ${body.height} cm / ${body.weight} kg · 預估成年 ${body.adultHeight} cm / ${body.adultWeight} kg · ${team.name}</p></div>
     <div class="card-stat-grid">${Object.entries(STAT_META).map(([key, meta]) => `<div><small>${meta.code}</small><b>${Math.round(state.stats[key])}</b><span>${meta.label}</span></div>`).join('')}</div>
     <section class="hall-card ${hall.inducted ? 'inducted' : ''}">
       <div><small>HALL OF FAME WATCH</small><h3>${hall.label}</h3><p>${hall.note}</p></div>
@@ -1640,6 +1893,7 @@ function renderCard() {
       <section><small>SCHOOLS & TEAMS / 生涯學校與球隊</small><div class="career-path-list">${route.map((item) => `<div class="${item.current ? 'current' : ''}"><i>${item.year}</i><b>${COUNTRIES[item.country]?.flag || item.country}</b><span><strong>${escapeHtml(item.team)}</strong><small>${item.stage}${item.squadLabel ? ` · ${item.squadLabel}` : ''}${item.rosterLabel ? ` · ${item.rosterLabel}` : ''}${item.minutes != null ? ` ${item.minutes} MPG` : ''} · ${item.record}${item.champion ? ' · 冠軍' : ''}</small></span></div>`).join('')}</div></section>
       <section><small>ACHIEVEMENTS / 生涯成就</small><div class="achievement-grid">${achievements.map((item, index) => `<div><i>${String(index + 1).padStart(2, '0')}</i><span><b>${item.title}</b><small>${item.desc}</small></span></div>`).join('')}</div></section>
       <section class="contract-ledger"><small>CONTRACTS / 生涯合約</small><div>${contractHistory.map((contract) => { const contractTeam = TEAMS[contract.teamId] || TEAMS.tw_ms; const squadLabel = contract.squadLabel || teamSquadProfile(contractTeam)?.label || ''; const trend = contract.salaryTrendPenalty ? ` · 能力下滑影響 -${contract.salaryTrendPenalty}%` : ''; return `<span><i>${contract.signedYear}</i><b>${escapeHtml(contractTeam.name)}</b><em>${contract.type}${squadLabel ? ` · ${squadLabel}` : ''} · ${contract.yearsTotal} 年 · 年薪 ${moneyLabel(contract.annualSalary, '學生')} · 月薪 ${moneyLabel(contract.monthlySalary, '—')} · 簽約金 ${moneyLabel(contract.signingBonus)}${trend}</em></span>`; }).join('')}</div></section>
+      ${endorsements.length ? `<section class="contract-ledger endorsement-ledger"><small>ENDORSEMENTS / 品牌合作</small><div>${endorsements.map((deal) => `<span><i>${deal.year}</i><b>${escapeHtml(deal.brand)}</b><em>${escapeHtml(deal.type)} · 收入 ${moneyLabel(deal.income)} · 曝光 +${deal.exposure || 0}</em></span>`).join('')}</div></section>` : ''}
     </div>`;
   $('#card-dialog').showModal();
 }
@@ -1743,10 +1997,17 @@ function restartGame() {
 function bindStaticEvents() {
   $('#setup-form').addEventListener('submit', (event) => {
     event.preventDefault();
+    if (!setupDiceRoll || allocationRemaining() > 0) {
+      showToast(setupDiceRoll ? `還有 ${allocationRemaining()} 點尚未分配` : '請先擲骰，再分配能力點數');
+      return;
+    }
     const name = $('#player-name').value.trim() || '未命名新秀';
     const seed = normalizeSeedCode($('#career-seed').value) || generateSeedCode();
     $('#career-seed').value = seed;
-    state = createState({ name, seed, hometown: $('#hometown').value, hand: $('#hand').value, position: selectedPosition, style: 'none' });
+    state = createState({
+      name, seed, hometown: $('#hometown').value, hand: $('#hand').value, position: selectedPosition, style: 'none',
+      height: selectedHeight, weight: selectedWeight, allocations: { ...setupAllocations }, diceRoll: { ...setupDiceRoll, faces: [...setupDiceRoll.faces] }
+    });
     saveGame();
     $('#setup-dialog').close();
     renderAll();
@@ -1754,13 +2015,26 @@ function bindStaticEvents() {
   });
   $('#random-name-button').addEventListener('click', randomizeName);
   $('#random-seed-button').addEventListener('click', () => prepareNewProfile(false));
+  $('#roll-dice-button').addEventListener('click', rollBuildDice);
+  $('#player-height').addEventListener('input', (event) => {
+    selectedHeight = Number(event.target.value);
+    normalizeAllocationsToCaps();
+    renderBuildLab();
+  });
+  $('#player-weight').addEventListener('input', (event) => {
+    selectedWeight = Number(event.target.value);
+    normalizeAllocationsToCaps();
+    renderBuildLab();
+  });
   $('#career-seed').addEventListener('input', (event) => {
     event.target.value = event.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
-    renderSeedPreview();
+    setupDiceRoll = null;
+    setupAllocations = emptyAllocations();
+    renderBuildLab();
   });
   $('#career-seed').addEventListener('blur', (event) => {
     event.target.value = normalizeSeedCode(event.target.value) || generateSeedCode();
-    renderSeedPreview();
+    renderBuildLab();
   });
   $('#continue-button').addEventListener('click', () => {
     state = loadGame();
