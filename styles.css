@@ -804,3 +804,301 @@ body.interface-mobile .growth-feedback > div { grid-template-columns:1fr; }
 .achievement-grid b { font-size:11px; }
 .achievement-grid small { font-size:9px; }
 
+/* v0.1 / full-bleed visual system */
+:root {
+  --paper:#f5f1e7;
+  --ink:#151814;
+  --muted:#b7b3a8;
+  --line:rgba(242,237,224,.1);
+  --orange:#ff7b52;
+  --lime:#d9ed83;
+  --blue:#93b9c9;
+  --panel:#20241f;
+  --panel2:#282c25;
+}
+
+html,body { background:#1a1f1b; }
+body {
+  background:
+    radial-gradient(circle at 12% 8%,rgba(119,151,130,.2),transparent 34%),
+    radial-gradient(circle at 90% 88%,rgba(194,112,77,.12),transparent 32%),
+    linear-gradient(145deg,#222a24 0%,#191e1a 58%,#20221d 100%);
+}
+.noise { opacity:.045; }
+.app-shell { padding:0; gap:0; background:transparent; }
+.panel,.topbar { border:0; box-shadow:none; }
+.topbar {
+  padding-inline:clamp(20px,2.2vw,38px);
+  background:rgba(24,30,26,.76);
+  border-bottom:1px solid rgba(242,237,224,.08);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+.dashboard { gap:0; }
+.player-panel,.world-panel { background:rgba(16,20,17,.16); }
+.court-panel { background:rgba(10,14,11,.1); }
+
+/* Opening screen is part of the world instead of a floating box. */
+#setup-dialog {
+  padding:0;
+  background:
+    radial-gradient(circle at 12% 12%,rgba(142,179,154,.23),transparent 36%),
+    radial-gradient(circle at 86% 84%,rgba(255,123,82,.13),transparent 34%),
+    linear-gradient(145deg,#242d26,#181d19 64%,#22241e);
+}
+#setup-dialog::backdrop { background:#1a1f1b; }
+.setup-card {
+  width:min(1080px,100%);
+  max-height:100dvh;
+  padding:clamp(34px,5.2vw,76px);
+  border:0;
+  background:transparent;
+  box-shadow:none;
+  overflow:auto;
+}
+.setup-intro { max-width:790px; margin-bottom:clamp(24px,3vh,38px); }
+.setup-game-name {
+  display:flex;
+  align-items:flex-end;
+  flex-wrap:wrap;
+  gap:clamp(10px,1vw,16px);
+  margin:0 0 14px;
+}
+.setup-game-name span { color:var(--paper); font-size:clamp(46px,5.4vw,78px); line-height:.88; letter-spacing:-.06em; }
+.setup-game-name b { color:var(--lime); font-size:clamp(26px,3vw,43px); line-height:1; letter-spacing:.04em; }
+.setup-game-name em {
+  margin-bottom:4px;
+  padding:5px 8px;
+  border-radius:999px;
+  background:rgba(217,237,131,.12);
+  color:var(--lime);
+  font-size:11px;
+  font-style:normal;
+  letter-spacing:.08em;
+}
+.setup-intro p { max-width:720px; color:#d2cec3; font-size:clamp(15px,1.25vw,18px); line-height:1.75; }
+.setup-fields input,.setup-fields select,.seed-field input {
+  border-color:transparent;
+  border-radius:12px;
+  background:rgba(247,243,232,.075);
+}
+.field-action button,.position-grid button,.style-grid button {
+  border-color:transparent;
+  border-radius:12px;
+  background:rgba(247,243,232,.065);
+}
+.position-grid button:hover,.position-grid button.active,.style-grid button:hover,.style-grid button.active {
+  border-color:transparent;
+  background:rgba(217,237,131,.14);
+  box-shadow:inset 0 0 0 1px rgba(217,237,131,.3);
+}
+.seed-preview {
+  border-color:transparent;
+  border-radius:12px;
+  background:rgba(147,185,201,.09);
+}
+
+/* Quiet surfaces keep information grouped without rebuilding the boxed frame. */
+.mini-stats span,.stat-row,.identity-strip,.route-list > div,.market-score div,
+.contract-card,.contract-card dl div,.goal-card,.option-grid button,
+.pulse-gauge,.formula-strip span,.box-score span,.season-report-grid span {
+  border-color:transparent;
+  border-radius:12px;
+  background:rgba(7,10,8,.24);
+}
+.rating-block,.arena-head { border-color:rgba(242,237,224,.08); }
+.route-list > div.open { border-color:transparent; }
+.option-grid button:hover {
+  border-color:transparent;
+  background:rgba(217,237,131,.1);
+  box-shadow:inset 0 0 0 1px rgba(217,237,131,.25);
+}
+.position-grid button.selected,.style-grid button.selected {
+  border-color:transparent;
+  background:var(--lime);
+  box-shadow:none;
+}
+.style-grid button.selected { background:var(--orange); }
+.court-scene { border-radius:clamp(16px,1.4vw,24px); }
+
+/* Desktop readability target: approximately 130% of the former compact UI. */
+@media (min-width:761px) {
+  body:not(.interface-mobile) { font-size:16px; }
+  body:not(.interface-mobile) .app-shell { grid-template-rows:76px minmax(0,1fr); padding:0; gap:0; }
+  body:not(.interface-mobile) .topbar {
+    grid-template-columns:clamp(285px,22vw,350px) minmax(0,1fr) auto;
+    gap:clamp(18px,2vw,34px);
+    padding-inline:clamp(22px,2.4vw,40px);
+  }
+  body:not(.interface-mobile) .brand { gap:12px; }
+  body:not(.interface-mobile) .brand-ball { width:45px; }
+  body:not(.interface-mobile) .brand b { font-size:27px; }
+  body:not(.interface-mobile) .brand small { font-size:10px; }
+  body:not(.interface-mobile) .version-badge { padding:3px 6px; font-size:10px; }
+  body:not(.interface-mobile) .season-track span { font-size:12px; }
+  body:not(.interface-mobile) .season-track i { width:clamp(12px,2.8vw,48px); }
+  body:not(.interface-mobile) .top-actions { gap:8px; }
+  body:not(.interface-mobile) .top-actions button { min-height:44px; padding-inline:16px; border:0; border-radius:11px; font-size:13px; }
+
+  body:not(.interface-mobile) .dashboard {
+    grid-template-columns:clamp(275px,20.5vw,345px) minmax(500px,1fr) clamp(290px,21vw,365px);
+    gap:0;
+  }
+  body:not(.interface-mobile) .player-panel,
+  body:not(.interface-mobile) .world-panel { gap:14px; padding:clamp(20px,1.8vw,30px); overflow-y:auto; }
+  body:not(.interface-mobile) .player-panel { box-shadow:inset -1px 0 rgba(242,237,224,.055); }
+  body:not(.interface-mobile) .world-panel { box-shadow:inset 1px 0 rgba(242,237,224,.055); }
+  body:not(.interface-mobile) .eyebrow { font-size:11px; }
+  body:not(.interface-mobile) .player-card { gap:14px; }
+  body:not(.interface-mobile) .jersey { width:60px; height:69px; font-size:29px; }
+  body:not(.interface-mobile) .player-card h2 { font-size:21px; }
+  body:not(.interface-mobile) .player-card p { font-size:12px; }
+  body:not(.interface-mobile) .player-card small { font-size:10px; }
+  body:not(.interface-mobile) .rating-block { padding:13px 0; }
+  body:not(.interface-mobile) .rating-block span { font-size:12px; }
+  body:not(.interface-mobile) .rating-block strong { font-size:52px; }
+  body:not(.interface-mobile) .rating-block small { font-size:11px; }
+  body:not(.interface-mobile) .mini-stats { gap:7px; }
+  body:not(.interface-mobile) .mini-stats span { padding:10px 8px; font-size:10px; }
+  body:not(.interface-mobile) .mini-stats b { font-size:21px; }
+  body:not(.interface-mobile) .stat-list { gap:7px; }
+  body:not(.interface-mobile) .stat-row { min-height:53px; grid-template-columns:28px minmax(0,1fr) 34px; gap:7px; padding:8px; }
+  body:not(.interface-mobile) .stat-row > i { width:27px; height:27px; border-radius:8px; font-size:12px; }
+  body:not(.interface-mobile) .stat-row > span { font-size:12px; }
+  body:not(.interface-mobile) .stat-row > span small { font-size:9px; }
+  body:not(.interface-mobile) .stat-row > b { font-size:22px; }
+  body:not(.interface-mobile) .stat-row > ins { font-size:9px; }
+  body:not(.interface-mobile) .pulse-meters { gap:10px; }
+  body:not(.interface-mobile) .meter span { margin-bottom:7px; font-size:11px; }
+  body:not(.interface-mobile) .meter i { height:6px; border-radius:99px; overflow:hidden; }
+  body:not(.interface-mobile) .identity-strip { padding:11px 13px; border-left:0; }
+  body:not(.interface-mobile) .identity-strip small { font-size:9px; }
+  body:not(.interface-mobile) .identity-strip b { font-size:12px; }
+
+  body:not(.interface-mobile) .court-panel { grid-template-rows:auto minmax(190px,.82fr) minmax(0,1.18fr); padding:0 clamp(14px,1.3vw,24px) clamp(14px,1.3vw,24px); }
+  body:not(.interface-mobile) .arena-head { padding:18px 8px 16px; }
+  body:not(.interface-mobile) .arena-head span { font-size:11px; }
+  body:not(.interface-mobile) .arena-head h1 { font-size:clamp(30px,3vw,45px); }
+  body:not(.interface-mobile) .week-chip { padding:9px 11px; border:0; border-radius:11px; background:rgba(247,243,232,.07); font-size:11px; }
+  body:not(.interface-mobile) .week-chip b { font-size:21px; }
+  body:not(.interface-mobile) .week-chip small { font-size:10px; }
+  body:not(.interface-mobile) .scene-copy { left:25px; bottom:21px; }
+  body:not(.interface-mobile) .scene-copy small { padding:6px 8px; border-radius:6px; font-size:11px; }
+  body:not(.interface-mobile) .scene-copy p { max-width:670px; margin-top:8px; font-size:16px; line-height:1.65; }
+  body:not(.interface-mobile) .scene-copy blockquote { max-width:670px; font-size:12px; }
+  body:not(.interface-mobile) .scoreboard { right:20px; top:18px; min-width:92px; padding:10px; border-radius:8px; }
+  body:not(.interface-mobile) .scoreboard span,
+  body:not(.interface-mobile) .scoreboard small { font-size:10px; }
+  body:not(.interface-mobile) .scoreboard b { font-size:44px; }
+  body:not(.interface-mobile) .decision-zone { gap:15px; padding:18px 4px 4px; overflow:auto; }
+  body:not(.interface-mobile) .decision-head small { font-size:11px; }
+  body:not(.interface-mobile) .decision-head h2 { font-size:23px; }
+  body:not(.interface-mobile) .decision-head p { max-width:340px; font-size:12px; line-height:1.55; }
+  body:not(.interface-mobile) .option-grid { gap:11px; }
+  body:not(.interface-mobile) .option-grid button { padding:17px; }
+  body:not(.interface-mobile) .option-grid em { font-size:21px; }
+  body:not(.interface-mobile) .option-grid b { margin:9px 0 6px; font-size:16px; line-height:1.35; }
+  body:not(.interface-mobile) .option-grid span { font-size:13px; line-height:1.55; }
+  body:not(.interface-mobile) .option-grid small { margin-top:11px; font-size:11px; line-height:1.45; }
+  body:not(.interface-mobile) .option-grid button small i { font-size:10px; }
+
+  body:not(.interface-mobile) .world-title h2,
+  body:not(.interface-mobile) .world-panel h2 { font-size:21px; }
+  body:not(.interface-mobile) .world-title p { font-size:10px; }
+  body:not(.interface-mobile) .world-title > span { width:40px; height:40px; border-radius:12px; font-size:14px; }
+  body:not(.interface-mobile) .route-list { gap:7px; }
+  body:not(.interface-mobile) .route-list > div { grid-template-columns:40px minmax(0,1fr) auto; gap:9px; padding:10px; }
+  body:not(.interface-mobile) .route-list i { width:38px; height:38px; border-radius:10px; font-size:13px; }
+  body:not(.interface-mobile) .route-list b { font-size:13px; }
+  body:not(.interface-mobile) .route-list small,
+  body:not(.interface-mobile) .route-list em { font-size:10px; }
+  body:not(.interface-mobile) .market-score div { padding:10px 6px; }
+  body:not(.interface-mobile) .market-score span { font-size:10px; }
+  body:not(.interface-mobile) .market-score b { font-size:23px; }
+  body:not(.interface-mobile) .market-score b small { font-size:10px; }
+  body:not(.interface-mobile) .contract-card { gap:9px; padding:11px; }
+  body:not(.interface-mobile) .contract-card > div small { font-size:9px; }
+  body:not(.interface-mobile) .contract-card > div b { font-size:12px; }
+  body:not(.interface-mobile) .contract-card dl div { padding:7px; }
+  body:not(.interface-mobile) .contract-card dt { font-size:9px; }
+  body:not(.interface-mobile) .contract-card dd { font-size:11px; }
+  body:not(.interface-mobile) .goal-card { padding:13px; }
+  body:not(.interface-mobile) .goal-card > small,
+  body:not(.interface-mobile) .career-feed > small { font-size:10px; }
+  body:not(.interface-mobile) .goal-card b { font-size:14px; }
+  body:not(.interface-mobile) .goal-card p { font-size:11px; }
+  body:not(.interface-mobile) .career-feed p { grid-template-columns:42px minmax(0,1fr) auto; gap:7px; padding:8px 0; font-size:10px; }
+  body:not(.interface-mobile) .career-feed p b { font-size:11px; }
+
+  body:not(.interface-mobile) .setup-card { width:min(1080px,100%); max-height:100dvh; padding:clamp(34px,5.2vw,76px); overflow:auto; }
+  body:not(.interface-mobile) .setup-fields { gap:10px; }
+  body:not(.interface-mobile) .setup-fields label,
+  body:not(.interface-mobile) legend { gap:6px; font-size:12px; }
+  body:not(.interface-mobile) .setup-fields input,
+  body:not(.interface-mobile) .setup-fields select { height:50px; padding-inline:14px; font-size:15px; }
+  body:not(.interface-mobile) .field-action button { min-width:76px; font-size:13px; }
+  body:not(.interface-mobile) .seed-builder { gap:10px; margin-top:11px; }
+  body:not(.interface-mobile) .seed-field { gap:6px; font-size:12px; }
+  body:not(.interface-mobile) .seed-field small { font-size:10px; }
+  body:not(.interface-mobile) .seed-field input,
+  body:not(.interface-mobile) .seed-preview { height:52px; min-height:52px; }
+  body:not(.interface-mobile) .seed-preview { padding:8px 12px; }
+  body:not(.interface-mobile) .seed-preview > strong { font-size:13px; }
+  body:not(.interface-mobile) .seed-preview b { font-size:13px; }
+  body:not(.interface-mobile) .seed-preview small { font-size:11px; }
+  body:not(.interface-mobile) .seed-preview > em { font-size:12px; }
+  body:not(.interface-mobile) fieldset { margin-top:14px; }
+  body:not(.interface-mobile) legend { margin-bottom:8px; }
+  body:not(.interface-mobile) .position-grid { gap:8px; }
+  body:not(.interface-mobile) .position-grid button { padding:11px; }
+  body:not(.interface-mobile) .position-grid small { font-size:19px; }
+  body:not(.interface-mobile) .position-grid b { margin:5px 0 3px; font-size:13px; }
+  body:not(.interface-mobile) .position-grid span { font-size:10px; line-height:1.45; }
+  body:not(.interface-mobile) .setup-footer { gap:13px; margin-top:16px; }
+  body:not(.interface-mobile) .setup-footer > span { font-size:11px; }
+  body:not(.interface-mobile) .setup-footer button { min-height:49px; border-radius:12px; font-size:13px; }
+}
+
+@media (min-width:981px) and (max-width:1120px) {
+  body:not(.interface-mobile) .dashboard { grid-template-columns:250px minmax(440px,1fr) 265px; }
+  body:not(.interface-mobile) .player-panel,
+  body:not(.interface-mobile) .world-panel { padding:18px; }
+}
+
+@media (min-width:761px) and (max-width:980px) {
+  body:not(.interface-mobile) .dashboard { grid-template-columns:270px minmax(0,1fr); }
+  body:not(.interface-mobile) .world-panel { display:none; }
+}
+
+@media (min-width:761px) and (max-height:780px) {
+  body:not(.interface-mobile) .app-shell { grid-template-rows:68px minmax(0,1fr); }
+  body:not(.interface-mobile) .topbar { transform:none; }
+  body:not(.interface-mobile) .player-panel,
+  body:not(.interface-mobile) .world-panel { gap:9px; padding-block:14px; }
+  body:not(.interface-mobile) .court-panel { grid-template-rows:auto minmax(165px,.75fr) minmax(0,1.25fr); }
+  body:not(.interface-mobile) .arena-head { padding-block:13px 11px; }
+  body:not(.interface-mobile) .decision-zone { gap:10px; padding-top:12px; }
+  body:not(.interface-mobile) .option-grid button { padding:13px; }
+  body:not(.interface-mobile) .setup-card { padding-block:26px; }
+  body:not(.interface-mobile) .setup-intro { margin-bottom:19px; }
+  body:not(.interface-mobile) .setup-game-name span { font-size:48px; }
+  body:not(.interface-mobile) .setup-game-name b { font-size:28px; }
+  body:not(.interface-mobile) .setup-intro p { font-size:14px; line-height:1.55; }
+  body:not(.interface-mobile) .setup-fields input,
+  body:not(.interface-mobile) .setup-fields select { height:43px; }
+  body:not(.interface-mobile) .seed-field input,
+  body:not(.interface-mobile) .seed-preview { height:47px; min-height:47px; }
+  body:not(.interface-mobile) fieldset { margin-top:9px; }
+  body:not(.interface-mobile) .position-grid button { padding:8px; }
+  body:not(.interface-mobile) .setup-footer { margin-top:10px; }
+}
+
+@media (max-width:700px), (max-width:760px) {
+  #setup-dialog { padding:0; }
+  .setup-card { padding:26px 18px 34px; }
+  .setup-intro { margin-bottom:24px; }
+  .setup-game-name span { font-size:48px; }
+  .setup-game-name b { font-size:27px; }
+  .setup-intro p { font-size:15px; line-height:1.65; }
+}
+

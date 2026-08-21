@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0b0b09" />
   <meta name="description" content="《籃途 COURTBOUND》原創籃球生涯模擬器——從台灣國中出發，走向台、日、韓、中、美職業舞台。" />
   <title>籃途 COURTBOUND｜原創籃球生涯模擬器</title>
-  <link rel="stylesheet" href="styles.css?v=courtbound9" />
+  <link rel="stylesheet" href="styles.css?v=courtbound10" />
 </head>
 <body>
   <div class="noise" aria-hidden="true"></div>
@@ -44,10 +44,10 @@
 
   <dialog id="setup-dialog" class="game-dialog">
     <form class="setup-card" id="setup-form">
-      <div class="setup-top"><span>NEW SAVE / ORIGIN 13</span><b>01</b></div>
-      <div class="setup-game-name"><span>籃途</span><b>COURTBOUND</b></div>
-      <div class="setup-title"><div><p>從台灣國中校隊出發，<br>下一站由你自己選。</p><h1>13 歲，開打。</h1></div><div class="setup-logo">CB<br><i>13</i></div></div>
-      <p class="setup-lead">每個種子碼都藏著不同天賦與成長速度，開局不會告訴你抽到什麼。進場打球，慢慢把答案玩出來。</p>
+      <header class="setup-intro">
+        <div class="setup-game-name"><span>籃途</span><b>COURTBOUND</b><em>v0.1</em></div>
+        <p>從台灣國中出發，靠你的選擇與實力走向台、日、韓、中、美。每個種子碼都藏著不同天賦，這次生涯由你決定。</p>
+      </header>
       <div class="setup-fields">
         <label><span>球員姓名</span><div class="field-action"><input id="player-name" maxlength="12" value="林拓海" autocomplete="off" required /><button type="button" id="random-name-button">隨機</button></div></label>
         <label><span>家鄉</span><select id="hometown"><option>北部</option><option>中部</option><option>南部</option><option>東部</option><option>離島</option></select></label>
@@ -66,7 +66,6 @@
         <span>單局約 20–30 分鐘 · 本機自動存檔</span>
         <button class="start-button" type="submit">建立球員檔案 <b>→</b></button>
       </div>
-      <div class="setup-version">籃途 COURTBOUND · v0.1</div>
     </form>
   </dialog>
 
@@ -122,7 +121,7 @@
 
   <canvas id="share-canvas" width="1080" height="1750" hidden></canvas>
   <div class="toast" id="toast" role="status"></div>
-  <script src="app.js?v=courtbound9"></script>
+  <script src="app.js?v=courtbound10"></script>
 </body>
 </html>
 
