@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0b0b09" />
   <meta name="description" content="《籃途 COURTBOUND》原創籃球生涯模擬器——從台灣國中出發，走向台、日、韓、中、美職業舞台。" />
   <title>籃途 COURTBOUND｜原創籃球生涯模擬器</title>
-  <link rel="stylesheet" href="styles.css?v=courtbound11" />
+  <link rel="stylesheet" href="styles.css?v=courtbound12" />
 </head>
 <body>
   <div class="noise" aria-hidden="true"></div>
@@ -95,6 +95,8 @@
         <div><b>04 / 打法</b><span>常做同一類選擇，就會解鎖你的專屬強項。</span></div>
         <div><b>05 / 合約生存</b><span>短約薪水高但風險大；長約保障高，表現太差仍可能被釋出。</span></div>
         <div><b>06 / 球季報告</b><span>每季結束都會整理自身強度、聯賽難度、市場評級、薪資和合約結果。</span></div>
+        <div><b>07 / 年齡與薪資</b><span>30 歲後能力可能下滑，下一份約的月薪與簽約金也會跟著調整；已簽好的保障合約不會被追扣。</span></div>
+        <div><b>08 / 五國市場</b><span>台、日、韓、中、美各有 6 支虛構職業隊，可以依國家比較聯賽強度與報價。</span></div>
       </div>
       <p class="engine-note">每次結果都會告訴你加分和扣分在哪裡。運氣只占一小部分，練球和選擇更重要。</p>
     </article>
@@ -111,6 +113,7 @@
     <article class="offer-dialog-card">
       <div class="offer-heading"><div><small>MARKET WINDOW</small><h2 id="offer-title">下一站要去哪？</h2></div><span id="offer-count"></span></div>
       <p class="offer-lead" id="offer-lead"></p>
+      <div class="offer-country-filter" id="offer-country-filter" hidden></div>
       <div class="offer-grid" id="offer-grid"></div>
     </article>
   </dialog>
@@ -121,7 +124,7 @@
 
   <canvas id="share-canvas" width="1080" height="1750" hidden></canvas>
   <div class="toast" id="toast" role="status"></div>
-  <script src="app.js?v=courtbound11"></script>
+  <script src="app.js?v=courtbound12"></script>
 </body>
 </html>
 

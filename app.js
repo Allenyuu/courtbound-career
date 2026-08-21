@@ -74,12 +74,38 @@ const TEAMS = {
   us_juco: { id: 'us_juco', country: 'US', name: 'Lake Mesa College', league: 'US College Division II', level: 'development', difficulty: 74, prestige: 4, salary: 8, entry: 69, contractStyle: 'short', color: '#65d9ff' },
   us_ncaa: { id: 'us_ncaa', country: 'US', name: 'Pacific State', league: 'US College Division I', level: 'development', difficulty: 82, prestige: 6, salary: 18, entry: 76, color: '#65d9ff' },
   tw_pro: { id: 'tw_pro', country: 'TW', name: '基隆夜航', league: '島嶼職業聯賽', level: 'pro', difficulty: 77, prestige: 5, salary: 115, entry: 70, contractStyle: 'short', color: '#dfff00' },
+  tw_taoyuan: { id: 'tw_taoyuan', country: 'TW', name: '桃園飛行者', league: '島嶼職業聯賽', level: 'pro', difficulty: 76, prestige: 5, salary: 105, entry: 69, contractStyle: 'standard', color: '#c8ee46' },
+  tw_hsinchu: { id: 'tw_hsinchu', country: 'TW', name: '新竹工程師', league: '島嶼職業聯賽', level: 'pro', difficulty: 78, prestige: 5, salary: 122, entry: 71, contractStyle: 'long', color: '#b8df60' },
+  tw_taichung: { id: 'tw_taichung', country: 'TW', name: '台中疾風', league: '島嶼職業聯賽', level: 'pro', difficulty: 79, prestige: 6, salary: 132, entry: 73, contractStyle: 'standard', color: '#e4f36a' },
+  tw_tainan: { id: 'tw_tainan', country: 'TW', name: '台南赤焰', league: '島嶼職業聯賽', level: 'pro', difficulty: 75, prestige: 4, salary: 92, entry: 68, contractStyle: 'short', color: '#f4c95d' },
+  tw_kaohsiung: { id: 'tw_kaohsiung', country: 'TW', name: '高雄港鯨', league: '島嶼職業聯賽', level: 'pro', difficulty: 81, prestige: 6, salary: 148, entry: 75, contractStyle: 'long', color: '#8fd7a8' },
   jp_pro: { id: 'jp_pro', country: 'JP', name: '東京流星', league: '日本一級聯賽', level: 'pro', difficulty: 84, prestige: 6, salary: 190, entry: 77, contractStyle: 'standard', color: '#ff6a72' },
+  jp_osaka: { id: 'jp_osaka', country: 'JP', name: '大阪飛龍', league: '日本一級聯賽', level: 'pro', difficulty: 83, prestige: 6, salary: 178, entry: 76, contractStyle: 'short', color: '#ff826f' },
+  jp_yokohama: { id: 'jp_yokohama', country: 'JP', name: '橫濱浪潮', league: '日本一級聯賽', level: 'pro', difficulty: 82, prestige: 5, salary: 168, entry: 75, contractStyle: 'standard', color: '#ff8e9e' },
+  jp_hokkaido: { id: 'jp_hokkaido', country: 'JP', name: '北海道冰原', league: '日本一級聯賽', level: 'pro', difficulty: 85, prestige: 7, salary: 205, entry: 79, contractStyle: 'long', color: '#8ed8ff' },
+  jp_nagoya: { id: 'jp_nagoya', country: 'JP', name: '名古屋齒輪', league: '日本一級聯賽', level: 'pro', difficulty: 84, prestige: 6, salary: 195, entry: 78, contractStyle: 'standard', color: '#e591ff' },
+  jp_fukuoka: { id: 'jp_fukuoka', country: 'JP', name: '福岡烈火', league: '日本一級聯賽', level: 'pro', difficulty: 86, prestige: 7, salary: 225, entry: 81, contractStyle: 'long', color: '#ff6b4a' },
   kr_pro: { id: 'kr_pro', country: 'KR', name: '仁川鋼翼', league: '韓國職業聯賽', level: 'pro', difficulty: 83, prestige: 6, salary: 205, entry: 77, contractStyle: 'long', color: '#78a7ff' },
+  kr_seoul: { id: 'kr_seoul', country: 'KR', name: '首爾白虎', league: '韓國職業聯賽', level: 'pro', difficulty: 85, prestige: 7, salary: 228, entry: 80, contractStyle: 'long', color: '#92b8ff' },
+  kr_busan: { id: 'kr_busan', country: 'KR', name: '釜山防波堤', league: '韓國職業聯賽', level: 'pro', difficulty: 82, prestige: 5, salary: 180, entry: 75, contractStyle: 'short', color: '#61c4e8' },
+  kr_changwon: { id: 'kr_changwon', country: 'KR', name: '昌原黑鴉', league: '韓國職業聯賽', level: 'pro', difficulty: 84, prestige: 6, salary: 212, entry: 78, contractStyle: 'standard', color: '#9a91ff' },
+  kr_suwon: { id: 'kr_suwon', country: 'KR', name: '水原電光', league: '韓國職業聯賽', level: 'pro', difficulty: 81, prestige: 5, salary: 172, entry: 74, contractStyle: 'standard', color: '#70d4ff' },
+  kr_daegu: { id: 'kr_daegu', country: 'KR', name: '大邱暴風', league: '韓國職業聯賽', level: 'pro', difficulty: 86, prestige: 7, salary: 238, entry: 81, contractStyle: 'long', color: '#667cff' },
   cn_pro: { id: 'cn_pro', country: 'CN', name: '上海引擎', league: '中國頂級聯賽', level: 'pro', difficulty: 87, prestige: 7, salary: 280, entry: 81, contractStyle: 'standard', color: '#ff7057' },
+  cn_beijing: { id: 'cn_beijing', country: 'CN', name: '北京天幕', league: '中國頂級聯賽', level: 'pro', difficulty: 89, prestige: 8, salary: 340, entry: 84, contractStyle: 'long', color: '#ff8b5f' },
+  cn_guangzhou: { id: 'cn_guangzhou', country: 'CN', name: '廣州南星', league: '中國頂級聯賽', level: 'pro', difficulty: 86, prestige: 7, salary: 265, entry: 80, contractStyle: 'standard', color: '#ff6a76' },
+  cn_chengdu: { id: 'cn_chengdu', country: 'CN', name: '成都遠峰', league: '中國頂級聯賽', level: 'pro', difficulty: 85, prestige: 6, salary: 245, entry: 78, contractStyle: 'short', color: '#f69a56' },
+  cn_shenzhen: { id: 'cn_shenzhen', country: 'CN', name: '深圳脈衝', league: '中國頂級聯賽', level: 'pro', difficulty: 88, prestige: 8, salary: 315, entry: 83, contractStyle: 'long', color: '#ff587f' },
+  cn_nanjing: { id: 'cn_nanjing', country: 'CN', name: '南京城牆', league: '中國頂級聯賽', level: 'pro', difficulty: 84, prestige: 6, salary: 232, entry: 77, contractStyle: 'standard', color: '#d98955' },
   us_g: { id: 'us_g', country: 'US', name: 'Austin Stampede', league: 'US Development League', level: 'pro', difficulty: 90, prestige: 8, salary: 250, entry: 84, contractStyle: 'short', color: '#65d9ff' },
+  us_phoenix: { id: 'us_phoenix', country: 'US', name: 'Phoenix Voltage', league: 'US Development League', level: 'pro', difficulty: 89, prestige: 7, salary: 235, entry: 83, contractStyle: 'short', color: '#ff9565' },
+  us_chicago: { id: 'us_chicago', country: 'US', name: 'Chicago Foundry', league: 'US Elite League', level: 'pro', difficulty: 93, prestige: 9, salary: 510, entry: 89, contractStyle: 'standard', color: '#82b8ff' },
+  us_miami: { id: 'us_miami', country: 'US', name: 'Miami Current', league: 'US Elite League', level: 'pro', difficulty: 92, prestige: 9, salary: 470, entry: 88, contractStyle: 'standard', color: '#61e6d2' },
+  us_boston: { id: 'us_boston', country: 'US', name: 'Boston Monarchs', league: 'US Elite League', level: 'pro', difficulty: 94, prestige: 10, salary: 560, entry: 91, contractStyle: 'long', color: '#86d07f' },
   us_elite: { id: 'us_elite', country: 'US', name: 'Seattle Tempest', league: 'US Elite League', level: 'pro', difficulty: 95, prestige: 10, salary: 620, entry: 92, contractStyle: 'long', color: '#65d9ff' }
 };
+
+const PRO_TEAM_IDS = Object.values(TEAMS).filter((team) => team.level === 'pro').map((team) => team.id);
 
 const SEASONS = [
   { age: 13, year: 2039, stage: '國中', name: '菜鳥季', target: '搶到第一次上場機會', pressure: 0 },
@@ -159,6 +185,7 @@ const CLUTCH_SCENARIOS = [
 let state = null;
 let selectedPosition = 'PG';
 let toastTimer = null;
+let offerCountryFilter = 'ALL';
 
 const $ = (selector) => document.querySelector(selector);
 const clamp = (value, min = 0, max = 100) => Math.max(min, Math.min(max, value));
@@ -336,6 +363,8 @@ function contractForOffer(team, nextSeason, score) {
   const entry = team.entry || 0;
   const margin = score - entry;
   const random = makeSeedRandom(hashSeed(`${state.profile.seed}|${nextSeason.year}|${team.id}|CONTRACT`));
+  const aging = state.agingHistory?.find((item) => item.year === nextSeason.year);
+  const trendPenalty = aging?.salaryPenalty || 0;
   let years = 1;
   let type = '一年校隊名額';
 
@@ -352,7 +381,7 @@ function contractForOffer(team, nextSeason, score) {
     type = years >= 3 ? '球隊長約' : years === 2 ? '標準合約' : '一年證明約';
   }
 
-  const salaryMultiplier = clamp(.82 + margin * .025 + random() * .08, .68, 1.38) * (years === 1 ? 1.08 : years >= 3 ? .96 : 1);
+  const salaryMultiplier = clamp(.82 + margin * .025 + random() * .08, .68, 1.38) * (years === 1 ? 1.08 : years >= 3 ? .96 : 1) * (1 - trendPenalty);
   const annualSalary = roundMoney((team.salary || 0) * salaryMultiplier);
   const bonusRate = nextSeason.age <= 18 ? 0 : years >= 3 ? .2 : years === 2 ? .1 : .04;
   const guaranteedRate = nextSeason.age <= 18 ? 0 : years >= 3 ? 80 : years === 2 ? 55 : 25;
@@ -361,13 +390,15 @@ function contractForOffer(team, nextSeason, score) {
   return {
     id: `${team.id}-${nextSeason.year}-${hashSeed(`${state.profile.seed}|${team.id}|${nextSeason.year}`).toString(36).slice(0, 5)}`,
     teamId: team.id, type, yearsTotal: years, yearsLeft: years, annualSalary, monthlySalary: roundMoney(annualSalary / 12),
-    signingBonus: roundMoney(annualSalary * bonusRate), guaranteedRate, cutRisk, status: 'active', signedYear: nextSeason.year
+    signingBonus: roundMoney(annualSalary * bonusRate * (1 - trendPenalty * .5)), guaranteedRate, cutRisk, status: 'active', signedYear: nextSeason.year,
+    abilityAtSigning: overall(), abilityTrend: aging ? -aging.drop : 0, salaryTrendPenalty: Math.round(trendPenalty * 100)
   };
 }
 
 function ensureStateSchema(parsed) {
   parsed.version = 2;
   parsed.contractHistory = Array.isArray(parsed.contractHistory) ? parsed.contractHistory : [];
+  parsed.agingHistory = Array.isArray(parsed.agingHistory) ? parsed.agingHistory : [];
   parsed.careerStatus = parsed.careerStatus || 'active';
   if (!parsed.contract) {
     parsed.contract = startingContract(parsed.teamId, parsed.seasonIndex);
@@ -421,6 +452,7 @@ function createState(profile) {
     income: 0,
     contract,
     contractHistory: [{ ...contract }],
+    agingHistory: [],
     careerStatus: 'active',
     wins: 0,
     losses: 0,
@@ -529,6 +561,7 @@ function renderPlayerPanel() {
   const season = currentSeason();
   const team = currentTeam();
   const ovr = overall();
+  const ageTrend = state.agingHistory?.find((item) => item.year === season.year);
   const badge = state.badges.length ? BADGES[state.badges[state.badges.length - 1]].label : '尚未形成打法';
   $('#player-panel').innerHTML = `
     <div class="eyebrow">PLAYER FILE / ${state.profile.seed || String(state.seasonIndex + 1).padStart(4, '0')}</div>
@@ -536,7 +569,7 @@ function renderPlayerPanel() {
       <div class="jersey" style="--team:${team.color}">${POSITIONS[state.profile.position].number}</div>
       <div><h2>${escapeHtml(state.profile.name)}</h2><p>${COUNTRIES[team.country].name} · ${season.age} 歲 · ${state.profile.position}</p><small>${badge}</small></div>
     </div>
-    <div class="rating-block"><span>綜合評分</span><strong>${ovr}</strong><small>OVR</small></div>
+    <div class="rating-block"><span>綜合評分</span><strong>${ovr}</strong><small>${ageTrend ? `年齡曲線 ${ageTrend.before}→${ageTrend.after}` : 'OVR'}</small></div>
     <div class="stat-list">
       ${Object.entries(STAT_META).map(([key, meta]) => {
         const tier = statTier(state.stats[key]);
@@ -917,11 +950,40 @@ function marketScore() {
   return overall() + state.scout * .14 + state.reputation * .06 + state.trophies * 1.5;
 }
 
+function applyAgeCurve(nextSeason) {
+  if (!nextSeason || nextSeason.age < 30) return null;
+  state.agingHistory = Array.isArray(state.agingHistory) ? state.agingHistory : [];
+  const existing = state.agingHistory.find((item) => item.year === nextSeason.year);
+  if (existing) return existing;
+
+  const before = overall();
+  const baseDecline = nextSeason.age >= 34 ? 2.8 : 1.45;
+  const fatigueDecline = Math.max(0, state.load - 55) * .018;
+  const ironProtection = state.profile.seedTrait === 'iron' ? .72 : 1;
+  const declineWeights = { finish: .9, shooting: .45, playmaking: .35, defense: .75, athletic: 1.25, iq: .15 };
+  const changes = {};
+
+  Object.entries(declineWeights).forEach(([stat, weight]) => {
+    const loss = Math.round((baseDecline * weight + fatigueDecline) * ironProtection * 10) / 10;
+    const oldValue = state.stats[stat];
+    state.stats[stat] = clamp(oldValue - loss, 35, 99);
+    changes[stat] = Math.round((state.stats[stat] - oldValue) * 10) / 10;
+  });
+
+  const after = overall();
+  const drop = Math.max(0, before - after);
+  const salaryPenalty = clamp(drop * .055 + (nextSeason.age >= 34 ? .015 : 0), 0, .24);
+  const record = { year: nextSeason.year, age: nextSeason.age, before, after, drop, salaryPenalty, changes };
+  state.agingHistory.push(record);
+  saveGame();
+  return record;
+}
+
 function offerPool(nextAge) {
   if (nextAge <= 15) return ['tw_ms'];
   if (nextAge <= 18) return ['tw_high', 'jp_high', 'kr_high', 'cn_youth', 'us_prep'];
   if (nextAge <= 22) return ['tw_uni', 'tw_rookie', 'jp_uni', 'kr_uni', 'cn_dev', 'us_juco', 'us_ncaa'];
-  return ['tw_pro', 'jp_pro', 'kr_pro', 'cn_pro', 'us_g', 'us_elite'];
+  return PRO_TEAM_IDS;
 }
 
 function generateOffers() {
@@ -934,6 +996,7 @@ function generateOffers() {
     const bAffinity = b.country === current.country ? 4 : 0;
     return Math.abs((a.entry || 0) - score) - aAffinity - (Math.abs((b.entry || 0) - score) - bAffinity);
   });
+  if (nextAge >= 23) return sorted;
   const selected = [];
   const local = pool.find((team) => team.country === 'TW' && score >= team.entry - 5) || pool[0];
   selected.push(local);
@@ -952,25 +1015,45 @@ function isOfferEligible(team, score) {
   return score >= offerThreshold(team);
 }
 
-function showOffers() {
+function renderOfferMarket() {
   const offers = generateOffers();
   const score = marketScore();
   const nextSeason = SEASONS[state.seasonIndex + 1];
-  $('#offer-count').textContent = `${offers.filter((team) => isOfferEligible(team, score)).length} OPEN / ${offers.length}`;
+  const proMarket = nextSeason.age >= 23;
+  const visibleOffers = proMarket && offerCountryFilter !== 'ALL' ? offers.filter((team) => team.country === offerCountryFilter) : offers;
+  const aging = state.agingHistory?.find((item) => item.year === nextSeason.year);
+  $('#offer-count').textContent = `${visibleOffers.filter((team) => isOfferEligible(team, score)).length} OPEN / ${visibleOffers.length}${proMarket ? ` · TOTAL ${offers.length}` : ''}`;
   $('#offer-title').textContent = nextSeason.age >= 23 ? '職業球隊來找你了' : '下一站要去哪？';
-  $('#offer-lead').textContent = `市場評級 ${score.toFixed(1)}。金額以遊戲幣「萬」計算；短約薪水高一點但更容易被裁，長約保障高、也會把你留在同一隊。`;
-  $('#offer-grid').innerHTML = offers.map((team) => {
+  $('#offer-lead').textContent = `市場評級 ${score.toFixed(1)}。短約薪水較高但風險大，長約保障較高。${aging ? `進入 ${aging.age} 歲球季，能力從 ${aging.before} 降到 ${aging.after} OVR；新合約的月薪與簽約金已套用約 ${Math.round(aging.salaryPenalty * 100)}% 的下滑影響。` : '目前能力沒有年齡下滑，因此報價主要看實力、聲望與聯賽難度。'}`;
+  $('#offer-country-filter').hidden = !proMarket;
+  $('#offer-country-filter').innerHTML = proMarket ? ['ALL', ...Object.keys(COUNTRIES)].map((key) => {
+    const count = key === 'ALL' ? offers.length : offers.filter((team) => team.country === key).length;
+    const label = key === 'ALL' ? '全部' : COUNTRIES[key].name;
+    return `<button type="button" data-offer-country="${key}" class="${offerCountryFilter === key ? 'active' : ''}">${label}<b>${count}</b></button>`;
+  }).join('') : '';
+  $('#offer-grid').innerHTML = visibleOffers.map((team) => {
     const eligible = isOfferEligible(team, score);
     const country = COUNTRIES[team.country];
     const contract = contractForOffer(team, nextSeason, score);
     return `<button type="button" data-offer="${team.id}" class="${eligible ? '' : 'locked'}" ${eligible ? '' : 'disabled'} style="--offer:${team.color}">
       <div><i>${country.flag}</i><span>${country.name}</span><em>${eligible ? contract.type : `需 ${offerThreshold(team)}`}</em></div>
       <h3>${team.name}</h3><p>${team.league}</p>
-      <dl><div><dt>聯賽強度</dt><dd>${leagueStrengthLabel(team.difficulty)} · ${team.difficulty}</dd></div><div><dt>合約長度</dt><dd>${contract.yearsTotal} 年</dd></div><div><dt>年薪／月薪</dt><dd>${moneyLabel(contract.annualSalary, '學生')}／${moneyLabel(contract.monthlySalary, '—')}</dd></div><div><dt>簽約金</dt><dd>${moneyLabel(contract.signingBonus)}</dd></div><div><dt>薪資保障</dt><dd>${contract.guaranteedRate}%</dd></div><div><dt>預估淘汰風險</dt><dd>${contract.cutRisk}%</dd></div></dl>
+      <dl><div><dt>聯賽強度</dt><dd>${leagueStrengthLabel(team.difficulty)} · ${team.difficulty}</dd></div><div><dt>合約長度</dt><dd>${contract.yearsTotal} 年</dd></div><div><dt>年薪／月薪</dt><dd>${moneyLabel(contract.annualSalary, '學生')}／${moneyLabel(contract.monthlySalary, '—')}</dd></div><div><dt>簽約金</dt><dd>${moneyLabel(contract.signingBonus)}</dd></div><div><dt>簽約時能力</dt><dd>${contract.abilityAtSigning} OVR</dd></div><div><dt>能力走勢</dt><dd>${contract.abilityTrend < 0 ? `${contract.abilityTrend} · 薪資 -${contract.salaryTrendPenalty}%` : '持平'}</dd></div><div><dt>薪資保障</dt><dd>${contract.guaranteedRate}%</dd></div><div><dt>預估淘汰風險</dt><dd>${contract.cutRisk}%</dd></div></dl>
       <small>${eligible ? `${country.style} · 點擊簽下這份約` : '目前市場評級不足'}</small>
     </button>`;
   }).join('');
+  document.querySelectorAll('[data-offer-country]').forEach((button) => button.addEventListener('click', () => {
+    offerCountryFilter = button.dataset.offerCountry;
+    renderOfferMarket();
+  }));
   document.querySelectorAll('[data-offer]:not(:disabled)').forEach((button) => button.addEventListener('click', () => acceptOffer(button.dataset.offer)));
+}
+
+function showOffers() {
+  const nextSeason = SEASONS[state.seasonIndex + 1];
+  applyAgeCurve(nextSeason);
+  offerCountryFilter = nextSeason.age >= 23 ? currentTeam().country : 'ALL';
+  renderOfferMarket();
   $('#offer-dialog').showModal();
 }
 
@@ -989,12 +1072,15 @@ function acceptOffer(teamId) {
 
 function continueCurrentContract() {
   const team = currentTeam();
+  const nextSeason = SEASONS[state.seasonIndex + 1];
+  const aging = applyAgeCurve(nextSeason);
   startNextSeason(team, false);
-  showToast(`長約生效：續留 ${team.name}`);
+  showToast(aging ? `續留 ${team.name} · 能力 ${aging.before} → ${aging.after}` : `長約生效：續留 ${team.name}`);
 }
 
 function startNextSeason(team, transfer) {
   const previousCountry = state.history.at(-1)?.country;
+  applyAgeCurve(SEASONS[state.seasonIndex + 1]);
   state.teamId = team.id;
   if (!state.visited.includes(team.country)) state.visited.push(team.country);
   state.seasonIndex += 1;
@@ -1111,7 +1197,7 @@ function renderCard() {
     <div class="career-card-details">
       <section><small>SCHOOLS & TEAMS / 生涯學校與球隊</small><div class="career-path-list">${route.map((item) => `<div class="${item.current ? 'current' : ''}"><i>${item.year}</i><b>${COUNTRIES[item.country]?.flag || item.country}</b><span><strong>${escapeHtml(item.team)}</strong><small>${item.stage} · ${item.record}${item.champion ? ' · 冠軍' : ''}</small></span></div>`).join('')}</div></section>
       <section><small>ACHIEVEMENTS / 生涯成就</small><div class="achievement-grid">${achievements.map((item, index) => `<div><i>${String(index + 1).padStart(2, '0')}</i><span><b>${item.title}</b><small>${item.desc}</small></span></div>`).join('')}</div></section>
-      <section class="contract-ledger"><small>CONTRACTS / 生涯合約</small><div>${contractHistory.map((contract) => { const contractTeam = TEAMS[contract.teamId] || TEAMS.tw_ms; return `<span><i>${contract.signedYear}</i><b>${escapeHtml(contractTeam.name)}</b><em>${contract.type} · ${contract.yearsTotal} 年 · 年薪 ${moneyLabel(contract.annualSalary, '學生')} · 簽約金 ${moneyLabel(contract.signingBonus)}</em></span>`; }).join('')}</div></section>
+      <section class="contract-ledger"><small>CONTRACTS / 生涯合約</small><div>${contractHistory.map((contract) => { const contractTeam = TEAMS[contract.teamId] || TEAMS.tw_ms; const trend = contract.salaryTrendPenalty ? ` · 能力下滑影響 -${contract.salaryTrendPenalty}%` : ''; return `<span><i>${contract.signedYear}</i><b>${escapeHtml(contractTeam.name)}</b><em>${contract.type} · ${contract.yearsTotal} 年 · 年薪 ${moneyLabel(contract.annualSalary, '學生')} · 月薪 ${moneyLabel(contract.monthlySalary, '—')} · 簽約金 ${moneyLabel(contract.signingBonus)}${trend}</em></span>`; }).join('')}</div></section>
     </div>`;
   $('#card-dialog').showModal();
 }

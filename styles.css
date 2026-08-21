@@ -358,8 +358,14 @@ legend { margin-bottom:7px; color:var(--muted); font-size:8px; }
 .offer-heading h2 { margin:4px 0 0; font-size:clamp(28px,4vw,45px); }
 .offer-heading > span { color:var(--orange); font:800 18px 'Barlow Condensed'; }
 .offer-lead { margin:7px 0 15px; color:var(--muted); font-size:9px; }
+.offer-country-filter { display:flex; flex-wrap:wrap; gap:6px; margin:0 0 13px; }
+.offer-country-filter[hidden] { display:none; }
+.offer-country-filter button { display:flex; align-items:center; gap:7px; min-height:34px; padding:0 11px; border:0; border-radius:999px; color:var(--muted); background:#11110f; cursor:pointer; font-size:9px; font-weight:800; }
+.offer-country-filter button b { min-width:19px; padding:3px 5px; border-radius:999px; color:var(--paper); background:#292923; font:800 9px 'Barlow Condensed'; }
+.offer-country-filter button:hover,.offer-country-filter button.active { color:#111; background:var(--lime); }
+.offer-country-filter button.active b { color:var(--lime); background:#11110f; }
 .offer-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
-.offer-grid > button { min-width:0; min-height:300px; display:grid; grid-template-rows:auto auto auto 1fr auto; align-content:start; padding:12px; border:1px solid #3a3a34; color:var(--paper); background:#11110f; text-align:left; cursor:pointer; }
+.offer-grid > button { min-width:0; min-height:350px; display:grid; grid-template-rows:auto auto auto 1fr auto; align-content:start; padding:12px; border:1px solid #3a3a34; color:var(--paper); background:#11110f; text-align:left; cursor:pointer; }
 .offer-grid > button:hover:not(:disabled) { border-color:var(--offer); transform:translateY(-2px); }
 .offer-grid > button.locked { opacity:.4; cursor:not-allowed; }
 .offer-grid > button > div { display:flex; align-items:center; gap:5px; }
@@ -595,7 +601,9 @@ body { font-size:13px; }
 .card-columns dt { font-size:9px; }
 .offer-heading small { font-size:10px; }
 .offer-lead { font-size:11px; line-height:1.5; }
-.offer-grid > button { min-height:310px; }
+.offer-country-filter button { min-height:38px; padding-inline:14px; font-size:11px; }
+.offer-country-filter button b { font-size:10px; }
+.offer-grid > button { min-height:360px; }
 .offer-grid i { width:31px; height:31px; font-size:10px; }
 .offer-grid > button > div span,.offer-grid > button > div em { font-size:9px; }
 .offer-grid h3 { font-size:18px; }
