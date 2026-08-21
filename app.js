@@ -436,7 +436,7 @@ function renderGame({ resetScroll = false } = {}) {
     </div>
   </div>`;
   bindGame(); updateHallCount();
-  window.scrollTo(0, resetScroll ? 0 : previousScroll);
+  window.scrollTo({ top: resetScroll ? 0 : previousScroll, behavior: "instant" });
 }
 
 function careerHeader(season) {
