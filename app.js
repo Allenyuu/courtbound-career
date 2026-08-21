@@ -57,12 +57,10 @@ const SEASONS = [
 ];
 
 const TRAINING = [
-  { id: "mechanics", icon: "⌁", name: "極限操作訓練", desc: "把失誤壓進毫秒以下。高報酬，也最快耗損身體。", effects: { mechanics: 3, stress: 6, health: -3 }, tags: ["操作 +3", "壓力 +6", "健康 -3"] },
-  { id: "review", icon: "◫", name: "錄像與戰術複盤", desc: "把輸掉的每個瞬間，變成下一場的答案。", effects: { sense: 3, stress: 4 }, tags: ["意識 +3", "壓力 +4"] },
-  { id: "scrim", icon: "⌘", name: "高強度團隊團練", desc: "磨合呼吸、口令與臨場判斷，建立五個人的節奏。", effects: { comms: 2, synergy: 7, stress: 5, morale: 2 }, tags: ["溝通 +2", "默契 +7", "壓力 +5"] },
-  { id: "ranked", icon: "◇", name: "深夜天梯衝分", desc: "在陌生隊友與逆風局裡，鍛鍊真正的穩定性。", effects: { nerve: 3, fame: 1, fans: 450, stress: 7 }, tags: ["抗壓 +3", "聲量 +1", "壓力 +7"] },
-  { id: "media", icon: "◎", name: "直播與品牌經營", desc: "職業不只在賽場。讓觀眾記得你的名字與故事。", effects: { fame: 3, fans: 1800, stress: 5, credits: 1 }, tags: ["聲量 +3", "粉絲 +1,800", "收入 +1"] },
-  { id: "recover", icon: "＋", name: "運動科學恢復", desc: "關掉螢幕、鬆開握滑鼠的手。休息也是訓練。", effects: { health: 12, stress: -13, stamina: 1 }, tags: ["健康 +12", "壓力 -13", "體能 +1"] }
+  { id: "scrim", icon: "⌘", name: "高強度團隊團練", desc: "磨合口令與臨場判斷，建立五個人的共同節奏。", effects: { synergy: 9, morale: 4, stress: 5 }, tags: ["默契 +9", "士氣 +4", "壓力 +5"] },
+  { id: "media", icon: "◎", name: "直播與品牌經營", desc: "讓觀眾記得你的名字，也讓戰隊有更多資源。", effects: { fans: 1800, credits: 1, reputation: 2, stress: 4 }, tags: ["粉絲 +1,800", "收入 +1萬", "口碑 +2", "壓力 +4"] },
+  { id: "recover", icon: "＋", name: "運動科學恢復", desc: "關掉螢幕、鬆開握滑鼠的手。休息也是訓練。", effects: { health: 15, stress: -15 }, tags: ["健康 +15", "壓力 -15"] },
+  { id: "review", icon: "◫", name: "教練團戰術會議", desc: "統一賽季方向，讓隊伍在高壓場面仍相信彼此。", effects: { morale: 7, synergy: 5, reputation: 3, stress: 2 }, tags: ["士氣 +7", "默契 +5", "口碑 +3", "壓力 +2"] }
 ];
 
 const EVENTS = [
@@ -150,6 +148,16 @@ const ACHIEVEMENTS = [
   { id: "legend", name: "ZERO PING", desc: "以 S 級評價結束生涯。" }
 ];
 
+const MISSIONS = [
+  { id: "firstDecision", name: "第一個決定", desc: "完成第一次賽季事件。", reward: 2, check: s => s.flags.firstDecision },
+  { id: "firstSeries", name: "打響第一槍", desc: "贏得生涯第一場系列賽。", reward: 3, check: s => s.wins >= 1 },
+  { id: "cleanSeries", name: "完美封鎖", desc: "以 2：0 贏下一場 BO3。", reward: 4, check: s => s.flags.cleanSweep },
+  { id: "teamSync", name: "五人同頻", desc: "團隊默契達到 75。", reward: 4, check: s => s.synergy >= 75 },
+  { id: "risingStar", name: "萬人應援", desc: "累積 10,000 名粉絲。", reward: 3, check: s => s.fans >= 10000 },
+  { id: "international", name: "跨區選手", desc: "闖入亞洲聯合大師賽。", reward: 4, check: s => s.season >= 4 },
+  { id: "worldChampion", name: "世界之巔", desc: "贏得 HORIZON 世界總決賽。", reward: 6, check: s => s.flags.worldChampion }
+];
+
 const NAMES = ["林曜", "沈星宇", "陳以澈", "周若衡", "江行川", "顧安", "葉知秋", "夏沐恩", "許墨", "唐子晴"];
 const HANDLES = ["Vanta", "Aster", "Kite", "Nox", "Mori", "Re:Zero", "Glint", "Echo7", "Lynx", "Serein"];
 
@@ -213,11 +221,22 @@ function potentialFromSeed(seed) {
   return stats;
 }
 
+function prepareSeasonTraining(target = state) {
+  target.diceSeason = target.season;
+  target.trainingDice = Array.from({ length: 3 }, () => ({
+    value: Math.floor(seededValue(target.seed, target.rngCounter++) * 6) + 1,
+    used: false,
+    target: null,
+    gain: 0
+  }));
+  target.selectedDie = null;
+}
+
 function createState() {
   const base = { mechanics: 42, sense: 40, comms: 38, nerve: 39, stamina: 43, fame: 22 };
   Object.entries(ROLES[setup.role].stats).forEach(([key, val]) => base[key] += val);
-  return {
-    version: 1,
+  const freshState = {
+    version: 2,
     name: setup.name.trim() || "林曜",
     handle: (setup.handle.trim() || "Vanta").replace(/^@/, ""),
     game: setup.game,
@@ -227,7 +246,7 @@ function createState() {
     rngCounter: 0,
     season: 0,
     phase: "prep",
-    ap: 3,
+    ap: 1,
     stats: base,
     caps: potentialFromSeed(setup.seed),
     health: 88,
@@ -245,8 +264,29 @@ function createState() {
     wins: 0,
     losses: 0,
     trophies: 0,
+    bonusPoints: 0,
+    missionsClaimed: [],
+    trainingDice: [],
+    selectedDie: null,
+    diceSeason: -1,
     log: [{ year: 2032, title: "選手註冊", text: `以 @${setup.handle || "Vanta"} 之名，進入 ${GAMES[setup.game].title} 職業賽道。` }]
   };
+  prepareSeasonTraining(freshState);
+  return freshState;
+}
+
+function ensureStateShape() {
+  const legacy = !state.version || state.version < 2;
+  state.version = 2;
+  state.flags ||= {};
+  state.log ||= [];
+  state.bonusPoints ??= 0;
+  state.missionsClaimed ||= [];
+  state.selectedDie ??= null;
+  if (legacy) state.ap = state.phase === "prep" ? 1 : 0;
+  if (state.phase === "prep" && (state.diceSeason !== state.season || !Array.isArray(state.trainingDice) || state.trainingDice.length !== 3)) {
+    prepareSeasonTraining(state);
+  }
 }
 
 function renderStart() {
@@ -346,6 +386,7 @@ function applyEffects(effects = {}) {
   if (effects.team) state.team = effects.team;
   if (effects.teamCode) state.teamCode = effects.teamCode;
   checkPassiveAchievements();
+  checkMissions();
 }
 
 function checkPassiveAchievements() {
@@ -355,6 +396,24 @@ function checkPassiveAchievements() {
   if (state.flags.loyal) unlock("loyal");
 }
 
+function checkMissions() {
+  state.missionsClaimed ||= [];
+  let changed = false;
+  MISSIONS.forEach(mission => {
+    if (state.missionsClaimed.includes(mission.id) || !mission.check(state)) return;
+    state.missionsClaimed.push(mission.id);
+    state.bonusPoints += mission.reward;
+    state.log.push({
+      year: SEASONS[Math.min(state.season, SEASONS.length - 1)].year,
+      title: `特殊任務｜${mission.name}`,
+      text: `任務達成，獲得 ${mission.reward} 點自由能力值。`
+    });
+    toast(`特殊任務完成｜<b>${mission.name}</b> ＋${mission.reward} 能力點`);
+    changed = true;
+  });
+  if (changed) saveGame();
+}
+
 function getOVR() {
   const values = Object.values(state.stats);
   return Math.round(values.reduce((a,b) => a+b, 0) / values.length);
@@ -362,10 +421,13 @@ function getOVR() {
 
 function renderGame() {
   if (!state) return renderStart();
+  ensureStateShape();
+  checkMissions();
   if (state.phase === "ending") return renderEnding();
   const season = SEASONS[state.season];
   app.innerHTML = `<div class="game-shell">
     ${careerHeader(season)}
+    ${careerFocusBar()}
     ${phaseTrack()}
     <div class="game-grid">
       <section class="stage-card" id="stage">${renderStage()}</section>
@@ -388,6 +450,22 @@ function careerHeader(season) {
   </header>`;
 }
 
+function goalProgressText() {
+  if (state.goal === "champion") return `系列賽 ${state.wins}/5 勝｜世界冠軍 ${state.flags.worldChampion ? "已達成" : "未達成"}`;
+  if (state.goal === "icon") return `聲量 ${Math.round(state.stats.fame)}/75｜粉絲 ${formatNum(state.fans)}/150,000`;
+  if (state.goal === "brain") return `意識 ${Math.round(state.stats.sense)}/80｜溝通 ${Math.round(state.stats.comms)}/72`;
+  return `團隊默契 ${Math.round(state.synergy)}/82｜士氣 ${Math.round(state.morale)}/70`;
+}
+
+function careerFocusBar() {
+  const goal = GOALS[state.goal];
+  const latest = state.log[state.log.length - 1];
+  return `<section class="career-focus-bar" aria-label="生涯目標與生涯紀錄">
+    <div class="career-focus goal-focus"><div class="focus-label">生涯目標 · CAREER GOAL</div><div class="focus-main"><span>${goal.icon}</span><div><b>${goal.name}</b><p>${goalProgressText()}</p></div></div></div>
+    <div class="career-focus record-focus"><div class="focus-label">生涯紀錄 · LATEST RECORD</div><div class="focus-main"><span>▣</span><div><b>${escapeHtml(latest?.title || "選手註冊")}</b><p>${escapeHtml(latest?.text || "新的生涯即將開始。")}</p></div></div><div class="focus-records"><span><b>${state.wins}-${state.losses}</b> 戰績</span><span><b>${formatNum(state.fans)}</b> 粉絲</span><span class="bonus-bank"><b>${state.bonusPoints}</b> 可用能力點</span></div></div>
+  </section>`;
+}
+
 function phaseTrack() {
   const order = ["prep", "event", "match"];
   const current = state.phase === "eventResult" ? 1 : state.phase === "matchResult" ? 2 : order.indexOf(state.phase);
@@ -408,14 +486,27 @@ function renderStage() {
 }
 
 function renderPrep(season) {
-  return `${stageHero(`${season.tier} · ${season.subtitle}`, season.title, `賽季開始前，你有 ${state.ap} 點行動點。能力會成長，身體與壓力也會記住每一次選擇。`, "TRAIN")}
+  const remainingDice = state.trainingDice.filter(die => !die.used).length;
+  const selectedDie = state.selectedDie === null ? null : state.trainingDice[state.selectedDie];
+  return `${stageHero(`${season.tier} · ${season.subtitle}`, season.title, "擲出三顆 D6，把每顆骰子的訓練成果自由分配給六維能力；同一能力可以重複投入。", "TRAIN")}
     <div class="stage-body">
-      <div class="resource-strip"><span class="resource-chip highlight"><b>${state.ap}</b> 行動點</span><span class="resource-chip">潛力上限已由種子 <b>${state.seed}</b> 決定</span><span class="resource-chip">自動存檔 <b>ON</b></span></div>
+      <div class="resource-strip"><span class="resource-chip highlight"><b>${remainingDice}</b> 顆骰子待分配</span><span class="resource-chip"><b>${state.ap}</b> 次支援行動</span><span class="resource-chip">自由能力點 <b>${state.bonusPoints}</b></span><span class="resource-chip">種子 <b>${state.seed}</b></span></div>
+      <section class="training-desk">
+        <div class="training-heading"><div><div class="section-label">SEASON TRAINING DICE</div><h2>分配本季訓練成果</h2></div><p>先選一顆骰子，再選能力。能力達 70 後效果減半，85 後每顆骰子成長 1 點。</p></div>
+        <div class="dice-tray">${state.trainingDice.map((die, index) => `<button class="training-die ${state.selectedDie === index ? "selected" : ""} ${die.used ? "used" : ""}" data-die="${index}" ${die.used ? "disabled" : ""} aria-pressed="${state.selectedDie === index}"><small>D6 · 0${index + 1}</small><b>${die.value}</b><span>${die.used ? `${STAT_INFO[die.target].name} ＋${die.gain}` : state.selectedDie === index ? "已選取" : "點選分配"}</span></button>`).join("")}</div>
+        <div class="allocation-hint">${selectedDie ? `已選擇 <b>D6｜${selectedDie.value}</b>，現在選擇要提升的能力` : remainingDice ? "點選上方任一顆骰子開始分配" : "本季三顆骰子已全部分配完成"}</div>
+        <div class="allocation-grid">${Object.entries(STAT_INFO).map(([key, info]) => {
+          const capped = state.stats[key] >= state.caps[key];
+          const gain = selectedDie ? projectedTrainingGain(key, selectedDie.value) : 0;
+          return `<button class="allocation-stat ${capped ? "capped" : ""}" data-allocate-stat="${key}" ${!selectedDie || capped ? "disabled" : ""}><span>${info.icon} ${info.name}</span><b>${Math.round(state.stats[key])}<small>/ ${state.caps[key]}</small></b><em>${capped ? "已達上限" : selectedDie ? `＋${gain}` : "選擇骰子"}</em></button>`;
+        }).join("")}</div>
+      </section>
+      <div class="support-heading"><div><div class="section-label">ONE SUPPORT ACTION</div><h2>安排一次賽季支援</h2></div><p>不直接增加六維能力，但會影響隊伍、曝光與身心狀態。</p></div>
       <div class="action-grid">${TRAINING.map(action => `<button class="action-card" data-training="${action.id}" ${state.ap <= 0 ? "disabled" : ""}>
         <div class="action-top"><span class="action-icon">${action.icon}</span><span class="ap-cost">−1 AP</span></div><h3>${action.name}</h3><p>${action.desc}</p>
         <div class="effects">${action.tags.map(t => `<span class="${t.includes("壓力 +") || t.includes("健康 -") ? "negative" : ""}">${t}</span>`).join("")}</div>
       </button>`).join("")}</div>
-      <button class="advance-button" id="to-event">${state.ap > 0 ? `保留 ${state.ap} AP 並進入賽季事件` : "訓練完成，進入賽季事件"} ▸</button>
+      <button class="advance-button" id="to-event" ${remainingDice ? "disabled" : ""}>${remainingDice ? `還有 ${remainingDice} 顆骰子尚未分配` : state.ap > 0 ? "略過支援行動，進入賽季事件" : "訓練完成，進入賽季事件"} ▸</button>
     </div>`;
 }
 
@@ -480,7 +571,7 @@ function renderSeriesResult(season) {
 }
 
 function renderSide() {
-  return `${conditionCard()}${statsCard()}${careerCard()}${timelineCard()}`;
+  return `${statsCard()}${conditionCard()}${missionCard()}`;
 }
 
 function conditionCard() {
@@ -491,21 +582,31 @@ function conditionCard() {
 function meterRow(name, value, cls) { return `<div class="meter-row"><div class="meter-head"><span>${name}</span><b>${Math.round(value)}</b></div><div class="meter ${cls}"><i style="width:${clamp(value)}%"></i></div></div>`; }
 
 function statsCard() {
-  return `<section class="side-card"><div class="side-card-title"><h3>六維能力</h3><small>CAP REVEALED</small></div><div class="stat-grid">${Object.entries(STAT_INFO).map(([key, info]) => `<div class="stat-cell ${state.stats[key] >= state.caps[key] ? "capped" : ""}"><small>${info.icon} ${info.name}</small><div><b>${Math.round(state.stats[key])}</b><em>/ ${state.caps[key]}</em></div></div>`).join("")}</div></section>`;
+  return `<section class="side-card"><div class="side-card-title"><h3>六維能力</h3><small>${state.bonusPoints > 0 ? `可用 ${state.bonusPoints} 點` : "CAP REVEALED"}</small></div>${state.bonusPoints > 0 ? `<div class="bonus-notice"><b>特殊任務點數：${state.bonusPoints}</b><span>點選能力即可投入 1 點</span></div>` : ""}<div class="stat-grid">${Object.entries(STAT_INFO).map(([key, info]) => {
+    const capped = state.stats[key] >= state.caps[key];
+    return `<button class="stat-cell ${capped ? "capped" : ""} ${state.bonusPoints > 0 && !capped ? "spendable" : ""}" data-bonus-stat="${key}" ${state.bonusPoints <= 0 || capped ? "disabled" : ""}><small>${info.icon} ${info.name}</small><div><b>${Math.round(state.stats[key])}</b><em>/ ${state.caps[key]}</em></div>${state.bonusPoints > 0 && !capped ? "<span>＋ 投入 1 點</span>" : ""}</button>`;
+  }).join("")}</div></section>`;
 }
 
-function careerCard() {
-  const goal = GOALS[state.goal];
-  return `<section class="side-card"><div class="side-card-title"><h3>生涯目標</h3><small>${state.seed}</small></div><div class="objective"><b>${goal.icon} ${goal.name}</b><p>${goal.desc}</p></div><div class="record-row"><div class="record-cell"><b>${state.wins}</b><small>勝場</small></div><div class="record-cell"><b>${formatNum(state.fans)}</b><small>粉絲</small></div><div class="record-cell"><b>${state.credits}萬</b><small>收入</small></div></div></section>`;
-}
-
-function timelineCard() {
-  return `<section class="side-card"><div class="side-card-title"><h3>生涯紀錄</h3><small>RECENT</small></div><div class="timeline">${state.log.slice(-3).reverse().map((l,i) => `<div class="timeline-item ${i === 0 ? "latest" : ""}"><b>${l.year} · ${l.title}</b>${l.text}</div>`).join("")}</div></section>`;
+function missionCard() {
+  const incomplete = MISSIONS.filter(mission => !state.missionsClaimed.includes(mission.id));
+  const complete = MISSIONS.filter(mission => state.missionsClaimed.includes(mission.id)).reverse();
+  const visible = incomplete.length ? [...incomplete.slice(0, 3), ...complete.slice(0, 1)] : complete.slice(0, 4);
+  return `<section class="side-card mission-card"><div class="side-card-title"><h3>特殊任務</h3><small>${state.missionsClaimed.length}/${MISSIONS.length} COMPLETE</small></div><div class="mission-list">${visible.map(mission => {
+    const done = state.missionsClaimed.includes(mission.id);
+    return `<div class="mission-item ${done ? "done" : ""}"><span class="mission-mark">${done ? "◆" : "◇"}</span><div><b>${mission.name}</b><p>${mission.desc}</p></div><em>＋${mission.reward}</em></div>`;
+  }).join("")}</div><p class="mission-foot">完成任務獲得自由能力點，可隨時投入任一未達上限的能力。</p></section>`;
 }
 
 function bindGame() {
+  document.querySelectorAll("[data-die]").forEach(btn => btn.onclick = () => selectTrainingDie(Number(btn.dataset.die)));
+  document.querySelectorAll("[data-allocate-stat]").forEach(btn => btn.onclick = () => allocateTrainingDie(btn.dataset.allocateStat));
+  document.querySelectorAll("[data-bonus-stat]").forEach(btn => btn.onclick = () => spendBonusPoint(btn.dataset.bonusStat));
   document.querySelectorAll("[data-training]").forEach(btn => btn.onclick = () => doTraining(btn.dataset.training));
-  document.querySelector("#to-event")?.addEventListener("click", () => { state.phase = "event"; state.ap = 0; saveGame(); beep(); renderGame(); });
+  document.querySelector("#to-event")?.addEventListener("click", () => {
+    if (state.trainingDice.some(die => !die.used)) return toast("請先分配完本季的三顆訓練骰。 ");
+    state.phase = "event"; state.ap = 0; state.selectedDie = null; saveGame(); beep(); renderGame();
+  });
   document.querySelectorAll("[data-choice]").forEach(btn => btn.onclick = () => chooseEvent(Number(btn.dataset.choice)));
   document.querySelector("#to-match")?.addEventListener("click", () => { initMatch(); beep(); renderGame(); });
   document.querySelectorAll("[data-strategy]").forEach(btn => btn.onclick = () => performCheck(btn.dataset.strategy));
@@ -513,6 +614,43 @@ function bindGame() {
   document.querySelector("#finish-season")?.addEventListener("click", finishSeason);
   document.querySelector("#save-info")?.addEventListener("click", () => toast("<b>已自動存檔</b>｜每次選擇後都會保存進度。"));
   document.querySelector("#career-menu")?.addEventListener("click", openCareerMenu);
+}
+
+function projectedTrainingGain(stat, dieValue) {
+  const current = state.stats[stat];
+  const adjusted = current >= 85 ? 1 : current >= 70 ? Math.ceil(dieValue / 2) : dieValue;
+  return Math.max(0, Math.min(adjusted, state.caps[stat] - current));
+}
+
+function selectTrainingDie(index) {
+  const die = state.trainingDice[index];
+  if (!die || die.used) return;
+  state.selectedDie = state.selectedDie === index ? null : index;
+  saveGame(); beep("click"); renderGame();
+}
+
+function allocateTrainingDie(stat) {
+  if (state.selectedDie === null || !STAT_INFO[stat]) return;
+  const die = state.trainingDice[state.selectedDie];
+  if (!die || die.used || state.stats[stat] >= state.caps[stat]) return;
+  const gain = projectedTrainingGain(stat, die.value);
+  if (gain <= 0) return;
+  state.stats[stat] += gain;
+  die.used = true;
+  die.target = stat;
+  die.gain = gain;
+  state.log.push({ year: SEASONS[state.season].year, title: `季初特訓｜${STAT_INFO[stat].name}`, text: `投入 D6 ${die.value}，${STAT_INFO[stat].name}提升 ${gain} 點。` });
+  state.selectedDie = null;
+  checkPassiveAchievements();
+  saveGame(); beep("success"); renderGame();
+}
+
+function spendBonusPoint(stat) {
+  if (state.bonusPoints <= 0 || !STAT_INFO[stat] || state.stats[stat] >= state.caps[stat]) return;
+  state.stats[stat] += 1;
+  state.bonusPoints -= 1;
+  checkPassiveAchievements();
+  saveGame(); beep("success"); renderGame();
 }
 
 function doTraining(id) {
@@ -542,6 +680,8 @@ function chooseEvent(index) {
   const flavor = success === null ? "你的決定沒有標準答案，但所有人都會記得你在這一刻站在哪一邊。" : success ? "你穩穩接住了場面。這次冒險成了隊伍向前的推力。" : "局勢沒有照計畫發展。職業賽場不會溫柔，但你仍得帶著代價前進。";
   state.eventResult = { title: choice.title, text: flavor, success, checkText, effectsText: effectSummary(effects) };
   state.log.push({ year: SEASONS[state.season].year, title: event.title, text: choice.title });
+  state.flags.firstDecision = true;
+  checkMissions();
   state.phase = "eventResult"; saveGame(); beep(success === false ? "fail" : "success"); renderGame();
 }
 
@@ -572,24 +712,29 @@ function finishSeason() {
   const season = SEASONS[state.season]; const won = state.match.player === 2; const opponent = currentOpponent(season);
   if (won) {
     state.wins++; state.credits += season.prize; state.fans += 1500 * (state.season + 1); state.reputation = clamp(state.reputation + 6); state.morale = clamp(state.morale + 8); unlock("firstWin");
-    if (state.match.opponent === 0) unlock("cleanSweep");
-    if (state.match.history[0] && !state.match.history[0].win && state.match.player === 2) unlock("reverseSweep");
+    if (state.match.opponent === 0) { state.flags.cleanSweep = true; unlock("cleanSweep"); }
+    if (state.match.history[0] && !state.match.history[0].win && state.match.player === 2) { state.flags.reverseSweep = true; unlock("reverseSweep"); }
     if (state.season >= 3) state.trophies++;
   } else {
     state.losses++; state.stress = clamp(state.stress + 8); state.morale = clamp(state.morale - 7); state.reputation = clamp(state.reputation - 3);
   }
   state.log.push({ year: season.year, title: `${season.subtitle} ${won ? "勝利" : "落敗"}`, text: `${state.match.player}：${state.match.opponent} ${won ? "擊敗" : "不敵"} ${opponent.name}` });
+  checkMissions();
   if (state.season === SEASONS.length - 1) {
+    state.flags.worldChampion = won;
     if (won) unlock("worlds");
+    checkMissions();
     state.phase = "ending"; clearGame(); concludeCareer(); beep(won ? "success" : "fail"); return renderEnding();
   }
   state.season++;
   state.phase = "prep";
   state.match = null;
   state.eventResult = null;
-  state.ap = 3 + (state.health >= 75 && state.stress <= 40 ? 1 : 0);
+  state.ap = 1;
   state.health = clamp(state.health + 5);
   state.stress = clamp(state.stress - 7);
+  prepareSeasonTraining(state);
+  checkMissions();
   saveGame(); beep("success"); renderGame();
 }
 
@@ -646,11 +791,13 @@ function showRecap() {
 }
 
 function showRules() {
-  modalContent.innerHTML = `<div class="section-label">HOW TO PLAY</div><h2>三分鐘上手</h2><p class="modal-intro">《ZERO PING》是一款以選擇與 D20 檢定推進的電競生涯 TRPG。全程約 15–25 分鐘，系統會在每次決策後自動存檔。</p><div class="rules-grid">
-    <div class="rule-card"><b>01｜季初訓練</b><p>每季有 3 AP；身心俱佳時會獎勵 1 AP。能力越高越容易通過比賽檢定，但不能超過潛力上限。</p></div>
-    <div class="rule-card"><b>02｜隊內事件</b><p>有些選擇直接改變狀態，有些會擲 D20。自然 20 必定成功，自然 1 必定失敗。</p></div>
-    <div class="rule-card"><b>03｜BO3 比賽</b><p>每局選一種策略。D20 加上相關能力與團隊修正，達到對手 DC 即獲勝，先取兩局者勝。</p></div>
-    <div class="rule-card"><b>04｜多重結局</b><p>世界冠軍不是唯一答案。生涯目標、隊友關係、聲量、健康與重要選擇都會影響最終評級。</p></div>
+  modalContent.innerHTML = `<div class="section-label">HOW TO PLAY</div><h2>三分鐘上手</h2><p class="modal-intro">《ZERO PING》是一款以選擇、訓練骰與 D20 檢定推進的電競生涯 TRPG。全程約 15–25 分鐘，系統會在每次決策後自動存檔。</p><div class="rules-grid">
+    <div class="rule-card"><b>01｜季初特訓</b><p>每季擲出 3 顆 D6。先點骰子、再點能力即可自由分配；同一能力可重複投入，但不能超過潛力上限。</p></div>
+    <div class="rule-card"><b>02｜成長遞減</b><p>能力未滿 70 可獲得完整骰值；70 起效果減半，85 起每顆骰子成長 1 點。每季另可安排一次支援行動。</p></div>
+    <div class="rule-card"><b>03｜特殊任務</b><p>完成首勝、零封、粉絲與團隊里程碑會獲得自由能力點。點選右側六維能力即可隨時投入。</p></div>
+    <div class="rule-card"><b>04｜事件與 BO3</b><p>事件與比賽以 D20 檢定。自然 20 必定成功、自然 1 必定失敗；先取兩局者贏得系列賽。</p></div>
+    <div class="rule-card"><b>05｜生涯資訊</b><p>生涯目標與最新紀錄固定顯示在選手檔案下方，戰績、粉絲與可用能力點也會同步更新。</p></div>
+    <div class="rule-card"><b>06｜多重結局</b><p>世界冠軍不是唯一答案。目標、隊友關係、聲量、健康與重要選擇都會影響最終評級。</p></div>
   </div>`; modal.showModal();
 }
 
