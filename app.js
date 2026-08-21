@@ -30,7 +30,8 @@ const STYLES = {
   street: { name: '巷口魔術師', code: 'CREATOR', desc: '節奏 +8；愛變速、愛傳妙球，防守很難猜。', bonus: { playmaking: 4, finish: 2 }, pulse: { rhythm: 8 } },
   sniper: { name: '沉默射手', code: 'SNIPER', desc: '投射 +6；只要有一點空間，就敢出手。', bonus: { shooting: 6 }, pulse: { rhythm: 3 } },
   stopper: { name: '黏人防線', code: 'STOPPER', desc: '防守 +5、體能 +2；黏緊對手，不給他好投。', bonus: { defense: 5, athletic: 2 }, pulse: { trust: 4 } },
-  engine: { name: '球場引擎', code: 'ENGINE', desc: '球商 +4、組織 +3；看得懂場上狀況，知道下一球怎麼打。', bonus: { iq: 4, playmaking: 3 }, pulse: { trust: 5 } }
+  engine: { name: '球場引擎', code: 'ENGINE', desc: '球商 +4、組織 +3；看得懂場上狀況，知道下一球怎麼打。', bonus: { iq: 4, playmaking: 3 }, pulse: { trust: 5 } },
+  none: { name: '尚未成形', code: 'OPEN', desc: '你的打法會由生涯中的選擇慢慢長出來。', bonus: {}, pulse: {} }
 };
 
 const PLAYER_NAMES = [
@@ -115,8 +116,6 @@ const TACTICS = {
 
 let state = null;
 let selectedPosition = 'PG';
-let selectedStyle = 'street';
-let currentSeedProfile = null;
 let toastTimer = null;
 
 const $ = (selector) => document.querySelector(selector);
@@ -187,7 +186,7 @@ function statsForProfile(profile, seedProfile = buildSeedProfile(profile.seed)) 
   addMap(stats, seedProfile.trait.bonus);
   addMap(stats, { [seedProfile.specialties[0]]: 5, [seedProfile.specialties[1]]: 2 });
   addMap(stats, POSITIONS[profile.position].bonus);
-  addMap(stats, STYLES[profile.style].bonus);
+  addMap(stats, STYLES[profile.style]?.bonus || {});
   Object.keys(stats).forEach((key) => { stats[key] = clamp(stats[key], 35, 72); });
   return stats;
 }
@@ -197,17 +196,13 @@ function renderSeedPreview() {
   const preview = $('#seed-preview');
   if (!input || !preview) return;
   if (!input.value) {
-    currentSeedProfile = null;
-    preview.innerHTML = '<strong>等待種子</strong><span><b>輸入任意英數代碼</b><small>完成輸入後會產生固定能力、專長與成長類型。</small></span>';
+    preview.innerHTML = '<strong>?</strong><span><b>等待開獎</b><small>輸入種子碼，或按「重抽」交給命運決定。</small></span><em>能力保密</em>';
     return;
   }
-  currentSeedProfile = buildSeedProfile(input.value);
-  const stats = statsForProfile({ seed: currentSeedProfile.code, position: selectedPosition, style: selectedStyle }, currentSeedProfile);
-  const [primary, secondary] = currentSeedProfile.specialties;
   preview.innerHTML = `
-    <strong>${currentSeedProfile.trait.name}</strong>
-    <span><b>${currentSeedProfile.trait.code} · 成長 ×${currentSeedProfile.trait.growth.toFixed(2)}</b><small>${currentSeedProfile.trait.desc}</small></span>
-    <em>擅長 ${STAT_META[primary].label} ${Math.round(stats[primary])} · ${STAT_META[secondary].label} ${Math.round(stats[secondary])}</em>`;
+    <strong>?</strong>
+    <span><b>命運已鎖定</b><small>初始能力、隱藏專長與成長速度都不公開，進場後自己感受。</small></span>
+    <em>開獎中</em>`;
 }
 
 function randomizeName() {
@@ -278,8 +273,8 @@ function createState(profile) {
     seasonIndex: 0,
     week: 0,
     teamId: 'tw_ms',
-    rhythm: clamp(48 + (STYLES[profile.style].pulse.rhythm || 0)),
-    trust: clamp(22 + (STYLES[profile.style].pulse.trust || 0)),
+    rhythm: clamp(48 + (STYLES[profile.style]?.pulse.rhythm || 0)),
+    trust: clamp(22 + (STYLES[profile.style]?.pulse.trust || 0)),
     load: 10,
     reputation: 0,
     scout: 4,
@@ -359,16 +354,8 @@ function renderSetupOptions() {
     <button type="button" data-position="${key}" class="${key === selectedPosition ? 'selected' : ''}">
       <small>${key}</small><b>${item.name}</b><span>${item.desc}</span>
     </button>`).join('');
-  $('#style-grid').innerHTML = Object.entries(STYLES).map(([key, item]) => `
-    <button type="button" data-style="${key}" class="${key === selectedStyle ? 'selected' : ''}">
-      <small>${item.code}</small><b>${item.name}</b><span>${item.desc}</span>
-    </button>`).join('');
   document.querySelectorAll('[data-position]').forEach((button) => button.addEventListener('click', () => {
     selectedPosition = button.dataset.position;
-    renderSetupOptions();
-  }));
-  document.querySelectorAll('[data-style]').forEach((button) => button.addEventListener('click', () => {
-    selectedStyle = button.dataset.style;
     renderSetupOptions();
   }));
   if ($('#career-seed')?.value) renderSeedPreview();
@@ -399,8 +386,7 @@ function renderPlayerPanel() {
   const season = currentSeason();
   const team = currentTeam();
   const ovr = overall();
-  const badge = state.badges.length ? BADGES[state.badges[state.badges.length - 1]].label : STYLES[state.profile.style].name;
-  const seedTrait = state.profile.seedTraitName;
+  const badge = state.badges.length ? BADGES[state.badges[state.badges.length - 1]].label : '尚未形成打法';
   $('#player-panel').innerHTML = `
     <div class="eyebrow">PLAYER FILE / ${state.profile.seed || String(state.seasonIndex + 1).padStart(4, '0')}</div>
     <div class="player-card">
@@ -420,7 +406,7 @@ function renderPlayerPanel() {
       ${resourceMeter('教練信任', state.trust, 'trust')}
       ${resourceMeter('身體負荷', state.load, 'load')}
     </div>
-    <div class="identity-strip"><small>${seedTrait ? `SEED TRAIT · ${state.profile.seed}` : 'PLAY IDENTITY'}</small><b>${seedTrait ? `${seedTrait} / ` : ''}${badge}</b></div>`;
+    <div class="identity-strip"><small>MYSTERY SEED · ${state.profile.seed}</small><b>${badge}</b></div>`;
   $('#mobile-hud').innerHTML = `<span><small>${escapeHtml(state.profile.name)}</small><b>${ovr} OVR</b></span><span><small>${season.age} 歲</small><b>${COUNTRIES[team.country].flag} · ${team.name}</b></span><span><small>脈衝</small><b>${Math.round(state.rhythm)} / ${Math.round(state.trust)} / ${Math.round(state.load)}</b></span>`;
 }
 
@@ -512,8 +498,6 @@ function gameActions() {
     PG: ['pace', 'pullup', 'create'], SG: ['pullup', 'drive', 'lock'], SF: ['drive', 'lock', 'create'], PF: ['screen', 'glass', 'pullup'], C: ['post', 'glass', 'screen']
   };
   const keys = [...maps[state.profile.position]];
-  const signature = ({ street: 'pace', sniper: 'pullup', stopper: 'lock', engine: 'create' })[state.profile.style];
-  if (!keys.includes(signature)) keys[2] = signature;
   const season = currentSeason();
   const team = currentTeam();
   return keys.map((key, index) => ({ ...TACTICS[key], difficulty: team.difficulty + season.pressure + index - (state.seasonIndex < 3 ? 3 : 0), growth: 1.2, game: true }));
@@ -648,7 +632,7 @@ function renderResult() {
         <small>${result.success ? 'READ COMPLETE' : 'READ BROKEN'} · ${margin >= 0 ? '+' : ''}${margin.toFixed(1)}</small>
         <h2>${result.success ? '成功！這波有料。' : '沒成功，再調整就好。'}</h2>
         <p>${result.success ? action.success : action.failure}</p>
-        <div class="formula-strip"><span>技術 <b>${result.calc.skill.toFixed(1)}</b></span><span>節奏 <b>${signed(result.calc.rhythm)}</b></span><span>信任 <b>${signed(result.calc.trust)}</b></span><span>負荷 <b>${signed(result.calc.load)}</b></span><span>打法 <b>+${result.calc.identity}</b></span>${result.calc.mastery ? `<span>能力階級 <b>+${result.calc.mastery}</b></span>` : ''}${result.calc.seedSpecialty ? `<span>種子專長 <b>+${result.calc.seedSpecialty}</b></span>` : ''}<span>臨場 <b>${signed(result.calc.variation)}</b></span></div>
+        <div class="formula-strip"><span>技術 <b>${result.calc.skill.toFixed(1)}</b></span><span>節奏 <b>${signed(result.calc.rhythm)}</b></span><span>信任 <b>${signed(result.calc.trust)}</b></span><span>負荷 <b>${signed(result.calc.load)}</b></span><span>打法 <b>+${result.calc.identity}</b></span>${result.calc.mastery ? `<span>能力階級 <b>+${result.calc.mastery}</b></span>` : ''}${result.calc.seedSpecialty ? '<span>神秘種子 <b>?</b></span>' : ''}<span>臨場 <b>${signed(result.calc.variation)}</b></span></div>
         ${result.growth ? `<div class="growth-feedback"><small>這次真的變強了</small><div><span><b>${STAT_META[action.primary].label}</b><em>${result.growth.primaryBefore.toFixed(1)} → ${result.growth.primaryAfter.toFixed(1)}</em></span>${action.secondary !== action.primary ? `<span><b>${STAT_META[action.secondary].label}</b><em>${result.growth.secondaryBefore.toFixed(1)} → ${result.growth.secondaryAfter.toFixed(1)}</em></span>` : ''}<span><b>同類選擇</b><em>${result.growth.chanceBefore}% → ${result.growth.chanceAfter}%</em></span></div></div>` : ''}
         ${result.growth?.tierUp ? `<div class="mastery-unlock">能力突破：<b>${STAT_META[result.growth.tierUp.stat].label} · ${result.growth.tierUp.label}</b>，之後同類選擇永久 +${result.growth.tierUp.bonus}</div>` : ''}
         ${result.badges.length ? `<div class="badge-unlock">打法印記解鎖：<b>${result.badges.join('、')}</b></div>` : ''}
@@ -806,13 +790,13 @@ function renderAll() {
 function renderCard() {
   const team = currentTeam();
   const season = currentSeason();
-  const seedIdentity = state.profile.seedTraitName ? `<span><b>${state.profile.seedTraitName}</b><em>${state.profile.seed} · 擅長 ${state.profile.seedSpecialties.map((key) => STAT_META[key].label).join('、')} · 成長 ×${state.profile.growthModifier.toFixed(2)}</em></span>` : '';
+  const seedIdentity = `<span><b>神秘種子</b><em>${state.profile.seed} · 隱藏能力會在生涯中慢慢展現</em></span>`;
   $('#card-content').innerHTML = `
     <div class="card-kicker"><span>COURTBOUND / ${state.profile.seed || 'PLAYER DOSSIER'}</span><b>${overall()}</b></div>
     <div class="big-player-name"><small>${state.profile.position} · ${POSITIONS[state.profile.position].name}</small><h2>${escapeHtml(state.profile.name)}</h2><p>${state.profile.hometown}出身 · ${state.profile.hand} · ${season.age} 歲 · ${team.name}</p></div>
     <div class="card-stat-grid">${Object.entries(STAT_META).map(([key, meta]) => `<div><small>${meta.code}</small><b>${Math.round(state.stats[key])}</b><span>${meta.label}</span></div>`).join('')}</div>
     <div class="card-columns">
-      <section><small>SEED & PLAY IDENTITY</small><div class="badge-list">${seedIdentity}${state.badges.map((badge) => `<span><b>${BADGES[badge].label}</b><em>${BADGES[badge].desc}</em></span>`).join('') || `<span><b>${STYLES[state.profile.style].name}</b><em>持續選擇，三次後形成新的打法印記。</em></span>`}</div></section>
+      <section><small>MYSTERY SEED & PLAY IDENTITY</small><div class="badge-list">${seedIdentity}${state.badges.map((badge) => `<span><b>${BADGES[badge].label}</b><em>${BADGES[badge].desc}</em></span>`).join('') || '<span><b>打法尚未成形</b><em>持續做選擇，三次後會形成你的打法印記。</em></span>'}</div></section>
       <section><small>CAREER NUMBERS</small><dl><div><dt>國家</dt><dd>${state.visited.length}</dd></div><div><dt>冠軍</dt><dd>${state.trophies}</dd></div><div><dt>關鍵勝負</dt><dd>${state.wins}–${state.losses}</dd></div><div><dt>生涯收入</dt><dd>${Math.round(state.income)} 萬</dd></div></dl></section>
     </div>`;
   $('#card-dialog').showModal();
@@ -890,7 +874,7 @@ function bindStaticEvents() {
     const name = $('#player-name').value.trim() || '未命名新秀';
     const seed = normalizeSeedCode($('#career-seed').value) || generateSeedCode();
     $('#career-seed').value = seed;
-    state = createState({ name, seed, hometown: $('#hometown').value, hand: $('#hand').value, position: selectedPosition, style: selectedStyle });
+    state = createState({ name, seed, hometown: $('#hometown').value, hand: $('#hand').value, position: selectedPosition, style: 'none' });
     saveGame();
     $('#setup-dialog').close();
     renderAll();

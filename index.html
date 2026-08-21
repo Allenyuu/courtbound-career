@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0b0b09" />
   <meta name="description" content="《籃途 COURTBOUND》原創籃球生涯模擬器——從台灣國中出發，走向台、日、韓、中、美職業舞台。" />
   <title>籃途 COURTBOUND｜原創籃球生涯模擬器</title>
-  <link rel="stylesheet" href="styles.css?v=courtbound6" />
+  <link rel="stylesheet" href="styles.css?v=courtbound7" />
 </head>
 <body>
   <div class="noise" aria-hidden="true"></div>
@@ -47,23 +47,19 @@
       <div class="setup-top"><span>NEW SAVE / ORIGIN 13</span><b>01</b></div>
       <div class="setup-game-name"><span>籃途</span><b>COURTBOUND</b></div>
       <div class="setup-title"><div><p>從台灣國中校隊出發，<br>下一站由你自己選。</p><h1>13 歲，開打。</h1></div><div class="setup-logo">CB<br><i>13</i></div></div>
-      <p class="setup-lead">每一季都要練球、做選擇、打關鍵比賽。表現夠好，就有機會去日本、韓國、中國或美國打球。</p>
+      <p class="setup-lead">每個種子碼都藏著不同天賦與成長速度，開局不會告訴你抽到什麼。進場打球，慢慢把答案玩出來。</p>
       <div class="setup-fields">
         <label><span>球員姓名</span><div class="field-action"><input id="player-name" maxlength="12" value="林拓海" autocomplete="off" required /><button type="button" id="random-name-button">隨機</button></div></label>
         <label><span>家鄉</span><select id="hometown"><option>北部</option><option>中部</option><option>南部</option><option>東部</option><option>離島</option></select></label>
         <label><span>慣用手</span><select id="hand"><option>右手</option><option>左手</option></select></label>
       </div>
       <div class="seed-builder">
-        <label class="seed-field"><span>生涯種子碼 <small>同碼＝同能力與特質</small></span><div class="field-action"><input id="career-seed" maxlength="18" autocomplete="off" spellcheck="false" /><button type="button" id="random-seed-button">換一組</button></div></label>
+        <label class="seed-field"><span>神秘種子碼 <small>同碼＝同一份隱藏命運</small></span><div class="field-action"><input id="career-seed" maxlength="18" autocomplete="off" spellcheck="false" /><button type="button" id="random-seed-button">重抽</button></div></label>
         <div class="seed-preview" id="seed-preview" aria-live="polite"></div>
       </div>
       <fieldset>
         <legend>場上位置</legend>
         <div class="position-grid" id="position-grid"></div>
-      </fieldset>
-      <fieldset>
-        <legend>籃球原型</legend>
-        <div class="style-grid" id="style-grid"></div>
       </fieldset>
       <div class="setup-footer">
         <button class="continue-button" type="button" id="continue-button" hidden>繼續上次生涯</button>
@@ -124,7 +120,7 @@
 
   <canvas id="share-canvas" width="1080" height="1350" hidden></canvas>
   <div class="toast" id="toast" role="status"></div>
-  <script src="app.js?v=courtbound6"></script>
+  <script src="app.js?v=courtbound7"></script>
 </body>
 </html>
 
