@@ -31,5 +31,5 @@ python -m http.server 8000
 ## 製作資訊
 
 - 原創：[最先生 Mr.TheMost](https://www.threads.com/@mr.themost)
-- 參考：[YaKyoLife](https://www.yakyolife.com/)・[jarvanthevoyager](https://www.threads.com/@jarvanthevoyager)
+- 參考：[YaKyoLife](https://www.yakyolife.com/)・[jarvanthevoyager](https://jarvanthevoyager.github.io/CheerLife/)
 
