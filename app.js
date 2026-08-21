@@ -24,6 +24,21 @@ const STYLES = {
   engine: { name: '球場引擎', code: 'ENGINE', desc: '球商 +4、組織 +3；永遠比比賽早一拍。', bonus: { iq: 4, playmaking: 3 }, pulse: { trust: 5 } }
 };
 
+const PLAYER_NAMES = [
+  '林拓海', '陳昱安', '張凱翔', '李承恩', '王柏鈞', '吳宇辰', '劉冠廷', '黃子軒', '趙品睿', '周宥廷',
+  '蔡沛洋', '楊哲宇', '鄭維新', '謝孟軒', '洪睿哲', '郭奕辰', '曾柏翰', '徐浩然', '賴彥廷', '蘇祐晨',
+  '江品妤', '何語晴', '羅羽彤', '高宥蓁', '梁欣妍', '朱芷寧', '彭若希', '方語恩', '葉昕妤', '杜采潔'
+];
+
+const SEED_TRAITS = [
+  { id: 'genius', code: 'GENIUS', name: '天才型', base: 3, growth: 1.12, load: 1, bonus: { iq: 2 }, desc: '起步能力較高，讀懂新技術的速度也比同齡球員快。' },
+  { id: 'grinder', code: 'GRIND', name: '苦練型', base: -2, growth: 1.24, load: 1.06, bonus: {}, desc: '起點不突出，但每次訓練都能累積更多成長。' },
+  { id: 'early', code: 'EARLY', name: '早熟型', base: 5, growth: .94, load: 1.02, bonus: {}, desc: '國中階段就有成熟即戰力，後續成長曲線較平穩。' },
+  { id: 'late', code: 'LATE', name: '晚成型', base: -4, growth: 1.32, load: .96, bonus: {}, desc: '前期需要耐心，生涯越往後越能追過天賦差距。' },
+  { id: 'iron', code: 'IRON', name: '鐵人型', base: 0, growth: 1.05, load: .72, bonus: { athletic: 3, defense: 1 }, desc: '身體恢復與耐受度出色，正向負荷累積降低 28%。' },
+  { id: 'instinct', code: 'INSTINCT', name: '直覺型', base: 1, growth: 1.10, load: 1, bonus: { playmaking: 2, iq: 1 }, desc: '臨場理解敏銳，擅長能力在關鍵判定中更加可靠。' }
+];
+
 const COUNTRIES = {
   TW: { name: '台灣', flag: 'TW', accent: '#dfff00', style: '轉換快、角色彈性高', opponent: ['北岸聯隊', '南城雷雨', '港都礦工', '東海岸獵人'] },
   JP: { name: '日本', flag: 'JP', accent: '#ff6a72', style: '紀律輪轉與高速傳導', opponent: ['千葉白浪', '名古屋軸心', '大阪電塔', '秋田雪線'] },
@@ -92,11 +107,111 @@ const TACTICS = {
 let state = null;
 let selectedPosition = 'PG';
 let selectedStyle = 'street';
+let currentSeedProfile = null;
 let toastTimer = null;
 
 const $ = (selector) => document.querySelector(selector);
 const clamp = (value, min = 0, max = 100) => Math.max(min, Math.min(max, value));
 const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
+
+function hashSeed(value) {
+  let hash = 2166136261;
+  for (const char of value) {
+    hash ^= char.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function makeSeedRandom(seed) {
+  let value = seed >>> 0;
+  return () => {
+    value = (value + 0x6d2b79f5) >>> 0;
+    let mixed = value;
+    mixed = Math.imul(mixed ^ (mixed >>> 15), mixed | 1);
+    mixed ^= mixed + Math.imul(mixed ^ (mixed >>> 7), mixed | 61);
+    return ((mixed ^ (mixed >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function randomIndex(length) {
+  if (globalThis.crypto?.getRandomValues) {
+    const value = new Uint32Array(1);
+    globalThis.crypto.getRandomValues(value);
+    return value[0] % length;
+  }
+  return Math.floor(Math.random() * length);
+}
+
+function generateSeedCode() {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const chars = Array.from({ length: 8 }, () => alphabet[randomIndex(alphabet.length)]).join('');
+  return `CB-${chars.slice(0, 4)}-${chars.slice(4)}`;
+}
+
+function normalizeSeedCode(value) {
+  let compact = String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (compact.startsWith('CB')) compact = compact.slice(2);
+  compact = compact.slice(0, 8);
+  if (!compact) return '';
+  return `CB-${compact.slice(0, 4)}${compact.length > 4 ? `-${compact.slice(4)}` : ''}`;
+}
+
+function buildSeedProfile(seedCode) {
+  const code = normalizeSeedCode(seedCode) || generateSeedCode();
+  const hash = hashSeed(code);
+  const random = makeSeedRandom(hash);
+  const trait = SEED_TRAITS[Math.floor(random() * SEED_TRAITS.length)];
+  const specialties = Object.keys(STAT_META);
+  for (let index = specialties.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(random() * (index + 1));
+    [specialties[index], specialties[swapIndex]] = [specialties[swapIndex], specialties[index]];
+  }
+  const variance = Object.fromEntries(Object.keys(STAT_META).map((key) => [key, Math.floor(random() * 5) - 2]));
+  return { code, hash, trait, specialties: specialties.slice(0, 2), variance };
+}
+
+function statsForProfile(profile, seedProfile = buildSeedProfile(profile.seed)) {
+  const stats = statTemplate(49 + seedProfile.trait.base);
+  addMap(stats, seedProfile.variance);
+  addMap(stats, seedProfile.trait.bonus);
+  addMap(stats, { [seedProfile.specialties[0]]: 5, [seedProfile.specialties[1]]: 2 });
+  addMap(stats, POSITIONS[profile.position].bonus);
+  addMap(stats, STYLES[profile.style].bonus);
+  Object.keys(stats).forEach((key) => { stats[key] = clamp(stats[key], 35, 72); });
+  return stats;
+}
+
+function renderSeedPreview() {
+  const input = $('#career-seed');
+  const preview = $('#seed-preview');
+  if (!input || !preview) return;
+  if (!input.value) {
+    currentSeedProfile = null;
+    preview.innerHTML = '<strong>等待種子</strong><span><b>輸入任意英數代碼</b><small>完成輸入後會產生固定能力、專長與成長類型。</small></span>';
+    return;
+  }
+  currentSeedProfile = buildSeedProfile(input.value);
+  const stats = statsForProfile({ seed: currentSeedProfile.code, position: selectedPosition, style: selectedStyle }, currentSeedProfile);
+  const [primary, secondary] = currentSeedProfile.specialties;
+  preview.innerHTML = `
+    <strong>${currentSeedProfile.trait.name}</strong>
+    <span><b>${currentSeedProfile.trait.code} · 成長 ×${currentSeedProfile.trait.growth.toFixed(2)}</b><small>${currentSeedProfile.trait.desc}</small></span>
+    <em>擅長 ${STAT_META[primary].label} ${Math.round(stats[primary])} · ${STAT_META[secondary].label} ${Math.round(stats[secondary])}</em>`;
+}
+
+function randomizeName() {
+  const input = $('#player-name');
+  let nextName = input.value;
+  while (PLAYER_NAMES.length > 1 && nextName === input.value) nextName = PLAYER_NAMES[randomIndex(PLAYER_NAMES.length)];
+  input.value = nextName;
+}
+
+function prepareNewProfile(randomName = false) {
+  if (randomName) randomizeName();
+  $('#career-seed').value = generateSeedCode();
+  renderSeedPreview();
+}
 
 function statTemplate(value = 49) {
   return { finish: value, shooting: value, playmaking: value, defense: value, athletic: value, iq: value };
@@ -135,12 +250,20 @@ function pick(list) {
 }
 
 function createState(profile) {
-  const stats = statTemplate(49);
-  addMap(stats, POSITIONS[profile.position].bonus);
-  addMap(stats, STYLES[profile.style].bonus);
+  const seedProfile = buildSeedProfile(profile.seed);
+  const fullProfile = {
+    ...profile,
+    seed: seedProfile.code,
+    seedTrait: seedProfile.trait.id,
+    seedTraitName: seedProfile.trait.name,
+    seedSpecialties: seedProfile.specialties,
+    growthModifier: seedProfile.trait.growth,
+    loadModifier: seedProfile.trait.load
+  };
+  const stats = statsForProfile(fullProfile, seedProfile);
   return {
     version: 1,
-    profile,
+    profile: fullProfile,
     stats,
     seasonIndex: 0,
     week: 0,
@@ -163,7 +286,7 @@ function createState(profile) {
     seasonSuccesses: 0,
     pendingResult: null,
     mode: 'event',
-    rng: (Date.now() ^ profile.name.length * 2654435761) >>> 0,
+    rng: seedProfile.hash,
     createdAt: new Date().toISOString()
   };
 }
@@ -208,6 +331,7 @@ function renderSetupOptions() {
     selectedStyle = button.dataset.style;
     renderSetupOptions();
   }));
+  if ($('#career-seed')?.value) renderSeedPreview();
 }
 
 function stageProgress() {
@@ -236,8 +360,9 @@ function renderPlayerPanel() {
   const team = currentTeam();
   const ovr = overall();
   const badge = state.badges.length ? BADGES[state.badges[state.badges.length - 1]].label : STYLES[state.profile.style].name;
+  const seedTrait = state.profile.seedTraitName;
   $('#player-panel').innerHTML = `
-    <div class="eyebrow">PLAYER FILE / ${String(state.seasonIndex + 1).padStart(4, '0')}</div>
+    <div class="eyebrow">PLAYER FILE / ${state.profile.seed || String(state.seasonIndex + 1).padStart(4, '0')}</div>
     <div class="player-card">
       <div class="jersey" style="--team:${team.color}">${POSITIONS[state.profile.position].number}</div>
       <div><h2>${escapeHtml(state.profile.name)}</h2><p>${COUNTRIES[team.country].name} · ${season.age} 歲 · ${state.profile.position}</p><small>${badge}</small></div>
@@ -251,7 +376,7 @@ function renderPlayerPanel() {
       ${resourceMeter('教練信任', state.trust, 'trust')}
       ${resourceMeter('身體負荷', state.load, 'load')}
     </div>
-    <div class="identity-strip"><small>PLAY IDENTITY</small><b>${badge}</b></div>`;
+    <div class="identity-strip"><small>${seedTrait ? `SEED TRAIT · ${state.profile.seed}` : 'PLAY IDENTITY'}</small><b>${seedTrait ? `${seedTrait} / ` : ''}${badge}</b></div>`;
   $('#mobile-hud').innerHTML = `<span><small>${escapeHtml(state.profile.name)}</small><b>${ovr} OVR</b></span><span><small>${season.age} 歲</small><b>${COUNTRIES[team.country].flag} · ${team.name}</b></span><span><small>脈衝</small><b>${Math.round(state.rhythm)} / ${Math.round(state.trust)} / ${Math.round(state.load)}</b></span>`;
 }
 
@@ -385,15 +510,17 @@ function pulseCalculation(action) {
   const trust = (state.trust - 50) * .07;
   const load = -Math.max(0, state.load - 28) * .10;
   const identity = badgeBonus(action.tag);
+  const seedSpecialty = state.profile.seedSpecialties?.includes(action.primary) ? 1.5 : 0;
   const variation = randomBetween(-5.5, 5.5);
-  const total = skill + rhythm + trust + load + identity + variation;
+  const total = skill + rhythm + trust + load + identity + seedSpecialty + variation;
   const difficulty = clamp(action.difficulty, 36, 96);
-  return { primary, secondary, skill, rhythm, trust, load, identity, variation, total, difficulty, margin: total - difficulty };
+  return { primary, secondary, skill, rhythm, trust, load, identity, seedSpecialty, variation, total, difficulty, margin: total - difficulty };
 }
 
 function applyDeltas(deltas = {}) {
   Object.entries(deltas).forEach(([key, amount]) => {
-    if (key === 'load' || key === 'rhythm' || key === 'trust') state[key] = clamp(state[key] + amount);
+    const adjustedAmount = key === 'load' && amount > 0 ? amount * (state.profile.loadModifier || 1) : amount;
+    if (key === 'load' || key === 'rhythm' || key === 'trust') state[key] = clamp(state[key] + adjustedAmount);
     else state[key] = Math.max(0, (state[key] || 0) + amount);
   });
 }
@@ -403,7 +530,8 @@ function resolveAction(action) {
   const calc = pulseCalculation(action);
   const success = calc.margin >= 0;
   applyDeltas(action.deltas);
-  const growth = action.growth * (success ? 1 : .55);
+  const specialtyGrowth = state.profile.seedSpecialties?.includes(action.primary) ? 1.08 : 1;
+  const growth = action.growth * (state.profile.growthModifier || 1) * specialtyGrowth * (success ? 1 : .55);
   state.stats[action.primary] = clamp(state.stats[action.primary] + growth, 0, 99);
   state.stats[action.secondary] = clamp(state.stats[action.secondary] + growth * .42, 0, 99);
   state.rhythm = clamp(state.rhythm + (success ? 3 : -4));
@@ -435,7 +563,7 @@ function renderResult() {
         <small>${result.success ? 'READ COMPLETE' : 'READ BROKEN'} · ${margin >= 0 ? '+' : ''}${margin.toFixed(1)}</small>
         <h2>${result.success ? '這個選擇站住了。' : '球場把答案推了回來。'}</h2>
         <p>${result.success ? action.success : action.failure}</p>
-        <div class="formula-strip"><span>技術 <b>${result.calc.skill.toFixed(1)}</b></span><span>節奏 <b>${signed(result.calc.rhythm)}</b></span><span>信任 <b>${signed(result.calc.trust)}</b></span><span>負荷 <b>${signed(result.calc.load)}</b></span><span>打法 <b>+${result.calc.identity}</b></span><span>臨場 <b>${signed(result.calc.variation)}</b></span></div>
+        <div class="formula-strip"><span>技術 <b>${result.calc.skill.toFixed(1)}</b></span><span>節奏 <b>${signed(result.calc.rhythm)}</b></span><span>信任 <b>${signed(result.calc.trust)}</b></span><span>負荷 <b>${signed(result.calc.load)}</b></span><span>打法 <b>+${result.calc.identity}</b></span>${result.calc.seedSpecialty ? `<span>種子專長 <b>+${result.calc.seedSpecialty}</b></span>` : ''}<span>臨場 <b>${signed(result.calc.variation)}</b></span></div>
         ${result.badges.length ? `<div class="badge-unlock">打法印記解鎖：<b>${result.badges.join('、')}</b></div>` : ''}
         <button type="button" class="next-button" id="next-button">${state.week === 2 ? '結算本季' : '進入下一週'} <b>→</b></button>
       </div>
@@ -591,12 +719,13 @@ function renderAll() {
 function renderCard() {
   const team = currentTeam();
   const season = currentSeason();
+  const seedIdentity = state.profile.seedTraitName ? `<span><b>${state.profile.seedTraitName}</b><em>${state.profile.seed} · 擅長 ${state.profile.seedSpecialties.map((key) => STAT_META[key].label).join('、')} · 成長 ×${state.profile.growthModifier.toFixed(2)}</em></span>` : '';
   $('#card-content').innerHTML = `
-    <div class="card-kicker"><span>COURTBOUND / PLAYER DOSSIER</span><b>${overall()}</b></div>
+    <div class="card-kicker"><span>COURTBOUND / ${state.profile.seed || 'PLAYER DOSSIER'}</span><b>${overall()}</b></div>
     <div class="big-player-name"><small>${state.profile.position} · ${POSITIONS[state.profile.position].name}</small><h2>${escapeHtml(state.profile.name)}</h2><p>${state.profile.hometown}出身 · ${state.profile.hand} · ${season.age} 歲 · ${team.name}</p></div>
     <div class="card-stat-grid">${Object.entries(STAT_META).map(([key, meta]) => `<div><small>${meta.code}</small><b>${Math.round(state.stats[key])}</b><span>${meta.label}</span></div>`).join('')}</div>
     <div class="card-columns">
-      <section><small>PLAY IDENTITY</small><div class="badge-list">${state.badges.map((badge) => `<span><b>${BADGES[badge].label}</b><em>${BADGES[badge].desc}</em></span>`).join('') || `<span><b>${STYLES[state.profile.style].name}</b><em>持續選擇，三次後形成新的打法印記。</em></span>`}</div></section>
+      <section><small>SEED & PLAY IDENTITY</small><div class="badge-list">${seedIdentity}${state.badges.map((badge) => `<span><b>${BADGES[badge].label}</b><em>${BADGES[badge].desc}</em></span>`).join('') || `<span><b>${STYLES[state.profile.style].name}</b><em>持續選擇，三次後形成新的打法印記。</em></span>`}</div></section>
       <section><small>CAREER NUMBERS</small><dl><div><dt>國家</dt><dd>${state.visited.length}</dd></div><div><dt>冠軍</dt><dd>${state.trophies}</dd></div><div><dt>關鍵勝負</dt><dd>${state.wins}–${state.losses}</dd></div><div><dt>生涯收入</dt><dd>${Math.round(state.income)} 萬</dd></div></dl></section>
     </div>`;
   $('#card-dialog').showModal();
@@ -664,6 +793,7 @@ function restartGame() {
   state = null;
   document.querySelectorAll('dialog[open]').forEach((dialog) => dialog.close());
   $('#continue-button').hidden = true;
+  prepareNewProfile(true);
   $('#setup-dialog').showModal();
 }
 
@@ -671,11 +801,23 @@ function bindStaticEvents() {
   $('#setup-form').addEventListener('submit', (event) => {
     event.preventDefault();
     const name = $('#player-name').value.trim() || '未命名新秀';
-    state = createState({ name, hometown: $('#hometown').value, hand: $('#hand').value, position: selectedPosition, style: selectedStyle });
+    const seed = normalizeSeedCode($('#career-seed').value) || generateSeedCode();
+    $('#career-seed').value = seed;
+    state = createState({ name, seed, hometown: $('#hometown').value, hand: $('#hand').value, position: selectedPosition, style: selectedStyle });
     saveGame();
     $('#setup-dialog').close();
     renderAll();
     showToast('球員檔案建立完成');
+  });
+  $('#random-name-button').addEventListener('click', randomizeName);
+  $('#random-seed-button').addEventListener('click', () => prepareNewProfile(false));
+  $('#career-seed').addEventListener('input', (event) => {
+    event.target.value = event.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+    renderSeedPreview();
+  });
+  $('#career-seed').addEventListener('blur', (event) => {
+    event.target.value = normalizeSeedCode(event.target.value) || generateSeedCode();
+    renderSeedPreview();
   });
   $('#continue-button').addEventListener('click', () => {
     state = loadGame();
@@ -693,6 +835,7 @@ function bindStaticEvents() {
 function init() {
   renderSetupOptions();
   bindStaticEvents();
+  prepareNewProfile(false);
   const saved = loadGame();
   $('#continue-button').hidden = !saved;
   if (saved) {
