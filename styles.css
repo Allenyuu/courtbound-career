@@ -604,3 +604,109 @@ body.interface-mobile .style-grid { grid-template-columns:1fr 1fr; }
 body.interface-mobile .setup-footer { align-items:stretch; flex-direction:column; }
 body.interface-mobile .setup-footer button { width:100%; }
 
+/* Compact desktop layout — keeps the full game and new-career screen in one viewport. */
+@media (min-width:761px) {
+  body:not(.interface-mobile) { overflow:hidden; }
+  body:not(.interface-mobile) .app-shell { height:100dvh; grid-template-rows:62px minmax(0,1fr); gap:8px; padding:9px; }
+  body:not(.interface-mobile) .topbar { grid-template-columns:255px minmax(0,1fr) auto; gap:18px; padding-inline:12px; }
+  body:not(.interface-mobile) .brand-ball { width:34px; }
+  body:not(.interface-mobile) .brand b { font-size:21px; }
+  body:not(.interface-mobile) .brand small { font-size:8px; }
+  body:not(.interface-mobile) .season-track span { font-size:10px; }
+  body:not(.interface-mobile) .top-actions button { min-height:34px; padding-inline:11px; font-size:10px; }
+
+  body:not(.interface-mobile) .dashboard { grid-template-columns:245px minmax(500px,1fr) 260px; gap:8px; }
+  body:not(.interface-mobile) .player-panel,
+  body:not(.interface-mobile) .world-panel { gap:8px; padding:12px; overflow:hidden; }
+  body:not(.interface-mobile) .eyebrow { font-size:9px; }
+  body:not(.interface-mobile) .jersey { width:46px; height:53px; font-size:22px; }
+  body:not(.interface-mobile) .player-card h2 { font-size:16px; }
+  body:not(.interface-mobile) .player-card p { font-size:10px; }
+  body:not(.interface-mobile) .player-card small { font-size:8px; }
+  body:not(.interface-mobile) .rating-block { padding:6px 0; }
+  body:not(.interface-mobile) .rating-block span { font-size:10px; }
+  body:not(.interface-mobile) .rating-block strong { font-size:38px; }
+  body:not(.interface-mobile) .stat-list { gap:4px; }
+  body:not(.interface-mobile) .stat-row { min-height:35px; grid-template-columns:22px minmax(0,1fr) 27px; gap:5px; padding:5px; }
+  body:not(.interface-mobile) .stat-row > i { width:20px; height:20px; font-size:9px; }
+  body:not(.interface-mobile) .stat-row > span { font-size:9px; }
+  body:not(.interface-mobile) .stat-row > span small { font-size:7px; }
+  body:not(.interface-mobile) .stat-row > b { font-size:16px; }
+  body:not(.interface-mobile) .pulse-meters { gap:5px; }
+  body:not(.interface-mobile) .meter span { margin-bottom:4px; font-size:9px; }
+  body:not(.interface-mobile) .meter i { height:4px; }
+
+  body:not(.interface-mobile) .court-panel { grid-template-rows:auto minmax(155px,.78fr) minmax(0,1.22fr); }
+  body:not(.interface-mobile) .arena-head { padding:11px 16px 10px; }
+  body:not(.interface-mobile) .arena-head span { font-size:9px; }
+  body:not(.interface-mobile) .arena-head h1 { font-size:clamp(23px,2.6vw,33px); }
+  body:not(.interface-mobile) .week-chip { padding:6px 8px; font-size:9px; }
+  body:not(.interface-mobile) .week-chip b { font-size:16px; }
+  body:not(.interface-mobile) .scene-copy { left:18px; bottom:15px; }
+  body:not(.interface-mobile) .scene-copy small { padding:4px 6px; font-size:9px; }
+  body:not(.interface-mobile) .scene-copy p { max-width:590px; margin-top:6px; font-size:12px; line-height:1.55; }
+  body:not(.interface-mobile) .scene-copy blockquote { max-width:590px; font-size:9px; }
+  body:not(.interface-mobile) .scoreboard { min-width:76px; padding:7px; }
+  body:not(.interface-mobile) .scoreboard span,
+  body:not(.interface-mobile) .scoreboard small { font-size:8px; }
+  body:not(.interface-mobile) .scoreboard b { font-size:34px; }
+  body:not(.interface-mobile) .decision-zone { gap:9px; padding:11px 15px 14px; overflow:hidden; }
+  body:not(.interface-mobile) .decision-head small { font-size:9px; }
+  body:not(.interface-mobile) .decision-head h2 { font-size:18px; }
+  body:not(.interface-mobile) .decision-head p { font-size:10px; line-height:1.4; }
+  body:not(.interface-mobile) .option-grid { gap:7px; }
+  body:not(.interface-mobile) .option-grid button { padding:10px; }
+  body:not(.interface-mobile) .option-grid em { font-size:16px; }
+  body:not(.interface-mobile) .option-grid b { margin-block:6px 4px; font-size:12px; line-height:1.3; }
+  body:not(.interface-mobile) .option-grid span { font-size:10px; line-height:1.45; }
+  body:not(.interface-mobile) .option-grid small { margin-top:8px; font-size:9px; line-height:1.35; }
+
+  body:not(.interface-mobile) .world-title h2 { font-size:16px; }
+  body:not(.interface-mobile) .world-title > span { width:31px; height:31px; }
+  body:not(.interface-mobile) .route-list { gap:4px; }
+  body:not(.interface-mobile) .route-list > div { grid-template-columns:31px minmax(0,1fr) auto; gap:7px; padding:6px; }
+  body:not(.interface-mobile) .route-list i { width:29px; height:29px; font-size:10px; }
+  body:not(.interface-mobile) .route-list b { font-size:10px; }
+  body:not(.interface-mobile) .route-list small,
+  body:not(.interface-mobile) .route-list em { font-size:8px; }
+
+  body:not(.interface-mobile) dialog { padding:9px; }
+  body:not(.interface-mobile) .setup-card { width:min(820px,100%); max-height:calc(100dvh - 18px); padding:16px 22px; overflow:hidden; }
+  body:not(.interface-mobile) .setup-top b { font-size:24px; }
+  body:not(.interface-mobile) .setup-game-name { margin-top:4px; }
+  body:not(.interface-mobile) .setup-game-name span { font-size:24px; }
+  body:not(.interface-mobile) .setup-game-name b { font-size:17px; }
+  body:not(.interface-mobile) .setup-title { margin:6px 0; }
+  body:not(.interface-mobile) .setup-title p { font-size:14px; line-height:1.3; }
+  body:not(.interface-mobile) .setup-title h1 { font-size:clamp(38px,5.5vw,58px); }
+  body:not(.interface-mobile) .setup-logo { width:60px; height:68px; font-size:18px; }
+  body:not(.interface-mobile) .setup-logo i { font-size:25px; }
+  body:not(.interface-mobile) .setup-lead { margin-bottom:7px; font-size:11px; line-height:1.5; }
+  body:not(.interface-mobile) .setup-fields { gap:6px; }
+  body:not(.interface-mobile) .setup-fields label,
+  body:not(.interface-mobile) legend { gap:4px; font-size:9px; }
+  body:not(.interface-mobile) .setup-fields input,
+  body:not(.interface-mobile) .setup-fields select { height:38px; font-size:11px; }
+  body:not(.interface-mobile) .seed-builder { gap:6px; margin-top:6px; }
+  body:not(.interface-mobile) .seed-field { gap:4px; font-size:9px; }
+  body:not(.interface-mobile) .seed-field input,
+  body:not(.interface-mobile) .seed-preview { height:42px; min-height:42px; }
+  body:not(.interface-mobile) .seed-preview { padding-block:5px; }
+  body:not(.interface-mobile) .seed-preview b { font-size:10px; }
+  body:not(.interface-mobile) .seed-preview small { font-size:8px; }
+  body:not(.interface-mobile) fieldset { margin-top:8px; }
+  body:not(.interface-mobile) legend { margin-bottom:5px; }
+  body:not(.interface-mobile) .position-grid button { padding:6px; }
+  body:not(.interface-mobile) .position-grid small { font-size:14px; }
+  body:not(.interface-mobile) .position-grid b { margin:3px 0 2px; font-size:10px; }
+  body:not(.interface-mobile) .position-grid span { font-size:8px; }
+  body:not(.interface-mobile) .style-grid button { padding:7px; }
+  body:not(.interface-mobile) .style-grid small { font-size:9px; }
+  body:not(.interface-mobile) .style-grid b { margin:3px 0 2px; font-size:10px; }
+  body:not(.interface-mobile) .style-grid span { font-size:8px; line-height:1.35; }
+  body:not(.interface-mobile) .setup-footer { gap:10px; margin-top:8px; }
+  body:not(.interface-mobile) .setup-footer > span { font-size:9px; }
+  body:not(.interface-mobile) .setup-footer button { min-height:38px; font-size:10px; }
+  body:not(.interface-mobile) .setup-version { margin-top:6px; padding-top:5px; font-size:8px; }
+}
+
