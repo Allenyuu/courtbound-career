@@ -343,6 +343,7 @@ function renderStart() {
 
         <button class="primary-button" id="start-game">簽下第一份選手登錄表 <span>ENTER ↵</span></button>
         ${existing ? `<button class="primary-button continue-save" id="continue-game">繼續 @${escapeHtml(existing.handle)} 的生涯 <span>${SEASONS[existing.season]?.tier || "FINAL"}</span></button>` : ""}
+        <a class="signal-mode-entry" href="signal.html"><span><b>全新模式｜戰術鏈 SIGNAL CHAIN</b><small>單一競技主題 · 八幕生涯 · 桌面與手機皆不需捲動</small></span><em>PLAY ▸</em></a>
       </div>
     </section>`;
   bindStart(); updateHallCount();
@@ -815,4 +816,3 @@ document.querySelector("#audio-button").onclick = () => { audioEnabled = !audioE
 document.querySelector("#brand-home").onclick = e => { e.preventDefault(); if (!state || confirm("回到首頁？目前進度已自動保存。")) renderStart(); };
 
 renderStart();
-

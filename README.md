@@ -23,6 +23,8 @@ python -m http.server 8000
 - 固定世界種子與可重現的 D20 結果
 - 六季完整生涯、每季 3 顆 D6 自由能力分配、事件抉擇、BO3 比賽
 - 生涯目標與最新紀錄置頂、7 項特殊任務與自由能力點獎勵
+- 全新「戰術鏈 SIGNAL CHAIN」模式：單一競技主題、八幕生涯、前後決策串接加成
+- 戰術鏈使用獨立的桌面／手機固定視窗排版，全程不需上下捲動
 - 能力上限、健康、壓力、默契、士氣、粉絲與收入系統
 - 自動存檔、12 項跨生涯成就、多重結局與評級
 - 桌面與手機響應式介面
@@ -32,5 +34,4 @@ python -m http.server 8000
 ## 製作資訊
 
 - 原創：[最先生 Mr.TheMost](https://www.threads.com/@mr.themost)
-- 參考：[YaKyoLife](https://www.yakyolife.com/)・[jarvanthevoyager](https://jarvanthevoyager.github.io/CheerLife/)
-
+- 參考：[Football Life](https://football-life.pages.dev/?seed=msg8kq59-8tqtam)・[YaKyoLife](https://www.yakyolife.com/)・[jarvanthevoyager](https://jarvanthevoyager.github.io/CheerLife/)

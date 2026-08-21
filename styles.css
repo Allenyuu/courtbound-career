@@ -94,6 +94,7 @@ button { color: inherit; }
 }
 .text-button { color: var(--muted); padding: 10px 12px; font-size: 13px; }
 .text-button:hover { color: var(--acid); }
+.mode-nav { color: var(--acid); text-decoration: none; }
 .icon-button {
   width: 40px;
   height: 40px;
@@ -303,6 +304,11 @@ button { color: inherit; }
 .primary-button:active { transform: translateY(0); }
 .primary-button span { opacity: .55; margin-left: 10px; }
 .continue-save { margin-top: 10px; color: var(--cyan); background: var(--cyan-soft); border: 1px solid rgba(93,227,255,.35); box-shadow: none; }
+.signal-mode-entry { min-height: 65px; margin-top: 10px; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid rgba(93,227,255,.3); border-radius: 10px; color: var(--ink); background: linear-gradient(110deg, var(--cyan-soft), rgba(14,17,23,.88)); text-decoration: none; }
+.signal-mode-entry b { display: block; color: var(--cyan); font-size: 13px; }
+.signal-mode-entry small { display: block; margin-top: 5px; color: var(--muted); font-size: 11px; }
+.signal-mode-entry em { color: var(--acid); font: 850 10px ui-monospace, monospace; white-space: nowrap; }
+.signal-mode-entry:hover { border-color: var(--cyan); }
 
 /* Game shell */
 .game-shell { max-width: 1500px; margin: 0 auto; padding: 26px clamp(16px, 3vw, 46px) 70px; }
@@ -703,4 +709,3 @@ button { color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
 }
-
