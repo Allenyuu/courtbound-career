@@ -2,56 +2,100 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#090b10" />
-  <meta name="description" content="《ZERO PING：零延遲》— 原創電競選手生涯 TRPG。從網咖海選一路打上世界舞台。" />
-  <title>ZERO PING：零延遲｜電競選手生涯 TRPG</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23d8ff37'/%3E%3Ctext x='32' y='40' text-anchor='middle' font-family='Arial' font-size='24' font-weight='900' fill='%23080a0e'%3EZP%3C/text%3E%3C/svg%3E" />
-  <link rel="stylesheet" href="styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#07100f" />
+  <meta name="description" content="《電競選手模擬器》— 一場約 30–45 分鐘的原創單人電競生涯 TRPG。擲骰、抉擇、承擔代價，走完十二幕職業人生。" />
+  <title>電競選手模擬器｜原創生涯 TRPG</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23c8ff3d'/%3E%3Cpath d='M15 19h34v7H23v5h22v7H23v7h26v7H15z' fill='%23071110'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="styles.css?v=eps1" />
 </head>
 <body>
-  <div class="noise" aria-hidden="true"></div>
+  <div class="ambient" aria-hidden="true"></div>
+  <div class="game-shell" id="game-shell">
+    <header class="game-header">
+      <a class="brand" href="./" aria-label="回到電競選手模擬器首頁">
+        <span class="brand-mark">ES</span>
+        <span><b>電競選手模擬器</b><small>ESPORTS PLAYER SIMULATOR · TRPG</small></span>
+      </a>
+      <nav class="career-route" id="career-route" aria-label="十二幕生涯進度"></nav>
+      <div class="header-tools">
+        <button type="button" id="sheet-button" aria-label="查看角色資料">角色</button>
+        <button type="button" id="rules-button" aria-label="查看遊戲規則">規則</button>
+        <button type="button" id="sound-button" aria-label="切換音效">▥</button>
+      </div>
+    </header>
 
-  <header class="topbar">
-    <a class="brand" href="#" id="brand-home" aria-label="回到遊戲首頁">
-      <span class="brand-mark">ZP</span>
-      <span class="brand-copy"><b>ZERO PING</b><small>零延遲</small></span>
-    </a>
-    <div class="top-actions">
-      <a class="text-button mode-nav" href="signal.html">戰術鏈模式</a>
-      <button class="text-button" id="how-to-button">遊戲規則</button>
-      <button class="text-button" id="hall-button">成就殿堂 <span id="hall-count">0/12</span></button>
-      <button class="icon-button audio-on" id="audio-button" aria-label="切換音效" title="切換音效">
-        <span class="audio-bars" aria-hidden="true"><i></i><i></i><i></i></span>
-      </button>
-    </div>
-  </header>
+    <main class="game-console" id="game-console" aria-live="polite">
+      <aside class="player-rail panel" id="player-rail"></aside>
+      <section class="story-stage panel" id="story-stage"></section>
+      <aside class="career-rail panel" id="career-rail"></aside>
+    </main>
 
-  <main id="app" aria-live="polite"></main>
+    <section class="mobile-hud panel" id="mobile-hud" aria-label="角色快速資料"></section>
+  </div>
 
-  <footer class="site-footer">
-    <div class="footer-meta">
-      <span class="footer-badge">ORIGINAL WORLD · SINGLE PLAYER TRPG</span>
-      <span>原創 <a href="https://www.threads.com/@mr.themost" target="_blank" rel="noopener noreferrer">最先生 Mr.TheMost</a></span>
-    </div>
-    <div class="footer-references">
-      <span>參考</span>
-      <a href="https://football-life.pages.dev/?seed=msg8kq59-8tqtam" target="_blank" rel="noopener noreferrer">Football Life</a>
-      <span aria-hidden="true">·</span>
-      <a href="https://www.yakyolife.com/" target="_blank" rel="noopener noreferrer">YaKyoLife</a>
-      <span aria-hidden="true">·</span>
-      <a href="https://jarvanthevoyager.github.io/CheerLife/" target="_blank" rel="noopener noreferrer">jarvanthevoyager</a>
-    </div>
-  </footer>
+  <dialog class="game-dialog" id="setup-dialog">
+    <form class="dialog-card setup-card" id="setup-form" method="dialog">
+      <section class="setup-step active" id="setup-identity">
+        <div class="dialog-kicker">NEW CAREER · 30–45 MIN · SOLO TRPG</div>
+        <div class="title-lockup">
+          <div><h1>電競選手<br>模擬器</h1><p>ESPORTS PLAYER SIMULATOR</p></div>
+          <span>12 幕<br>D20 生涯</span>
+        </div>
+        <p class="setup-lead">你將加入虛構競技項目 <b>ECHO//ARENA</b>：五人隊伍爭奪訊號節點的戰術競技。沒有標準答案，只有被下一幕記住的選擇。</p>
+        <div class="identity-fields">
+          <label><span>選手 ID</span><input id="player-name" maxlength="12" value="Rookie" autocomplete="off" /></label>
+          <label><span>世界種子</span><span class="seed-box"><input id="world-seed" maxlength="10" autocomplete="off" /><button type="button" id="seed-button" aria-label="更換世界種子">↻</button></span></label>
+        </div>
+        <fieldset>
+          <legend>選擇場上定位</legend>
+          <div class="choice-grid roles" id="role-options"></div>
+        </fieldset>
+        <fieldset class="compact-fieldset">
+          <legend>你的出身</legend>
+          <div class="choice-grid origins" id="origin-options"></div>
+        </fieldset>
+        <div class="setup-actions">
+          <button class="primary-button" type="button" id="to-dice-button">擲出天賦骰 <span>D6 × 4</span></button>
+          <button class="ghost-button" type="button" id="continue-button" hidden>繼續上次生涯</button>
+        </div>
+        <div class="setup-credit">原創 <a href="https://www.threads.com/@mr.themost" target="_blank" rel="noopener">最先生 Mr.TheMost</a> · 參考 <a href="https://football-life.pages.dev/?seed=msg8kq59-8tqtam" target="_blank" rel="noopener">Football Life</a>、<a href="https://www.yakyolife.com/" target="_blank" rel="noopener">YaKyoLife</a>、<a href="https://jarvanthevoyager.github.io/CheerLife/" target="_blank" rel="noopener">CheerLife</a></div>
+      </section>
 
-  <dialog id="modal" class="modal">
-    <div class="modal-shell">
-      <button class="modal-close" id="modal-close" aria-label="關閉">×</button>
-      <div id="modal-content"></div>
-    </div>
+      <section class="setup-step" id="setup-dice">
+        <button class="step-back" type="button" id="dice-back-button">← 返回身份</button>
+        <div class="dialog-kicker">CHARACTER BUILD · ALLOCATE YOUR DICE</div>
+        <div class="dice-heading"><div><h2>把天賦交給你相信的能力</h2><p>先點一顆骰子，再點能力欄。四顆骰子可自由分配。</p></div><button type="button" id="reroll-talents">重擲</button></div>
+        <div class="talent-dice" id="talent-dice" aria-label="天賦骰池"></div>
+        <div class="allocation-grid" id="allocation-grid"></div>
+        <fieldset class="oath-fieldset">
+          <legend>寫下你的職業誓言</legend>
+          <div class="choice-grid oaths" id="oath-options"></div>
+        </fieldset>
+        <div class="build-summary" id="build-summary"></div>
+        <div class="setup-actions">
+          <button class="primary-button" type="submit" id="start-button" disabled>踏入職業賽場 <span>START CAREER</span></button>
+        </div>
+      </section>
+    </form>
   </dialog>
 
-  <div class="toast-region" id="toast-region" aria-live="assertive"></div>
-  <script src="app.js"></script>
+  <dialog class="game-dialog" id="info-dialog">
+    <article class="dialog-card info-card">
+      <button class="dialog-close" type="button" data-close-dialog="info-dialog" aria-label="關閉">×</button>
+      <div id="info-content"></div>
+    </article>
+  </dialog>
+
+  <dialog class="game-dialog" id="ending-dialog">
+    <article class="dialog-card ending-card">
+      <button class="dialog-close" type="button" data-close-dialog="ending-dialog" aria-label="關閉">×</button>
+      <div id="ending-content"></div>
+    </article>
+  </dialog>
+
+  <canvas id="share-canvas" width="1080" height="1350" hidden></canvas>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="app.js?v=eps1"></script>
 </body>
 </html>
