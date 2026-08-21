@@ -1,4 +1,4 @@
-name: Deploy ZERO PING to GitHub Pages
+name: Deploy COURT ATLAS to GitHub Pages
 
 on:
   push:

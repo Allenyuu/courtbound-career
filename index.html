@@ -3,99 +3,109 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#07100f" />
-  <meta name="description" content="《電競選手模擬器》— 一場約 30–45 分鐘的原創單人電競生涯 TRPG。擲骰、抉擇、承擔代價，走完十二幕職業人生。" />
-  <title>電競選手模擬器｜原創生涯 TRPG</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23c8ff3d'/%3E%3Cpath d='M15 19h34v7H23v5h22v7H23v7h26v7H15z' fill='%23071110'/%3E%3C/svg%3E" />
-  <link rel="stylesheet" href="styles.css?v=eps1" />
+  <meta name="theme-color" content="#0b0b09" />
+  <meta name="description" content="《籃圖》原創籃球生涯模擬器——從台灣國中出發，走向台、日、韓、中、美職業舞台。" />
+  <title>籃圖｜原創籃球生涯模擬器</title>
+  <link rel="stylesheet" href="styles.css?v=court2" />
 </head>
 <body>
-  <div class="ambient" aria-hidden="true"></div>
-  <div class="game-shell" id="game-shell">
-    <header class="game-header">
-      <a class="brand" href="./" aria-label="回到電競選手模擬器首頁">
-        <span class="brand-mark">ES</span>
-        <span><b>電競選手模擬器</b><small>ESPORTS PLAYER SIMULATOR · TRPG</small></span>
+  <div class="noise" aria-hidden="true"></div>
+  <div class="app-shell" id="app-shell">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="籃圖首頁">
+        <span class="brand-ball"><i></i></span>
+        <span><b>籃圖</b><small>COURT ATLAS · CAREER SIM</small></span>
       </a>
-      <nav class="career-route" id="career-route" aria-label="十二幕生涯進度"></nav>
-      <div class="header-tools">
-        <button type="button" id="sheet-button" aria-label="查看角色資料">角色</button>
-        <button type="button" id="rules-button" aria-label="查看遊戲規則">規則</button>
-        <button type="button" id="sound-button" aria-label="切換音效">▥</button>
+      <nav class="season-track" id="season-track" aria-label="生涯階段"></nav>
+      <div class="top-actions">
+        <button type="button" id="card-button">球員卡</button>
+        <button type="button" id="rules-button">引擎</button>
+        <button type="button" id="new-button">重開</button>
       </div>
     </header>
 
-    <main class="game-console" id="game-console" aria-live="polite">
-      <aside class="player-rail panel" id="player-rail"></aside>
-      <section class="story-stage panel" id="story-stage"></section>
-      <aside class="career-rail panel" id="career-rail"></aside>
-    </main>
+    <main class="dashboard">
+      <aside class="player-panel panel" id="player-panel" aria-label="球員資料"></aside>
 
-    <section class="mobile-hud panel" id="mobile-hud" aria-label="角色快速資料"></section>
+      <section class="court-panel panel">
+        <div class="arena-head" id="arena-head"></div>
+        <div class="court-scene" id="court-scene">
+          <div class="court-lines" aria-hidden="true"><i></i><b></b><span></span></div>
+          <div class="scene-copy" id="scene-copy"></div>
+          <div class="scoreboard" id="scoreboard"></div>
+        </div>
+        <div class="decision-zone" id="decision-zone" aria-live="polite"></div>
+      </section>
+
+      <aside class="world-panel panel" id="world-panel" aria-label="世界生涯版圖"></aside>
+    </main>
+    <section class="mobile-hud panel" id="mobile-hud"></section>
   </div>
 
-  <dialog class="game-dialog" id="setup-dialog">
-    <form class="dialog-card setup-card" id="setup-form" method="dialog">
-      <section class="setup-step active" id="setup-identity">
-        <div class="dialog-kicker">NEW CAREER · 30–45 MIN · SOLO TRPG</div>
-        <div class="title-lockup">
-          <div><h1>電競選手<br>模擬器</h1><p>ESPORTS PLAYER SIMULATOR</p></div>
-          <span>12 幕<br>D20 生涯</span>
-        </div>
-        <p class="setup-lead">你將加入虛構競技項目 <b>ECHO//ARENA</b>：五人隊伍爭奪訊號節點的戰術競技。沒有標準答案，只有被下一幕記住的選擇。</p>
-        <div class="identity-fields">
-          <label><span>選手 ID</span><input id="player-name" maxlength="12" value="Rookie" autocomplete="off" /></label>
-          <label><span>世界種子</span><span class="seed-box"><input id="world-seed" maxlength="10" autocomplete="off" /><button type="button" id="seed-button" aria-label="更換世界種子">↻</button></span></label>
-        </div>
-        <fieldset>
-          <legend>選擇場上定位</legend>
-          <div class="choice-grid roles" id="role-options"></div>
-        </fieldset>
-        <fieldset class="compact-fieldset">
-          <legend>你的出身</legend>
-          <div class="choice-grid origins" id="origin-options"></div>
-        </fieldset>
-        <div class="setup-actions">
-          <button class="primary-button" type="button" id="to-dice-button">擲出天賦骰 <span>D6 × 4</span></button>
-          <button class="ghost-button" type="button" id="continue-button" hidden>繼續上次生涯</button>
-        </div>
-        <div class="setup-credit">原創 <a href="https://www.threads.com/@mr.themost" target="_blank" rel="noopener">最先生 Mr.TheMost</a> · 參考 <a href="https://football-life.pages.dev/?seed=msg8kq59-8tqtam" target="_blank" rel="noopener">Football Life</a>、<a href="https://www.yakyolife.com/" target="_blank" rel="noopener">YaKyoLife</a>、<a href="https://jarvanthevoyager.github.io/CheerLife/" target="_blank" rel="noopener">CheerLife</a></div>
-      </section>
-
-      <section class="setup-step" id="setup-dice">
-        <button class="step-back" type="button" id="dice-back-button">← 返回身份</button>
-        <div class="dialog-kicker">CHARACTER BUILD · ALLOCATE YOUR DICE</div>
-        <div class="dice-heading"><div><h2>把天賦交給你相信的能力</h2><p>先點一顆骰子，再點能力欄。四顆骰子可自由分配。</p></div><button type="button" id="reroll-talents">重擲</button></div>
-        <div class="talent-dice" id="talent-dice" aria-label="天賦骰池"></div>
-        <div class="allocation-grid" id="allocation-grid"></div>
-        <fieldset class="oath-fieldset">
-          <legend>寫下你的職業誓言</legend>
-          <div class="choice-grid oaths" id="oath-options"></div>
-        </fieldset>
-        <div class="build-summary" id="build-summary"></div>
-        <div class="setup-actions">
-          <button class="primary-button" type="submit" id="start-button" disabled>踏入職業賽場 <span>START CAREER</span></button>
-        </div>
-      </section>
+  <dialog id="setup-dialog" class="game-dialog">
+    <form class="setup-card" id="setup-form">
+      <div class="setup-top"><span>NEW SAVE / ORIGIN 13</span><b>01</b></div>
+      <div class="setup-title"><div><p>一座球場，五個國家，<br>一條只屬於你的路。</p><h1>從國中開始。</h1></div><div class="setup-logo">CA<br><i>13</i></div></div>
+      <p class="setup-lead">每一季由你的打法、身體狀態、人際信任與球探市場即時生成。沒有預寫好的唯一旅外路線。</p>
+      <div class="setup-fields">
+        <label><span>球員姓名</span><input id="player-name" maxlength="12" value="林拓海" autocomplete="off" required /></label>
+        <label><span>家鄉</span><select id="hometown"><option>北部</option><option>中部</option><option>南部</option><option>東部</option><option>離島</option></select></label>
+        <label><span>慣用手</span><select id="hand"><option>右手</option><option>左手</option></select></label>
+      </div>
+      <fieldset>
+        <legend>場上位置</legend>
+        <div class="position-grid" id="position-grid"></div>
+      </fieldset>
+      <fieldset>
+        <legend>籃球原型</legend>
+        <div class="style-grid" id="style-grid"></div>
+      </fieldset>
+      <div class="setup-footer">
+        <button class="continue-button" type="button" id="continue-button" hidden>繼續上次生涯</button>
+        <span>單局約 20–30 分鐘 · 本機自動存檔</span>
+        <button class="start-button" type="submit">建立球員檔案 <b>→</b></button>
+      </div>
     </form>
   </dialog>
 
-  <dialog class="game-dialog" id="info-dialog">
-    <article class="dialog-card info-card">
-      <button class="dialog-close" type="button" data-close-dialog="info-dialog" aria-label="關閉">×</button>
-      <div id="info-content"></div>
+  <dialog id="info-dialog" class="game-dialog">
+    <article class="info-card">
+      <button class="dialog-close" type="button" data-close="info-dialog" aria-label="關閉">×</button>
+      <small>ENGINE / PULSE-01</small>
+      <h2>球場脈衝引擎</h2>
+      <p>這套原創系統不使用骰子，也不照搬既有球經遊戲。每一個結果都從六項能力與三條即時軌道交叉推演：</p>
+      <div class="engine-grid">
+        <div><b>01 / 能力</b><span>主要技術與次要技術形成回合底值。</span></div>
+        <div><b>02 / 脈衝</b><span>近期節奏、隊友信任與身體負荷會放大或抵銷實力。</span></div>
+        <div><b>03 / 對位</b><span>不同國家的球風、比賽壓力與對手策略改變門檻。</span></div>
+        <div><b>04 / 身分</b><span>你反覆做的選擇會長成打法印記，並開出專屬選項。</span></div>
+      </div>
+      <p class="engine-note">公式會顯示在每次判定結果中。隨機只占小部分；準備方式與生涯累積才是主體。</p>
     </article>
   </dialog>
 
-  <dialog class="game-dialog" id="ending-dialog">
-    <article class="dialog-card ending-card">
-      <button class="dialog-close" type="button" data-close-dialog="ending-dialog" aria-label="關閉">×</button>
-      <div id="ending-content"></div>
+  <dialog id="card-dialog" class="game-dialog">
+    <article class="card-dialog-card">
+      <button class="dialog-close" type="button" data-close="card-dialog" aria-label="關閉">×</button>
+      <div id="card-content"></div>
     </article>
+  </dialog>
+
+  <dialog id="offer-dialog" class="game-dialog">
+    <article class="offer-dialog-card">
+      <div class="offer-heading"><div><small>MARKET WINDOW</small><h2 id="offer-title">下一站，由你簽名</h2></div><span id="offer-count"></span></div>
+      <p class="offer-lead" id="offer-lead"></p>
+      <div class="offer-grid" id="offer-grid"></div>
+    </article>
+  </dialog>
+
+  <dialog id="ending-dialog" class="game-dialog">
+    <article class="ending-card" id="ending-content"></article>
   </dialog>
 
   <canvas id="share-canvas" width="1080" height="1350" hidden></canvas>
   <div class="toast" id="toast" role="status"></div>
-  <script src="app.js?v=eps1"></script>
+  <script src="app.js?v=court1"></script>
 </body>
 </html>
+
