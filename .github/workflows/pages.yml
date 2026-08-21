@@ -1,4 +1,4 @@
-name: Deploy COURT ATLAS to GitHub Pages
+name: Deploy COURTBOUND to GitHub Pages
 
 on:
   push:

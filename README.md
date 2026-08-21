@@ -1,8 +1,8 @@
-# 籃圖 COURT ATLAS
+# 籃途 COURTBOUND
 
 一款從台灣國中出發的原創籃球生涯模擬器。玩家會在每一季管理技術、節奏、信任與身體負荷，並依照表現收到台灣、日本、韓國、中國、美國的球隊邀請。
 
-線上遊玩：<https://allenyuu.github.io/zero-ping/>
+線上遊玩：<https://allenyuu.github.io/courtbound-career/>
 
 ## 原創核心：球場脈衝引擎
 

@@ -592,7 +592,7 @@ function renderCard() {
   const team = currentTeam();
   const season = currentSeason();
   $('#card-content').innerHTML = `
-    <div class="card-kicker"><span>COURT ATLAS / PLAYER DOSSIER</span><b>${overall()}</b></div>
+    <div class="card-kicker"><span>COURTBOUND / PLAYER DOSSIER</span><b>${overall()}</b></div>
     <div class="big-player-name"><small>${state.profile.position} · ${POSITIONS[state.profile.position].name}</small><h2>${escapeHtml(state.profile.name)}</h2><p>${state.profile.hometown}出身 · ${state.profile.hand} · ${season.age} 歲 · ${team.name}</p></div>
     <div class="card-stat-grid">${Object.entries(STAT_META).map(([key, meta]) => `<div><small>${meta.code}</small><b>${Math.round(state.stats[key])}</b><span>${meta.label}</span></div>`).join('')}</div>
     <div class="card-columns">
@@ -636,7 +636,7 @@ function downloadCareerCard() {
   const ending = endingProfile();
   ctx.fillStyle = '#11110e'; ctx.fillRect(0, 0, 1080, 1350);
   ctx.fillStyle = '#ff5a1f'; ctx.fillRect(56, 56, 968, 18);
-  ctx.fillStyle = '#dfff00'; ctx.font = '700 28px sans-serif'; ctx.fillText('籃圖 / COURT ATLAS', 68, 132);
+  ctx.fillStyle = '#dfff00'; ctx.font = '700 28px sans-serif'; ctx.fillText('籃途 / COURTBOUND', 68, 132);
   ctx.fillStyle = '#f1efe8'; ctx.font = '900 88px sans-serif'; ctx.fillText(state.profile.name, 68, 255);
   ctx.fillStyle = '#8b8980'; ctx.font = '500 28px sans-serif'; ctx.fillText(`${state.profile.position} · ${POSITIONS[state.profile.position].name} · ${state.visited.length} 國生涯`, 72, 310);
   ctx.fillStyle = '#ff5a1f'; ctx.font = '900 280px sans-serif'; ctx.fillText(ending.grade, 62, 595);
@@ -651,7 +651,7 @@ function downloadCareerCard() {
   ctx.fillStyle = '#8b8980'; ctx.font = '500 22px sans-serif'; ctx.fillText('從國中開始。每一條路，都是你親手選的。', 68, 1235);
   ctx.fillStyle = '#dfff00'; ctx.fillRect(68, 1270, 944, 8);
   const link = document.createElement('a');
-  link.download = `${state.profile.name}-籃圖生涯卡.png`;
+  link.download = `${state.profile.name}-籃途生涯卡.png`;
   link.href = canvas.toDataURL('image/png');
   link.click();
   showToast('生涯卡已下載');
