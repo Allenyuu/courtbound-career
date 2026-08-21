@@ -10,6 +10,14 @@ const STAT_META = {
   iq: { label: '球商', code: 'IQ', icon: '◇' }
 };
 
+const STAT_TIERS = [
+  { min: 90, label: '怪物級', bonus: 8 },
+  { min: 80, label: '王牌級', bonus: 5 },
+  { min: 70, label: '強項', bonus: 3 },
+  { min: 60, label: '熟練', bonus: 1.5 },
+  { min: 0, label: '成長中', bonus: 0 }
+];
+
 const POSITIONS = {
   PG: { name: '控球後衛', desc: '創造與球商', number: 3, height: 174, bonus: { playmaking: 5, iq: 4, shooting: 1 } },
   SG: { name: '得分後衛', desc: '投射與終結', number: 7, height: 181, bonus: { shooting: 5, finish: 4, athletic: 1 } },
@@ -113,6 +121,7 @@ let toastTimer = null;
 
 const $ = (selector) => document.querySelector(selector);
 const clamp = (value, min = 0, max = 100) => Math.max(min, Math.min(max, value));
+const statTier = (value) => STAT_TIERS.find((tier) => value >= tier.min) || STAT_TIERS.at(-1);
 const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
 
 function hashSeed(value) {
@@ -371,8 +380,8 @@ function stageProgress() {
   $('#season-track').innerHTML = stages.map((stage, index) => `${index ? '<i></i>' : ''}<span class="${index === active ? 'active' : index < active ? 'done' : ''}">${stage}</span>`).join('');
 }
 
-function badgeBonus(tag) {
-  return state.badges.includes(tag) ? 3 : 0;
+function badgeBonus(tag, source = state) {
+  return source.badges.includes(tag) ? 3 : 0;
 }
 
 function unlockedBadges() {
@@ -400,7 +409,11 @@ function renderPlayerPanel() {
     </div>
     <div class="rating-block"><span>綜合評分</span><strong>${ovr}</strong><small>OVR</small></div>
     <div class="stat-list">
-      ${Object.entries(STAT_META).map(([key, meta]) => `<div class="stat-row"><i>${meta.icon}</i><span>${meta.label}<small>${meta.code}</small></span><b>${Math.round(state.stats[key])}</b><em style="--fill:${state.stats[key]}%"></em></div>`).join('')}
+      ${Object.entries(STAT_META).map(([key, meta]) => {
+        const tier = statTier(state.stats[key]);
+        const gain = state.pendingResult?.growth?.gains?.[key] || 0;
+        return `<div class="stat-row ${gain ? 'stat-grew' : ''}"><i>${meta.icon}</i><span>${meta.label}<small>${meta.code} · ${tier.label}</small></span><b>${Math.round(state.stats[key])}</b>${gain ? `<ins>+${gain.toFixed(1)}</ins>` : ''}<em style="--fill:${state.stats[key]}%"></em></div>`;
+      }).join('')}
     </div>
     <div class="pulse-meters">
       ${resourceMeter('近期節奏', state.rhythm, 'rhythm')}
@@ -523,7 +536,11 @@ function renderDecisions(event) {
   $('#decision-zone').innerHTML = `
     <div class="decision-head"><div><small>${event.game ? 'POSSESSION DECISION' : 'CAREER DECISION'} · PULSE ENGINE</small><h2>${event.game ? '最後一球，你要怎麼打？' : '這週要練什麼？'}</h2></div><p>看能力、手感、隊友信任和疲勞，再做選擇。</p></div>
     <div class="option-grid">
-      ${event.actions.map((action, index) => `<button type="button" data-action="${index}"><em>${action.code || String(index + 1).padStart(2, '0')}</em><b>${action.title}</b><span>${action.desc}</span><small>${STAT_META[action.primary].label} ＋ ${STAT_META[action.secondary].label}<i>${formatDeltas(action.deltas)}</i></small></button>`).join('')}
+      ${event.actions.map((action, index) => {
+        const forecast = estimateActionChance(action);
+        const tierBonus = forecast.tier.bonus ? ` · ${forecast.tier.label} +${forecast.tier.bonus}` : '';
+        return `<button type="button" data-action="${index}"><em>${action.code || String(index + 1).padStart(2, '0')}</em><b>${action.title}</b><span>${action.desc}</span><small><strong>${chanceLabel(forecast.chance)} · ${forecast.chance}%</strong>${STAT_META[action.primary].label} ＋ ${STAT_META[action.secondary].label}<i>${formatDeltas(action.deltas)}${tierBonus}</i></small></button>`;
+      }).join('')}
     </div>`;
   document.querySelectorAll('[data-action]').forEach((button) => button.addEventListener('click', () => resolveAction(event.actions[Number(button.dataset.action)])));
 }
@@ -533,19 +550,38 @@ function formatDeltas(deltas = {}) {
   return Object.entries(deltas).map(([key, value]) => `${labels[key] || key} ${value > 0 ? '+' : ''}${value}`).join(' · ');
 }
 
-function pulseCalculation(action) {
-  const primary = state.stats[action.primary];
-  const secondary = state.stats[action.secondary];
-  const skill = primary * .62 + secondary * .22 + state.stats.iq * .08;
-  const rhythm = (state.rhythm - 50) * .11;
-  const trust = (state.trust - 50) * .07;
-  const load = -Math.max(0, state.load - 28) * .10;
-  const identity = badgeBonus(action.tag);
-  const seedSpecialty = state.profile.seedSpecialties?.includes(action.primary) ? 1.5 : 0;
-  const variation = randomBetween(-5.5, 5.5);
-  const total = skill + rhythm + trust + load + identity + seedSpecialty + variation;
+function pulseBase(action, source = state) {
+  const primary = source.stats[action.primary];
+  const secondary = source.stats[action.secondary];
+  const skill = primary * .62 + secondary * .22 + source.stats.iq * .08;
+  const rhythm = (source.rhythm - 50) * .11;
+  const trust = (source.trust - 50) * .07;
+  const load = -Math.max(0, source.load - 28) * .10;
+  const identity = badgeBonus(action.tag, source);
+  const seedSpecialty = source.profile.seedSpecialties?.includes(action.primary) ? 1.5 : 0;
+  const mastery = statTier(primary).bonus;
   const difficulty = clamp(action.difficulty, 36, 96);
-  return { primary, secondary, skill, rhythm, trust, load, identity, seedSpecialty, variation, total, difficulty, margin: total - difficulty };
+  const baseTotal = skill + rhythm + trust + load + identity + seedSpecialty + mastery;
+  return { primary, secondary, skill, rhythm, trust, load, identity, seedSpecialty, mastery, baseTotal, difficulty };
+}
+
+function pulseCalculation(action) {
+  const base = pulseBase(action);
+  const variation = randomBetween(-5.5, 5.5);
+  const total = base.baseTotal + variation;
+  return { ...base, variation, total, margin: total - base.difficulty };
+}
+
+function estimateActionChance(action, source = state) {
+  const base = pulseBase(action, source);
+  const chance = Math.round(clamp(((base.baseTotal - base.difficulty + 5.5) / 11) * 100, 5, 95));
+  return { chance, tier: statTier(base.primary) };
+}
+
+function chanceLabel(chance) {
+  if (chance >= 70) return '很有把握';
+  if (chance >= 45) return '有機會';
+  return '高難度';
 }
 
 function applyDeltas(deltas = {}) {
@@ -558,13 +594,24 @@ function applyDeltas(deltas = {}) {
 
 function resolveAction(action) {
   if (state.pendingResult) return;
+  const beforeSource = { ...state, stats: { ...state.stats }, badges: [...state.badges] };
+  const primaryBefore = state.stats[action.primary];
+  const secondaryBefore = state.stats[action.secondary];
+  const chanceBefore = estimateActionChance(action, beforeSource).chance;
   const calc = pulseCalculation(action);
   const success = calc.margin >= 0;
   applyDeltas(action.deltas);
   const specialtyGrowth = state.profile.seedSpecialties?.includes(action.primary) ? 1.08 : 1;
-  const growth = action.growth * (state.profile.growthModifier || 1) * specialtyGrowth * (success ? 1 : .55);
+  const growth = action.growth * 1.35 * (state.profile.growthModifier || 1) * specialtyGrowth * (success ? 1 : .7);
   state.stats[action.primary] = clamp(state.stats[action.primary] + growth, 0, 99);
   state.stats[action.secondary] = clamp(state.stats[action.secondary] + growth * .42, 0, 99);
+  const primaryAfter = state.stats[action.primary];
+  const secondaryAfter = state.stats[action.secondary];
+  const afterStatsSource = { ...beforeSource, stats: { ...state.stats } };
+  const chanceAfter = estimateActionChance(action, afterStatsSource).chance;
+  const tierBefore = statTier(primaryBefore);
+  const tierAfter = statTier(primaryAfter);
+  const tierUp = tierAfter.min > tierBefore.min ? { stat: action.primary, label: tierAfter.label, bonus: tierAfter.bonus } : null;
   state.rhythm = clamp(state.rhythm + (success ? 3 : -4));
   state.trust = clamp(state.trust + (success && action.game ? 4 : action.game ? -2 : 0));
   state.choices[action.tag] = (state.choices[action.tag] || 0) + 1;
@@ -575,7 +622,14 @@ function resolveAction(action) {
     else { state.losses += 1; state.careerPoints += Math.max(4, Math.round(8 + calc.margin / 5)); }
   }
   const badges = unlockedBadges();
-  state.pendingResult = { action, calc, success, badges, game: Boolean(action.game) };
+  const gains = {
+    [action.primary]: primaryAfter - primaryBefore,
+    [action.secondary]: action.primary === action.secondary ? primaryAfter - primaryBefore : secondaryAfter - secondaryBefore
+  };
+  state.pendingResult = {
+    action, calc, success, badges, game: Boolean(action.game),
+    growth: { primaryBefore, primaryAfter, secondaryBefore, secondaryAfter, chanceBefore, chanceAfter, tierUp, gains }
+  };
   saveGame();
   renderAll();
 }
@@ -594,7 +648,9 @@ function renderResult() {
         <small>${result.success ? 'READ COMPLETE' : 'READ BROKEN'} · ${margin >= 0 ? '+' : ''}${margin.toFixed(1)}</small>
         <h2>${result.success ? '成功！這波有料。' : '沒成功，再調整就好。'}</h2>
         <p>${result.success ? action.success : action.failure}</p>
-        <div class="formula-strip"><span>技術 <b>${result.calc.skill.toFixed(1)}</b></span><span>節奏 <b>${signed(result.calc.rhythm)}</b></span><span>信任 <b>${signed(result.calc.trust)}</b></span><span>負荷 <b>${signed(result.calc.load)}</b></span><span>打法 <b>+${result.calc.identity}</b></span>${result.calc.seedSpecialty ? `<span>種子專長 <b>+${result.calc.seedSpecialty}</b></span>` : ''}<span>臨場 <b>${signed(result.calc.variation)}</b></span></div>
+        <div class="formula-strip"><span>技術 <b>${result.calc.skill.toFixed(1)}</b></span><span>節奏 <b>${signed(result.calc.rhythm)}</b></span><span>信任 <b>${signed(result.calc.trust)}</b></span><span>負荷 <b>${signed(result.calc.load)}</b></span><span>打法 <b>+${result.calc.identity}</b></span>${result.calc.mastery ? `<span>能力階級 <b>+${result.calc.mastery}</b></span>` : ''}${result.calc.seedSpecialty ? `<span>種子專長 <b>+${result.calc.seedSpecialty}</b></span>` : ''}<span>臨場 <b>${signed(result.calc.variation)}</b></span></div>
+        ${result.growth ? `<div class="growth-feedback"><small>這次真的變強了</small><div><span><b>${STAT_META[action.primary].label}</b><em>${result.growth.primaryBefore.toFixed(1)} → ${result.growth.primaryAfter.toFixed(1)}</em></span>${action.secondary !== action.primary ? `<span><b>${STAT_META[action.secondary].label}</b><em>${result.growth.secondaryBefore.toFixed(1)} → ${result.growth.secondaryAfter.toFixed(1)}</em></span>` : ''}<span><b>同類選擇</b><em>${result.growth.chanceBefore}% → ${result.growth.chanceAfter}%</em></span></div></div>` : ''}
+        ${result.growth?.tierUp ? `<div class="mastery-unlock">能力突破：<b>${STAT_META[result.growth.tierUp.stat].label} · ${result.growth.tierUp.label}</b>，之後同類選擇永久 +${result.growth.tierUp.bonus}</div>` : ''}
         ${result.badges.length ? `<div class="badge-unlock">打法印記解鎖：<b>${result.badges.join('、')}</b></div>` : ''}
         <button type="button" class="next-button" id="next-button">${state.week === 2 ? '結算本季' : '進入下一週'} <b>→</b></button>
       </div>
@@ -628,9 +684,9 @@ function finishSeason() {
   const wins = Math.round(games * winRate);
   const losses = games - wins;
   const role = clamp((overall() - team.difficulty + 18) / 32, .2, 1);
-  const ppg = (4 + state.stats.finish * .10 + state.stats.shooting * .11 + role * 5 + randomBetween(-1, 1)).toFixed(1);
-  const rpg = (1 + (state.stats.athletic + state.stats.defense) * .045 + (['PF', 'C'].includes(state.profile.position) ? 2.2 : 0)).toFixed(1);
-  const apg = (1 + (state.stats.playmaking + state.stats.iq) * .04 + (state.profile.position === 'PG' ? 2.2 : 0)).toFixed(1);
+  const ppg = (2 + state.stats.finish * .13 + state.stats.shooting * .14 + role * 4 + randomBetween(-1, 1)).toFixed(1);
+  const rpg = (.5 + (state.stats.athletic + state.stats.defense) * .055 + (['PF', 'C'].includes(state.profile.position) ? 2.2 : 0)).toFixed(1);
+  const apg = (.5 + (state.stats.playmaking + state.stats.iq) * .05 + (state.profile.position === 'PG' ? 2.2 : 0)).toFixed(1);
   const champion = winRate > .72 && state.seasonSuccesses >= 2;
   if (champion) state.trophies += 1;
   state.reputation += Math.round(team.prestige * 2 + winRate * 6 + (champion ? 8 : 0));
