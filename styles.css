@@ -261,6 +261,11 @@ legend { margin-bottom:7px; color:var(--muted); font-size:8px; }
 .growth-feedback b { color:var(--paper); }
 .growth-feedback em { color:var(--lime); font:800 9px 'Barlow Condensed'; font-style:normal; white-space:nowrap; }
 .mastery-unlock { margin-top:6px; padding:6px 8px; color:#111; background:var(--orange); font-size:8px; }
+.story-branch-unlock,.rest-feedback { margin-top:6px; padding:7px 9px; border-radius:10px; font-size:8px; line-height:1.45; }
+.story-branch-unlock { color:#142017; background:#b8d6c8; }
+.story-branch-unlock b { color:#142017; }
+.rest-feedback { color:#c8cec8; border:1px solid rgba(147,185,201,.35); background:rgba(147,185,201,.08); }
+.choice-impact span:first-child { flex:1 1 250px; }
 .next-button { min-height:39px; margin-top:10px; padding:0 13px; color:#111; border:0; background:var(--lime); cursor:pointer; font-size:9px; font-weight:900; }
 .next-button b { margin-left:13px; font-size:15px; }
 
@@ -355,6 +360,14 @@ legend { margin-bottom:7px; color:var(--muted); font-size:8px; }
 .achievement-grid b,.achievement-grid small { display:block; }
 .achievement-grid b { font-size:9px; }
 .achievement-grid small { margin-top:2px; color:var(--muted); font-size:7px; line-height:1.4; }
+.storyline-ledger { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-top:9px; }
+.storyline-ledger > div { min-width:0; display:grid; grid-template-columns:35px minmax(0,1fr); gap:7px; padding:7px; border-radius:10px; background:#11110f; }
+.storyline-ledger > div > i { color:var(--lime); font:900 15px 'Barlow Condensed'; font-style:normal; }
+.storyline-ledger > div > i small { margin-left:2px; color:var(--muted); font-size:7px; }
+.storyline-ledger b,.storyline-ledger span > small { display:block; }
+.storyline-ledger b { overflow:hidden; font-size:9px; text-overflow:ellipsis; white-space:nowrap; }
+.storyline-ledger span > small { margin-top:2px; color:var(--muted); font-size:7px; line-height:1.45; }
+.storyline-ledger > p { grid-column:1/3; margin:0; color:var(--muted); font-size:8px; }
 .contract-ledger { grid-column:1/3; }
 .contract-ledger > div { display:grid; grid-template-columns:repeat(3,1fr); gap:5px; margin-top:9px; }
 .contract-ledger span { min-width:0; display:grid; gap:2px; padding:8px; background:#11110f; }
@@ -1449,6 +1462,12 @@ body:not(.interface-mobile) .setup-footer button { border-radius:14px; }
 .career-mode-card > i span { display:block; width:var(--mode-progress); height:100%; border-radius:inherit; background:var(--orange); }
 .career-mode-card.complete > i span { background:var(--lime); }
 .career-mode-card.complete small,.mode-report.complete b { color:var(--lime); }
+.storyline-card { padding:10px; border-radius:12px; background:linear-gradient(135deg,rgba(147,185,201,.13),rgba(7,10,8,.24)); }
+.storyline-card > div { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:3px 8px; align-items:center; }
+.storyline-card small { grid-column:1/3; color:#b8d6c8; font:700 8px 'Barlow Condensed'; letter-spacing:.11em; }
+.storyline-card b { font-size:11px; }
+.storyline-card em { color:var(--lime); font-size:9px; font-style:normal; font-weight:800; }
+.storyline-card p { margin:5px 0 0; color:var(--muted); font-size:8px; line-height:1.45; }
 
 .card-share-bar { display:flex; align-items:center; gap:18px; margin-top:14px; padding:14px 16px; border-radius:14px; background:linear-gradient(115deg,rgba(217,237,131,.13),rgba(255,118,84,.1)); }
 .card-share-bar span { min-width:0; margin-right:auto; }
@@ -1469,6 +1488,9 @@ body:not(.interface-mobile) .setup-footer button { border-radius:14px; }
   body:not(.interface-mobile) .world-panel .career-mode-card { padding:10px 12px; }
   body:not(.interface-mobile) .world-panel .career-mode-card b { font-size:13px; }
   body:not(.interface-mobile) .world-panel .career-mode-card p { font-size:9px; }
+  body:not(.interface-mobile) .world-panel .storyline-card { padding:10px 12px; }
+  body:not(.interface-mobile) .world-panel .storyline-card b { font-size:13px; }
+  body:not(.interface-mobile) .world-panel .storyline-card p { font-size:9px; }
 }
 
 @media (max-width:760px) {
