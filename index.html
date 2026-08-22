@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0b0b09" />
   <meta name="description" content="《籃途 COURTBOUND》原創籃球生涯模擬器——從台灣國中出發，走向台、日、韓、中、美職業舞台。" />
   <title>籃途 COURTBOUND｜原創籃球生涯模擬器</title>
-  <link rel="stylesheet" href="styles.css?v=courtbound21" />
+  <link rel="stylesheet" href="styles.css?v=courtbound22" />
 </head>
 <body>
   <div class="noise" aria-hidden="true"></div>
@@ -46,7 +46,7 @@
     <form class="setup-card" id="setup-form">
       <header class="setup-intro">
         <div class="setup-game-name"><span>籃途</span><b>COURTBOUND</b><em>v0.1</em></div>
-        <p>從 13 歲到 35 歲，每個年齡都有 5 個原創章節。球場、家人、課業、休息、訓練和旅外邀請，全都由你自己決定。</p>
+        <p>基本篇從 13 歲到 35 歲，每個年齡都有 5 個原創章節；長期重視恢復、醫療、保險與保養，還能解鎖 36–45 歲長青線。</p>
       </header>
       <div class="setup-fields">
         <label><span>球員姓名</span><div class="field-action"><input id="player-name" maxlength="12" value="林拓海" autocomplete="off" required /><button type="button" id="random-name-button">隨機</button></div></label>
@@ -80,7 +80,7 @@
       </div>
       <div class="setup-footer">
         <button class="continue-button" type="button" id="continue-button" hidden>繼續上次生涯</button>
-        <span>完整生涯約 50–70 分鐘 · 23 個年齡 × 每年 5 章 · 本機自動存檔</span>
+        <span>基本篇約 50–70 分鐘 · 13–35 歲；長青線最高 45 歲 · 本機自動存檔</span>
         <button class="start-button" type="submit"><span>建立球員檔案</span><b aria-hidden="true">→</b></button>
       </div>
     </form>
@@ -119,7 +119,8 @@
         <div><b>11 / 邀請由你決定</b><span>體驗營、夏令營和職業測試只會先送出邀請；你可以參加，也能婉拒後休息、自主訓練、找訓練師或陪家人。</span></div>
         <div><b>12 / 生涯劇本</b><span>真實征途、五國遠征、一城王朝與逆風翻盤會改變成長、旅外門檻、球隊信任或逆風脈衝。</span></div>
         <div><b>13 / 分享結算圖</b><span>球員卡可隨時生成 1080 × 1920 預覽，整理能力曲線、逐季旅程、收入、代言、成就與名人堂評級。</span></div>
-        <div><b>14 / 逐歲故事</b><span>13–35 歲每個年齡固定 5 章：自由規劃、人生支線、球隊日常、機會邀請與年度關鍵戰。</span></div>
+        <div><b>14 / 逐歲故事</b><span>13–35 歲基本篇與 36–45 歲長青線，每個實際打到的年齡都有 5 章：自由規劃、人生支線、球隊日常、機會邀請與年度關鍵戰。</span></div>
+        <div><b>15 / 動態退休年齡</b><span>35 歲不是固定終點。完整休息、醫療追蹤、運動保險與身體保養會累積長青分數；通過逐年提高的門檻，就能挑戰 36–45 歲。</span></div>
       </div>
       <p class="engine-note">每次結果都會告訴你加分和扣分在哪裡。運氣只占一小部分，練球和選擇更重要。</p>
     </article>
@@ -156,7 +157,7 @@
 
   <canvas id="share-canvas" width="1080" height="1920" hidden></canvas>
   <div class="toast" id="toast" role="status"></div>
-  <script src="app.js?v=courtbound21"></script>
+  <script src="app.js?v=courtbound22"></script>
 </body>
 </html>
 

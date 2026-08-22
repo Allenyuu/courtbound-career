@@ -40,7 +40,7 @@ const CAREER_MODES = {
     code: 'REAL', name: '真實征途', icon: '◎',
     short: '完整寫實平衡',
     desc: '沒有額外加成。從國中板凳一路拚到職業與名人堂，適合第一次玩。',
-    objective: '完成 23 個年齡的故事'
+    objective: '打到 35 歲，並挑戰 36–45 歲長青線'
   },
   odyssey: {
     code: 'WORLD', name: '五國遠征', icon: '↗',
@@ -169,9 +169,22 @@ const SEASONS = [
   { age: 32, year: 2058, stage: '傳奇', name: '傳承球季', target: '一邊競爭、一邊帶出下一代', pressure: 15 },
   { age: 33, year: 2059, stage: '傳奇', name: '倒數計時', target: '讓球隊知道你還能打', pressure: 15 },
   { age: 34, year: 2060, stage: '傳奇', name: '最後衝刺', target: '把握最後一次爭冠窗口', pressure: 16 },
-  { age: 35, year: 2061, stage: '傳奇', name: '最後一舞', target: '留下最像你的最後代表作', pressure: 17 }
+  { age: 35, year: 2061, stage: '傳奇', name: '長青門檻', target: '證明身體與角色都能再走一年', pressure: 17 },
+  { age: 36, year: 2062, stage: '傳奇', name: '延長賽', target: '用管理取代硬撐', pressure: 18 },
+  { age: 37, year: 2063, stage: '傳奇', name: '精準出勤', target: '在有限體力下維持價值', pressure: 19 },
+  { age: 38, year: 2064, stage: '傳奇', name: '老將智慧', target: '靠閱讀與節奏幫球隊贏球', pressure: 20 },
+  { age: 39, year: 2065, stage: '傳奇', name: '稀有生涯', target: '守住健康與輪替席位', pressure: 21 },
+  { age: 40, year: 2066, stage: '傳奇', name: '四十大關', target: '完成少數人才走得到的球季', pressure: 22 },
+  { age: 41, year: 2067, stage: '傳奇', name: '第二十四季', target: '讓經驗繼續大於年齡', pressure: 23 },
+  { age: 42, year: 2068, stage: '傳奇', name: '紀錄之外', target: '找到值得繼續準備的理由', pressure: 24 },
+  { age: 43, year: 2069, stage: '傳奇', name: '極限輪替', target: '接受新角色並維持效率', pressure: 25 },
+  { age: 44, year: 2070, stage: '傳奇', name: '野獸不老', target: '把長年累積變成球隊資產', pressure: 26 },
+  { age: 45, year: 2071, stage: '傳奇', name: '生涯終章', target: '由自己決定最後留下什麼', pressure: 27 }
 ];
 
+const CORE_CAREER_AGE = 35;
+const MAX_CAREER_AGE = 45;
+const CORE_SEASON_COUNT = CORE_CAREER_AGE - 13 + 1;
 const LEGACY_SEASON_AGES = [13, 14, 15, 16, 17, 18, 19, 21, 23, 26, 30, 34];
 const AGE_CHAPTERS = ['年度自由規劃', '人生支線', '球隊日常', '機會邀請', '年度關鍵戰'];
 const LIFE_PATHS = {
@@ -181,6 +194,13 @@ const LIFE_PATHS = {
   mentor: { icon: '↟', name: '傳承線', desc: '你會向前輩學，也願意把經驗交給後輩。' },
   brand: { icon: '●', name: '聚光燈', desc: '你開始學會面對媒體、商業與大眾目光。' },
   self: { icon: 'ϟ', name: '自己扛', desc: '你相信準備與自律，先把能控制的做好。' }
+};
+
+const LONGEVITY_CARE = {
+  recovery: { icon: '☾', name: '完整恢復', desc: '真的休息、睡眠與負荷管理，避免把疲勞拖成傷勢。' },
+  medical: { icon: '✚', name: '醫療追蹤', desc: '固定檢查、復健與第二意見，提早處理看不見的問題。' },
+  insurance: { icon: '▣', name: '保障規劃', desc: '保險與緊急預備讓你受傷時能完整復健，不必急著帶傷上場。' },
+  maintenance: { icon: '⌁', name: '身體保養', desc: '客製訓練、動作修正與日常保養，降低長年耗損。' }
 };
 
 const AGE_STORIES = {
@@ -427,14 +447,124 @@ const AGE_STORIES = {
     ]
   },
   35: {
-    title: '最後一舞之後，你想成為誰？',
-    scene: '球季會結束，球員身分也會。更衣櫃前的名牌還在，但你已經開始想像下一個早晨。',
-    prompt: '你想把籃球帶往哪個方向？',
+    title: '這真的是最後一舞嗎？',
+    scene: '外界開始替你倒數，但醫療報告、恢復狀況和你自己的感覺，沒有寫著「一定要退休」。能不能繼續，要看這些年怎麼照顧身體。',
+    prompt: '長青門檻前，你先補強哪一塊？',
     choices: [
-      { title: '走上教練席', desc: '把閱讀比賽的方法交給下一代。', path: 'mentor', primary: 'iq', secondary: 'playmaking', tag: 'connector', deltas: { reputation: 8, trust: 8 }, outcome: '你開始寫第一份教案。球鞋還沒收起來，新的身分已經慢慢成形。' },
-      { title: '做媒體與球賽內容', desc: '用自己的方式把籃球講給更多人聽。', path: 'brand', primary: 'playmaking', secondary: 'iq', tag: 'creator', deltas: { reputation: 12, income: 5 }, outcome: '鏡頭再次對著你，這次你不只回答問題，也開始提出觀點。' },
-      { title: '進球隊管理與球探', desc: '學合約、建隊與長期規劃。', path: 'study', primary: 'iq', secondary: 'defense', tag: 'connector', deltas: { scout: 8, reputation: 5 }, outcome: '你開始從名單另一側看球員，也更理解當年那些殘酷決定。' },
-      { title: '先把時間還給家人', desc: '不急著安排下一份工作，先回到生活。', path: 'family', primary: 'iq', secondary: 'athletic', tag: 'connector', growth: .15, deltas: { load: -25, trust: 8, rhythm: 5 }, outcome: '最後一場結束後，你沒有立刻趕往下一個行程。這次真的可以慢慢回家。' }
+      { title: '做完整老將體檢', desc: '不只看能不能上場，也看下一年怎麼管理。', path: 'study', primary: 'iq', secondary: 'athletic', tag: 'connector', careKeys: ['medical'], deltas: { load: -10, rhythm: 5 }, outcome: '醫療團隊把風險分成能處理、要觀察和不能硬撐三類，下一季不再靠猜。' },
+      { title: '主動要求減少出賽', desc: '少打一點，換取真正能維持的狀態。', path: 'self', primary: 'athletic', secondary: 'iq', tag: 'iron', careKeys: ['recovery'], deltas: { load: -22, trust: 3 }, outcome: '你第一次主動放掉幾場球，身體也第一次沒有一路透支到季末。' },
+      { title: '補齊傷病與收入保障', desc: '先確保需要復健時，不會因錢或合約急著回場。', path: 'family', primary: 'iq', secondary: 'defense', tag: 'connector', careKeys: ['insurance'], deltas: { income: -8, load: -5 }, outcome: '保障不會替你打球，卻讓你受傷時能把療程做完，不必偷偷省掉恢復。' },
+      { title: '重做整套身體課表', desc: '把爆發訓練改成關節、核心與動作品質。', path: 'mentor', primary: 'athletic', secondary: 'iq', tag: 'iron', careKeys: ['maintenance'], deltas: { load: -8, rhythm: 6 }, outcome: '課表看起來沒以前猛，隔天起床卻不再像打完兩場比賽。' }
+    ]
+  },
+  36: {
+    title: '身體像一本不能亂記的帳',
+    scene: '同一套訓練放在二十六歲是進步，放在三十六歲可能變成兩天疲勞。你得開始計算每一次消耗。',
+    prompt: '這一季要用什麼方式管身體？',
+    choices: [
+      { title: '每天回報睡眠與痠痛', desc: '讓醫療團隊在小問題變大前看見。', path: 'study', primary: 'iq', secondary: 'athletic', tag: 'connector', careKeys: ['medical'], deltas: { load: -12, trust: 4 }, outcome: '幾次提早調整，讓你避開原本可能拖成數週的疼痛。' },
+      { title: '背靠背只打一場', desc: '接受少一點數據，換季末還有雙腿。', path: 'self', primary: 'athletic', secondary: 'iq', tag: 'iron', careKeys: ['recovery'], deltas: { load: -20, reputation: -1, rhythm: 4 }, outcome: '有人嫌你輪休，但到了季末，你仍能在關鍵場次正常加速。' },
+      { title: '請專家重做落地動作', desc: '從腳踝、膝蓋到髖部全部重新檢查。', path: 'mentor', primary: 'athletic', secondary: 'defense', tag: 'iron', careKeys: ['maintenance'], deltas: { income: -7, load: -8 }, outcome: '你改掉一個用了十幾年的代償動作，慢慢把耗損降下來。' },
+      { title: '照以前的量全部練完', desc: '不想被當老將特殊照顧。', path: 'self', primary: 'athletic', secondary: 'finish', tag: 'iron', deltas: { load: 16, rhythm: 7, reputation: 3 }, outcome: '你證明自己還能撐，但身體也用兩天的僵硬收走代價。' }
+    ]
+  },
+  37: {
+    title: '客場行程比比賽更累',
+    scene: '凌晨抵達、換時區、隔天投籃練習。以前睡一覺就好，現在恢復要排進正式行程。',
+    prompt: '連續客場中，你保留哪一段體力？',
+    choices: [
+      { title: '取消早上的加練', desc: '把睡眠當成真正的訓練內容。', path: 'self', primary: 'athletic', secondary: 'iq', tag: 'iron', careKeys: ['recovery'], deltas: { load: -22, rhythm: 5 }, outcome: '你少投了一百球，晚上卻有力氣做出正確決定。' },
+      { title: '讓物理治療師同行', desc: '移動日也維持復健與活動度。', path: 'mentor', primary: 'athletic', secondary: 'defense', tag: 'iron', careKeys: ['medical', 'maintenance'], deltas: { income: -9, load: -12 }, outcome: '治療沒有魔法，但每一站都少累積一點問題。' },
+      { title: '重新檢查海外醫療保障', desc: '確保客場受傷也能立即處理。', path: 'study', primary: 'iq', secondary: 'defense', tag: 'connector', careKeys: ['insurance'], deltas: { income: -4, load: -4 }, outcome: '你補上原本沒注意的海外療程缺口，整趟客場安心很多。' },
+      { title: '每場照樣提早兩小時到', desc: '維持老習慣，不想改掉準備儀式。', path: 'self', primary: 'shooting', secondary: 'athletic', tag: 'shooter', deltas: { load: 12, rhythm: 6 }, outcome: '手感很熟，疲勞也很真。你開始知道儀式不能永遠比身體重要。' }
+    ]
+  },
+  38: {
+    title: '第二意見不是不相信隊醫',
+    scene: '一處老問題又開始不舒服。第一份報告說可以打，另一位專家建議先降載兩週。',
+    prompt: '你怎麼做醫療決定？',
+    choices: [
+      { title: '完整聽完第二意見', desc: '把影像、感覺和長期風險一起比較。', path: 'study', primary: 'iq', secondary: 'athletic', tag: 'connector', careKeys: ['medical'], deltas: { load: -14, rhythm: 3 }, outcome: '兩位醫師把分歧講清楚，你也做出自己能理解的選擇。' },
+      { title: '先停兩週再重新評估', desc: '不把「可以打」當成「一定要打」。', path: 'self', primary: 'athletic', secondary: 'iq', tag: 'iron', careKeys: ['recovery'], deltas: { load: -25, trust: 2, scout: -1 }, outcome: '兩週後問題沒有完全消失，但身體回到能穩定管理的範圍。' },
+      { title: '請保險顧問確認療程', desc: '把可用的復健、檢查和停賽保障先弄懂。', path: 'family', primary: 'iq', secondary: 'defense', tag: 'connector', careKeys: ['insurance'], deltas: { income: -3, load: -6 }, outcome: '你沒有因費用砍掉療程，完整走完醫療團隊建議的步驟。' },
+      { title: '止痛後照常上場', desc: '球隊正在搶季後賽，你不想缺席。', path: 'self', primary: 'finish', secondary: 'athletic', tag: 'attack', deltas: { load: 18, trust: 6, reputation: 4 }, outcome: '你撐完這場，問題卻沒有因此消失。下一次決定會更難。' }
+    ]
+  },
+  39: {
+    title: '合約第一次寫進出勤管理',
+    scene: '球隊願意續約，但希望把出賽場次、醫療檢查與獎金條件全部寫清楚。',
+    prompt: '你最重視哪一條保障？',
+    choices: [
+      { title: '寫入固定休息場次', desc: '不用每次輪休都重新證明自己真的累。', path: 'self', primary: 'athletic', secondary: 'iq', tag: 'iron', careKeys: ['recovery'], deltas: { load: -18, scout: -2 }, outcome: '合約數字少一點，整季的恢復卻第一次有真正的制度。' },
+      { title: '指定獨立醫療第二意見', desc: '關鍵傷勢可以找球隊外專家複核。', path: 'study', primary: 'iq', secondary: 'defense', tag: 'connector', careKeys: ['medical'], deltas: { load: -8, trust: 3 }, outcome: '你和球隊不是互不信任，而是先把最難的情況說清楚。' },
+      { title: '補足失能與收入保障', desc: '如果生涯突然停下，家人和復健都不會斷。', path: 'family', primary: 'iq', secondary: 'playmaking', tag: 'connector', careKeys: ['insurance'], deltas: { income: -9, load: -5 }, outcome: '這條沒有上新聞，卻是整份合約最讓你安心的地方。' },
+      { title: '追求最高出勤獎金', desc: '多打一場就多一筆，風險也一起增加。', path: 'brand', primary: 'athletic', secondary: 'finish', tag: 'iron', deltas: { income: 15, load: 15, reputation: 4 }, outcome: '收入確實更高，但每次不舒服都會多一個「是不是該撐」的念頭。' }
+    ]
+  },
+  40: {
+    title: '四十歲生日，球館照常開門',
+    scene: '隊友準備蛋糕，記者準備紀錄。你最在意的卻是下午的恢復課和明天起床的感覺。',
+    prompt: '這個里程碑，你怎麼過？',
+    choices: [
+      { title: '慶祝後完整休一天', desc: '不加練、不拍片，真的把時間還給身體。', path: 'family', primary: 'athletic', secondary: 'iq', tag: 'iron', careKeys: ['recovery'], deltas: { load: -25, trust: 6 }, outcome: '這一天沒有少掉競爭心，反而提醒你為什麼還想繼續。' },
+      { title: '安排四十歲基準體檢', desc: '把現在的數據變成下一年管理起點。', path: 'study', primary: 'iq', secondary: 'athletic', tag: 'connector', careKeys: ['medical'], deltas: { load: -10, rhythm: 4 }, outcome: '報告沒有只寫退化，也找出幾項仍維持得很好的能力。' },
+      { title: '和年輕隊友共享保養課', desc: '讓他們提前學會你花十年才懂的事。', path: 'mentor', primary: 'iq', secondary: 'playmaking', tag: 'connector', careKeys: ['maintenance'], deltas: { trust: 10, reputation: 6, load: -6 }, outcome: '課程不只照顧你，也開始改變整隊看待恢復的方式。' },
+      { title: '辦四十球挑戰直播', desc: '把里程碑做成話題和商業活動。', path: 'brand', primary: 'shooting', secondary: 'athletic', tag: 'shooter', deltas: { income: 12, reputation: 10, load: 10 }, outcome: '直播很熱鬧，你也在結束後老實排了一堂恢復。' }
+    ]
+  },
+  41: {
+    title: '球隊問你願不願意只打二十分鐘',
+    scene: '你還能幫忙，但不能再用巔峰期的上場方式。角色變小，不代表價值一定變小。',
+    prompt: '你接受哪一種老將角色？',
+    choices: [
+      { title: '固定二十分鐘輪替', desc: '把最好的一段狀態留在最需要的時候。', path: 'self', primary: 'iq', secondary: 'shooting', tag: 'connector', careKeys: ['recovery'], deltas: { load: -16, trust: 7 }, outcome: '數據變少，效率與季末健康卻一起留下來。' },
+      { title: '專門帶第二陣容', desc: '用閱讀和傳球幫年輕球員少走彎路。', path: 'mentor', primary: 'playmaking', secondary: 'iq', tag: 'creator', careKeys: ['maintenance'], deltas: { trust: 11, reputation: 4, load: -6 }, outcome: '你不再主導全場，但每次上場都知道要解決什麼。' },
+      { title: '談好醫療與保險方案', desc: '小合約也要有完整復健與保障。', path: 'study', primary: 'iq', secondary: 'defense', tag: 'connector', careKeys: ['medical', 'insurance'], deltas: { income: -6, load: -9 }, outcome: '薪資不是生涯最高，保障卻比年輕時完整得多。' },
+      { title: '要求和所有人一樣競爭', desc: '不接受特殊時間限制。', path: 'self', primary: 'athletic', secondary: 'finish', tag: 'iron', deltas: { load: 17, rhythm: 8, reputation: 5 }, outcome: '你搶到幾場高光，也讓恢復時間被壓得更緊。' }
+    ]
+  },
+  42: {
+    title: '家人不再只問你打得好不好',
+    scene: '他們開始問：「這樣的生活，你還開心嗎？」答案不能只看得分和合約。',
+    prompt: '你怎麼確認自己還想繼續？',
+    choices: [
+      { title: '安排一週完全離開籃球', desc: '沒有訓練、沒有訪問，再看看心裡會不會想回去。', path: 'family', primary: 'iq', secondary: 'athletic', tag: 'connector', careKeys: ['recovery'], deltas: { load: -28, rhythm: 5 }, outcome: '休息到第五天，你又開始想球場。答案比任何訪問都清楚。' },
+      { title: '和運動心理師談動機', desc: '分清楚是熱愛、習慣，還是害怕結束。', path: 'study', primary: 'iq', secondary: 'playmaking', tag: 'connector', careKeys: ['medical'], deltas: { load: -10, rhythm: 7 }, outcome: '你沒有被勸退休或續打，只更誠實地看見自己的理由。' },
+      { title: '把賽季行程交給全家一起排', desc: '重要日子不再永遠讓位給比賽。', path: 'family', primary: 'iq', secondary: 'playmaking', tag: 'connector', careKeys: ['insurance'], deltas: { trust: 8, load: -8 }, outcome: '生涯第一次不是家人配合球員，而是球員也配合生活。' },
+      { title: '只看下一個冠軍機會', desc: '只要還能爭冠，就願意再拚一年。', path: 'self', primary: 'defense', secondary: 'iq', tag: 'stopper', deltas: { load: 8, scout: 5, rhythm: 6 }, outcome: '目標非常清楚，代價也同樣清楚。' }
+    ]
+  },
+  43: {
+    title: '一張名單，兩種未來',
+    scene: '球隊可以留下你當第十二人，也邀你加入教練團。兩張識別證只差一個職稱。',
+    prompt: '你怎麼保留球員身分？',
+    choices: [
+      { title: '接受球員兼導師', desc: '上場少一點，正式負責帶新人。', path: 'mentor', primary: 'iq', secondary: 'playmaking', tag: 'connector', careKeys: ['maintenance'], deltas: { trust: 12, reputation: 6, load: -8 }, outcome: '你坐在板凳時也有任務，球員價值不再只用分鐘計算。' },
+      { title: '只簽有醫療保障的球員約', desc: '角色可以小，復健與照護不能省。', path: 'study', primary: 'iq', secondary: 'athletic', tag: 'connector', careKeys: ['medical', 'insurance'], deltas: { income: -5, load: -10 }, outcome: '你放掉較高報價，換到一份真的能保護最後階段的合約。' },
+      { title: '接受不打背靠背', desc: '讓球隊知道哪些場次才需要你全力。', path: 'self', primary: 'athletic', secondary: 'iq', tag: 'iron', careKeys: ['recovery'], deltas: { load: -22, trust: 5 }, outcome: '你不是每晚都出現，但出現時仍像一名準備好的球員。' },
+      { title: '去海外找更多上場時間', desc: '環境重新適應，角色可能更大。', path: 'brand', primary: 'playmaking', secondary: 'shooting', tag: 'creator', deltas: { scout: 7, load: 9, reputation: 5 }, outcome: '你再次收拾行李，也再次接受新環境會重新檢驗身體。' }
+    ]
+  },
+  44: {
+    title: '恢復要兩天，比賽只有一天',
+    scene: '打一場球的代價已經不是當晚痠痛，而是接下來四十八小時的安排。長青不是沒老，是願意照規則活。',
+    prompt: '你怎麼安排每一場的後兩天？',
+    choices: [
+      { title: '固定兩天恢復流程', desc: '補水、睡眠、活動度與治療一項不漏。', path: 'self', primary: 'athletic', secondary: 'iq', tag: 'iron', careKeys: ['recovery', 'maintenance'], deltas: { load: -25, rhythm: 5 }, outcome: '流程很無聊，卻讓下一場不再靠奇蹟醒來。' },
+      { title: '每場後都由醫療團隊複查', desc: '小變化也記錄，不等痛到不能走。', path: 'study', primary: 'iq', secondary: 'athletic', tag: 'connector', careKeys: ['medical'], deltas: { income: -8, load: -14 }, outcome: '你很少得到「完全沒事」的答案，但總能提早知道該調哪裡。' },
+      { title: '把保養方法教給全隊', desc: '讓長青經驗變成球隊共同資產。', path: 'mentor', primary: 'iq', secondary: 'playmaking', tag: 'connector', careKeys: ['maintenance'], deltas: { trust: 12, reputation: 7, load: -8 }, outcome: '年輕人開始主動做收操，你的影響已經超過自己的身體。' },
+      { title: '只為大場面打滿時間', desc: '平常省著用，重要比賽才解除限制。', path: 'brand', primary: 'iq', secondary: 'shooting', tag: 'shooter', deltas: { load: 9, reputation: 9, rhythm: 7 }, outcome: '聚光燈下你還能拿出東西，只是賽後更知道恢復不能討價還價。' }
+    ]
+  },
+  45: {
+    title: '終點不是年齡，是你想留下的樣子',
+    scene: '你走到幾乎沒有人能走到的年紀。這一年不再證明能不能活著上場，而是決定最後一頁怎麼寫。',
+    prompt: '生涯終章，你把重點放在哪裡？',
+    choices: [
+      { title: '健康完成每一個月份', desc: '不追全勤，讓最後一年完整走完。', path: 'self', primary: 'athletic', secondary: 'iq', tag: 'iron', careKeys: ['recovery', 'medical'], deltas: { load: -22, rhythm: 6 }, outcome: '你沒有和年齡賭氣，而是用管理把最後一季好好打完。' },
+      { title: '把醫療與保養資料留下', desc: '整理成老將手冊，交給下一批球員。', path: 'mentor', primary: 'iq', secondary: 'playmaking', tag: 'connector', careKeys: ['maintenance'], deltas: { reputation: 10, trust: 10, load: -8 }, outcome: '那些幫你延長生涯的小選擇，終於變成別人也能使用的方法。' },
+      { title: '完成家人的最後一場約定', desc: '讓一路陪你的人一起決定告別方式。', path: 'family', primary: 'iq', secondary: 'playmaking', tag: 'connector', careKeys: ['insurance'], deltas: { trust: 10, load: -12 }, outcome: '終場不是一個人的紀錄，而是一群人終於一起走到這裡。' },
+      { title: '在最後關鍵戰放手一搏', desc: '接受風險，把剩下的都留在場上。', path: 'brand', primary: 'shooting', secondary: 'finish', tag: 'shooter', deltas: { load: 14, reputation: 12, rhythm: 9 }, outcome: '你沒有把最後一年打成紀念賽，仍把自己當真正的競爭者。' }
     ]
   }
 };
@@ -1034,6 +1164,34 @@ function recordStoryBranch(action) {
   else state.storyFlags.push(record);
 }
 
+function recordCareerCare(action) {
+  const keys = Array.isArray(action.careKeys) ? action.careKeys : action.careKey ? [action.careKey] : [];
+  if (!keys.length) return;
+  state.careerCare = state.careerCare || Object.fromEntries(Object.keys(LONGEVITY_CARE).map((key) => [key, 0]));
+  keys.filter((key) => LONGEVITY_CARE[key]).forEach((key) => {
+    state.careerCare[key] = (state.careerCare[key] || 0) + 1;
+  });
+}
+
+function longevityProfile(targetAge = Math.max(36, (currentSeason()?.age || CORE_CAREER_AGE) + 1), source = state) {
+  const care = Object.fromEntries(Object.keys(LONGEVITY_CARE).map((key) => [key, Number(source?.careerCare?.[key]) || 0]));
+  const carePoints = Math.min(care.recovery, 8) * 1.7
+    + Math.min(care.medical, 8) * 2.2
+    + Math.min(care.insurance, 6) * 2
+    + Math.min(care.maintenance, 8) * 1.7;
+  const sourceOverall = source?.stats ? overall(source) : 0;
+  const foundation = sourceOverall * .22 + (source?.stats?.iq || 0) * .1 + (source?.stats?.athletic || 0) * .08;
+  const loadProtection = clamp(100 - (source?.load ?? 50), 0, 100) * .08;
+  const seedProtection = source?.profile?.seedTrait === 'iron' ? 3 : 0;
+  const score = Math.round(clamp(foundation + loadProtection + carePoints + seedProtection, 0, 100));
+  const reviewAge = clamp(targetAge, 36, MAX_CAREER_AGE);
+  const threshold = Math.round(52 + (reviewAge - 36) * 4);
+  const eligible = score >= threshold;
+  const label = score >= threshold + 12 ? '長青體質' : eligible ? '續打可行' : score >= threshold - 8 ? '退休警戒' : '耗損偏高';
+  const totalChoices = Object.values(care).reduce((sum, value) => sum + value, 0);
+  return { score, threshold, eligible, label, targetAge: reviewAge, care, carePoints: Math.round(carePoints), totalChoices };
+}
+
 function longestProTeamStay(source = state) {
   const counts = {};
   (source?.history || []).forEach((item) => {
@@ -1068,9 +1226,9 @@ function careerModeProgress(source = state) {
     detail = sourceOverall >= 80 ? '逆襲完成，低起點也能練成王牌。' : `距離逆襲目標還差 ${Math.max(0, 80 - sourceOverall)} OVR。`;
   } else {
     const seasons = source?.history?.length || 0;
-    value = clamp((seasons / SEASONS.length) * 100);
-    label = `${seasons} / ${SEASONS.length} 個年齡`;
-    detail = seasons >= SEASONS.length ? '完整生涯已通關。' : `還有 ${Math.max(0, SEASONS.length - seasons)} 個年齡故事。`;
+    value = clamp((seasons / CORE_SEASON_COUNT) * 100);
+    label = seasons <= CORE_SEASON_COUNT ? `${seasons} / ${CORE_SEASON_COUNT} 基本篇` : `長青線 · ${source.history.at(-1)?.age || CORE_CAREER_AGE} 歲`;
+    detail = seasons >= CORE_SEASON_COUNT ? `基本篇已完成；長青線最高可挑戰 ${MAX_CAREER_AGE} 歲。` : `還有 ${Math.max(0, CORE_SEASON_COUNT - seasons)} 個基本篇年齡故事。`;
   }
 
   return { key, mode, value, label, detail, complete: value >= 100 };
@@ -1291,7 +1449,7 @@ function ensureStateSchema(parsed) {
     const migratedIndex = SEASONS.findIndex((season) => season.age === legacyAge);
     parsed.seasonIndex = migratedIndex >= 0 ? migratedIndex : 0;
   }
-  parsed.version = 5;
+  parsed.version = 6;
   parsed.contractHistory = Array.isArray(parsed.contractHistory) ? parsed.contractHistory : [];
   parsed.agingHistory = Array.isArray(parsed.agingHistory) ? parsed.agingHistory : [];
   parsed.endorsements = Array.isArray(parsed.endorsements) ? parsed.endorsements : [];
@@ -1299,6 +1457,8 @@ function ensureStateSchema(parsed) {
   parsed.seasonScenarioIds = Array.isArray(parsed.seasonScenarioIds) ? parsed.seasonScenarioIds : [];
   parsed.storyFlags = Array.isArray(parsed.storyFlags) ? parsed.storyFlags : [];
   parsed.lifePaths = Object.fromEntries(Object.keys(LIFE_PATHS).map((key) => [key, Number(parsed.lifePaths?.[key]) || 0]));
+  parsed.careerCare = Object.fromEntries(Object.keys(LONGEVITY_CARE).map((key) => [key, Number(parsed.careerCare?.[key]) || 0]));
+  parsed.retirementHistory = Array.isArray(parsed.retirementHistory) ? parsed.retirementHistory : [];
   const savedPosition = POSITIONS[parsed.profile.position] || POSITIONS.PG;
   parsed.profile.height = Number(parsed.profile.height) || savedPosition.height;
   parsed.profile.weight = Number(parsed.profile.weight) || savedPosition.weight;
@@ -1377,7 +1537,7 @@ function createState(profile) {
   const contract = startingContract('tw_ms', 0);
   const rosterStatus = buildRosterStatus(TEAMS.tw_ms, { source: { stats, trust: 22, history: [], seasonIndex: 0 }, transfer: false, season: SEASONS[0] });
   return {
-    version: 5,
+    version: 6,
     profile: fullProfile,
     stats,
     startingOvr: Math.round(Object.values(stats).reduce((sum, value) => sum + value, 0) / Object.keys(stats).length),
@@ -1396,6 +1556,8 @@ function createState(profile) {
     endorsements: [],
     storyFlags: [],
     lifePaths: Object.fromEntries(Object.keys(LIFE_PATHS).map((key) => [key, 0])),
+    careerCare: Object.fromEntries(Object.keys(LONGEVITY_CARE).map((key) => [key, 0])),
+    retirementHistory: [],
     rosterStatus,
     careerStatus: 'active',
     wins: 0,
@@ -1425,7 +1587,7 @@ function saveGame() {
 function loadGame() {
   try {
     const parsed = JSON.parse(localStorage.getItem(SAVE_KEY));
-    if (!parsed || ![1, 2, 3, 4, 5].includes(parsed.version) || !parsed.profile || !parsed.stats) return null;
+    if (!parsed || ![1, 2, 3, 4, 5, 6].includes(parsed.version) || !parsed.profile || !parsed.stats) return null;
     return ensureStateSchema(parsed);
   } catch (_error) {
     return null;
@@ -1652,7 +1814,8 @@ function renderWorldPanel() {
   const contract = state.contract || startingContract(team.id, state.seasonIndex);
   const modeProgress = careerModeProgress();
   const lifePath = dominantLifePath();
-  const contractStatus = { active: '合約中', expired: '到期', released: '被釋出', eliminated: '遭淘汰' }[contract.status] || '待確認';
+  const longevity = longevityProfile(season.age < CORE_CAREER_AGE ? 36 : Math.min(MAX_CAREER_AGE, season.age + 1));
+  const contractStatus = { active: '合約中', expired: '到期', released: '被釋出', eliminated: '遭淘汰', retired: '已退休' }[contract.status] || '待確認';
   $('#world-panel').innerHTML = `
     <div class="eyebrow">WORLD BOARD / ${season.year}</div>
     <div class="world-title"><div><h2>五國生涯版圖</h2><p>${team.league}${squad ? ` · ${squad.label}` : ''}</p></div><span>${COUNTRIES[team.country].flag}</span></div>
@@ -1675,6 +1838,7 @@ function renderWorldPanel() {
     <div class="roster-card ${roster?.benchRisk >= 55 ? 'roster-alert' : ''}"><div><small>ROTATION / 隊內角色</small><b>${roster?.label || '等待定位'}</b></div><p>預估場均 ${roster?.minutes || '—'} 分鐘 · 板凳風險 ${roster?.benchRisk ?? '—'}%</p><span>${roster?.reason || '教練會依表現安排上場時間'}</span></div>
     <div class="career-mode-card ${modeProgress.complete ? 'complete' : ''}"><div><small>CAREER SCRIPT / ${modeProgress.mode.code}</small><b>${modeProgress.mode.icon} ${modeProgress.mode.name}</b><em>${modeProgress.label}</em></div><p>${modeProgress.detail}</p><i style="--mode-progress:${modeProgress.value}%"><span></span></i></div>
     <div class="storyline-card"><div><small>LIFE STORY · CHAPTER ${state.week + 1}/${AGE_CHAPTERS.length}</small><b>${lifePath.icon} ${lifePath.name}</b><em>${AGE_CHAPTERS[state.week] || '年度結算'}</em></div><p>${lifePath.count ? `你已做出 ${lifePath.count} 次「${lifePath.name}」路線選擇。` : '第一條人生支線，現在由你自己選。'}</p></div>
+    <div class="longevity-card ${longevity.eligible ? 'eligible' : ''}"><div><small>LONGEVITY / 長青計畫</small><b>${longevity.score}</b><em>${season.age < 30 ? '30 歲後啟動檢定' : `${longevity.label} · 下季門檻 ${longevity.threshold}`}</em></div><p>${Object.entries(LONGEVITY_CARE).map(([key, item]) => `${item.icon}${state.careerCare?.[key] || 0}`).join(' · ')} · 保養選擇會決定 35 歲後能否續打。</p><i style="--longevity:${longevity.score}%"><span></span></i></div>
     <div class="goal-card"><small>SEASON TARGET</small><b>${season.target}</b><p>${team.name} · ${season.name}</p></div>
     <div class="career-feed"><small>CAREER LOG</small>${state.history.slice(-3).reverse().map((item) => `<p><b>${item.year}</b><span>${COUNTRIES[item.country].flag} ${item.team}</span><em>${item.record}</em></p>`).join('') || '<p class="empty">第一筆紀錄會在賽季結束後出現。</p>'}</div>`;
 }
@@ -1697,6 +1861,8 @@ function buildAnnualPlanEvent() {
   const weak = weakestStat();
   const strong = strongestStat();
   const trainerCost = season.age < 19 ? 0 : season.age < 23 ? -2 : -6;
+  const protectionCost = season.age < 19 ? 0 : season.age < 23 ? -1 : -4;
+  const protectionTitle = season.age < 19 ? '健康檢查＋校隊保險' : '醫療檢查＋運動保險';
   return {
     kicker: `CHAPTER 01 · AGE ${season.age} / YOUR PLAN`,
     title: `${season.age} 歲年度行程表`,
@@ -1706,9 +1872,9 @@ function buildAnnualPlanEvent() {
     prompt: '今年第一段自由時間，你想怎麼用？', hint: '這裡沒有標準答案；恢復與生活也是生涯的一部分。',
     actions: [
       freeChoiceAction('A', '自主訓練', `自己排課表，先補目前最弱的「${STAT_META[weak].label}」。`, weak, 'iq', statTag(weak), 1.45, { load: 8, rhythm: 5 }, `你關掉通知，把「${STAT_META[weak].label}」拆成小動作慢慢練，離開球館時順多了。`, { lifePath: 'self', branchLabel: '自己排自主訓練' }),
-      freeChoiceAction('B', '完整休息', '睡飽、拉筋、好好吃飯，今天不碰高強度訓練。', 'athletic', 'iq', 'iron', 0, { load: -24, rhythm: 6 }, '你真的讓身體停下來。隔天沒有罪惡感，只有久違的輕鬆。', { lifePath: 'family', branchLabel: '替身體保留完整休息' }),
-      freeChoiceAction('C', '找私人訓練師', `花${trainerCost ? `${Math.abs(trainerCost)} 萬` : '校隊資源'}做一對一檢查，修正最有效率的細節。`, strong, weak, statTag(strong), 1.7, { income: trainerCost, load: 5, scout: 2 }, '訓練師沒有塞給你一百個動作，只留下三個真的能每天做到的修正。', { lifePath: 'mentor', branchLabel: '請訓練師客製課表' }),
-      freeChoiceAction('D', '看片做戰術筆記', '研究自己的失誤和下一個對手，讓腦袋先跑一次比賽。', 'iq', 'playmaking', 'connector', 1.25, { load: -5, rhythm: 3, trust: 3 }, '你剪出幾段最常出錯的畫面，也寫下下一次要提早看到的訊號。', { lifePath: 'study', branchLabel: '用影片和筆記準備球季' }),
+      freeChoiceAction('B', '完整休息', '睡飽、拉筋、好好吃飯，今天不碰高強度訓練。', 'athletic', 'iq', 'iron', 0, { load: -24, rhythm: 6 }, '你真的讓身體停下來。隔天沒有罪惡感，只有久違的輕鬆。', { lifePath: 'family', branchLabel: '替身體保留完整休息', careKeys: ['recovery'] }),
+      freeChoiceAction('C', '找私人訓練師', `花${trainerCost ? `${Math.abs(trainerCost)} 萬` : '校隊資源'}做一對一檢查，修正最有效率的細節。`, strong, weak, statTag(strong), 1.7, { income: trainerCost, load: 2, scout: 2 }, '訓練師沒有塞給你一百個動作，只留下三個真的能每天做到的修正。', { lifePath: 'mentor', branchLabel: '請訓練師客製課表', careKeys: ['maintenance'] }),
+      freeChoiceAction('D', protectionTitle, `花${protectionCost ? `${Math.abs(protectionCost)} 萬` : '校隊資源'}確認檢查、復健和受傷後的保障，不讓小問題被省掉。`, 'iq', 'athletic', 'connector', .65, { income: protectionCost, load: -10, trust: 3 }, '檢查沒有保證永遠不受傷，但你知道出問題時要找誰、怎麼治，也不用為了費用急著回場。', { lifePath: 'study', branchLabel: '建立醫療與運動保障', careKeys: ['medical', 'insurance'] }),
       freeChoiceAction('E', '陪家人／處理生活', '把課業、帳單、家人和一直拖著的事先顧好。', 'iq', 'playmaking', 'connector', .25, { load: -14, trust: 5, rhythm: 3 }, '球技沒有突然暴增，但生活安定下來後，你進球館時更能專心。', { lifePath: 'family', branchLabel: '先把家人與生活顧好' })
     ]
   };
@@ -1729,7 +1895,7 @@ function buildAgeStoryEvent() {
     actions: story.choices.map((choice, index) => freeChoiceAction(
       String.fromCharCode(65 + index), choice.title, choice.desc, choice.primary, choice.secondary, choice.tag,
       choice.growth ?? .7, choice.deltas || {}, choice.outcome,
-      { lifePath: choice.path, branchLabel: choice.title, branchOutcome: choice.outcome }
+      { lifePath: choice.path, branchLabel: choice.title, branchOutcome: choice.outcome, careKeys: choice.careKeys || [] }
     ))
   };
 }
@@ -1750,9 +1916,9 @@ function buildOpportunityEvent() {
     prompt: '這次邀請，你要怎麼安排？', hint: '參加能增加曝光但會累；婉拒後，你仍可休息、自練或另找訓練師。',
     actions: [
       careerAction('A', `接受，參加${campName}`, '親自到場和陌生高手對練，結果仍要看臨場表現。', strong, 'athletic', statTag(strong), 2, 1.4, { scout: 8, reputation: 4, load: 12 }, `你確實參加了${campName}，對抗也打得很亮眼，球探把你的名字畫了兩次。`, `你確實參加了${campName}，只是這天手感普通。至少你看清楚下一層強度差在哪。`, { lifePath: 'brand', branchLabel: `接受${campName}邀請`, countsForSeason: true }),
-      freeChoiceAction('B', '婉拒，完整休息', '禮貌回覆主辦方，把這一天完整留給身體恢復。', 'athletic', 'iq', 'iron', 0, { load: -24, rhythm: 6 }, '你婉拒了邀請，也沒有偷偷加練。睡醒後，身體終於不再一直發緊。', { lifePath: 'self', branchLabel: `婉拒${campName}並休息` }),
+      freeChoiceAction('B', '婉拒，完整休息', '禮貌回覆主辦方，把這一天完整留給身體恢復。', 'athletic', 'iq', 'iron', 0, { load: -24, rhythm: 6 }, '你婉拒了邀請，也沒有偷偷加練。睡醒後，身體終於不再一直發緊。', { lifePath: 'self', branchLabel: `婉拒${campName}並休息`, careKeys: ['recovery'] }),
       freeChoiceAction('C', '婉拒，改成自主訓練', `不去活動，留在熟悉球館補「${STAT_META[weak].label}」。`, weak, 'iq', statTag(weak), 1.45, { load: 8, rhythm: 5 }, `你婉拒了邀請，把一整天花在「${STAT_META[weak].label}」上；沒有鏡頭，但進步很實在。`, { lifePath: 'self', branchLabel: `婉拒${campName}並自主訓練` }),
-      freeChoiceAction('D', '婉拒，約私人訓練師', `不跑大型活動，花${trainerCost ? `${Math.abs(trainerCost)} 萬` : '校隊資源'}做更貼近自己的課表。`, strong, weak, statTag(strong), 1.7, { income: trainerCost, load: 5, scout: 2 }, '你婉拒大型活動，訓練師則用數據抓出一個以前沒注意到的動作問題。', { lifePath: 'mentor', branchLabel: `婉拒${campName}並找訓練師` }),
+      freeChoiceAction('D', '婉拒，約私人訓練師', `不跑大型活動，花${trainerCost ? `${Math.abs(trainerCost)} 萬` : '校隊資源'}做更貼近自己的課表。`, strong, weak, statTag(strong), 1.7, { income: trainerCost, load: 2, scout: 2 }, '你婉拒大型活動，訓練師則用數據抓出一個以前沒注意到的動作問題。', { lifePath: 'mentor', branchLabel: `婉拒${campName}並找訓練師`, careKeys: ['maintenance', 'medical'] }),
       freeChoiceAction('E', '婉拒，陪家人／顧課業', '把週末留給家人、朋友、作業或生活中的重要事。', 'iq', 'playmaking', 'connector', .25, { load: -15, trust: 5, rhythm: 3 }, '你婉拒了邀請，也把一直欠著的陪伴和生活小事補回來。', { lifePath: 'family', branchLabel: `婉拒${campName}並處理生活` })
     ]
   };
@@ -1854,7 +2020,8 @@ function renderDecisions(event) {
       ${event.actions.map((action, index) => {
         const forecast = estimateActionChance(action);
         const tierBonus = forecast.tier.bonus ? ` · ${forecast.tier.label} +${forecast.tier.bonus}` : '';
-        return `<button type="button" data-action="${index}"><em>${action.code || String(index + 1).padStart(2, '0')}</em><b>${action.title}</b><span>${action.desc}</span><small><strong>${chanceLabel(forecast.chance)} · ${forecast.chance}%</strong>${STAT_META[action.primary].label} ＋ ${STAT_META[action.secondary].label}<i>${formatDeltas(action.deltas)}${tierBonus}</i></small></button>`;
+        const careBonus = (action.careKeys || []).map((key) => `${LONGEVITY_CARE[key]?.icon || ''}${LONGEVITY_CARE[key]?.name || key}`).join('＋');
+        return `<button type="button" data-action="${index}"><em>${action.code || String(index + 1).padStart(2, '0')}</em><b>${action.title}</b><span>${action.desc}</span><small><strong>${chanceLabel(forecast.chance)} · ${forecast.chance}%</strong>${STAT_META[action.primary].label} ＋ ${STAT_META[action.secondary].label}<i>${formatDeltas(action.deltas)}${tierBonus}${careBonus ? `<br>長青累積：${careBonus}` : ''}</i></small></button>`;
       }).join('')}
     </div>`;
   document.querySelectorAll('[data-action]').forEach((button) => button.addEventListener('click', () => resolveAction(event.actions[Number(button.dataset.action)])));
@@ -1925,6 +2092,7 @@ function resolveAction(action) {
   const success = action.guaranteed || calc.margin >= 0;
   applyDeltas(action.deltas);
   recordStoryBranch(action);
+  recordCareerCare(action);
   if (action.endorsement) {
     state.endorsements = state.endorsements || [];
     state.endorsements.push({
@@ -1987,6 +2155,7 @@ function renderResult() {
         ${action.guaranteed ? `<div class="formula-strip choice-impact"><span>這章的影響 <b>${formatDeltas(action.deltas) || '人生支線更新'}</b></span><span>結果 <b>由你決定</b></span></div>` : `<div class="formula-strip"><span>技術 <b>${result.calc.skill.toFixed(1)}</b></span><span>節奏 <b>${signed(result.calc.rhythm)}</b></span><span>信任 <b>${signed(result.calc.trust)}</b></span><span>負荷 <b>${signed(result.calc.load)}</b></span><span>打法 <b>+${result.calc.identity}</b></span>${result.calc.storyMode ? `<span>逆風脈衝 <b>+${result.calc.storyMode.toFixed(1)}</b></span>` : ''}${result.calc.mastery ? `<span>能力階級 <b>+${result.calc.mastery}</b></span>` : ''}${result.calc.seedSpecialty ? '<span>神秘種子 <b>?</b></span>' : ''}<span>臨場 <b>${signed(result.calc.variation)}</b></span></div>`}
         ${result.growth && action.growth > 0 ? `<div class="growth-feedback"><small>這次真的變強了</small><div><span><b>${STAT_META[action.primary].label}</b><em>${result.growth.primaryBefore.toFixed(1)} → ${result.growth.primaryAfter.toFixed(1)}</em></span>${action.secondary !== action.primary ? `<span><b>${STAT_META[action.secondary].label}</b><em>${result.growth.secondaryBefore.toFixed(1)} → ${result.growth.secondaryAfter.toFixed(1)}</em></span>` : ''}<span><b>同類選擇</b><em>${result.growth.chanceBefore}% → ${result.growth.chanceAfter}%</em></span></div></div>` : '<div class="rest-feedback">這次選擇的重點是恢復與生活，不會硬塞能力成長。</div>'}
         ${action.lifePath ? `<div class="story-branch-unlock">人生支線：<b>${LIFE_PATHS[action.lifePath].icon} ${LIFE_PATHS[action.lifePath].name}</b> · ${action.branchLabel || action.title}</div>` : ''}
+        ${action.careKeys?.length ? `<div class="longevity-unlock">長青累積：<b>${action.careKeys.map((key) => `${LONGEVITY_CARE[key].icon} ${LONGEVITY_CARE[key].name}`).join('、')}</b> · 這些選擇會影響 35 歲後能否續打。</div>` : ''}
         ${result.growth?.tierUp ? `<div class="mastery-unlock">能力突破：<b>${STAT_META[result.growth.tierUp.stat].label} · ${result.growth.tierUp.label}</b>，之後同類選擇永久 +${result.growth.tierUp.bonus}</div>` : ''}
         ${result.badges.length ? `<div class="badge-unlock">打法印記解鎖：<b>${result.badges.join('、')}</b></div>` : ''}
         <button type="button" class="next-button" id="next-button"><span>${state.week === AGE_CHAPTERS.length - 1 ? `結算 ${currentSeason().age} 歲球季` : `進入下一章：${AGE_CHAPTERS[state.week + 1]}`}</span><b aria-hidden="true">→</b></button>
@@ -2016,7 +2185,8 @@ function resolveContractOutcome(team, averageMargin, roster) {
   const contract = state.contract || startingContract(team.id, state.seasonIndex);
   const playerGap = overall() - team.difficulty;
   const rosterPressure = team.level === 'pro' ? ((roster?.benchRisk || 35) - 35) * .16 : 0;
-  const pressureRisk = contract.cutRisk - averageMargin * 1.6 - playerGap * .55 - (state.trust - 45) * .12 - state.reputation * .015 + (state.load >= 75 ? 5 : 0) + rosterPressure;
+  const careProtection = Math.min(state.careerCare?.recovery || 0, 8) * .3 + Math.min(state.careerCare?.medical || 0, 8) * .4 + Math.min(state.careerCare?.maintenance || 0, 8) * .35;
+  const pressureRisk = contract.cutRisk - averageMargin * 1.6 - playerGap * .55 - (state.trust - 45) * .12 - state.reputation * .015 + (state.load >= 75 ? 5 : 0) + rosterPressure - careProtection;
   const risk = Math.round(clamp(pressureRisk, 2, 82));
   const finalSeason = state.seasonIndex === SEASONS.length - 1;
   const released = !finalSeason && randomBetween(0, 100) < risk;
@@ -2065,6 +2235,19 @@ function finishSeason() {
   state.income = roundMoney(state.income + earned);
   const contractOutcome = resolveContractOutcome(team, averageMargin, roster);
   state.load = clamp(state.load - 18);
+  const longevityReview = longevityProfile(Math.min(MAX_CAREER_AGE, season.age + 1));
+  const maxAgeReached = season.age >= MAX_CAREER_AGE;
+  let retired = false;
+  if (!contractOutcome.eliminated && (maxAgeReached || (season.age >= CORE_CAREER_AGE && !longevityReview.eligible))) {
+    retired = true;
+    state.careerStatus = 'retired';
+    state.contract.status = 'retired';
+    contractOutcome.continues = false;
+    contractOutcome.released = false;
+    contractOutcome.result = maxAgeReached ? `${MAX_CAREER_AGE} 歲長青生涯完成` : `長青分數 ${longevityReview.score}，未達 ${longevityReview.threshold}`;
+    state.retirementHistory = state.retirementHistory || [];
+    state.retirementHistory.push({ year: season.year, age: season.age, reason: maxAgeReached ? 'max_age' : 'longevity_review', score: longevityReview.score, threshold: longevityReview.threshold });
+  }
   const playerOvr = overall();
   const ageBranches = (state.storyFlags || []).filter((item) => item.age === season.age);
   const lifePath = dominantLifePath();
@@ -2073,10 +2256,11 @@ function finishSeason() {
     squad: team.squad || null, squadLabel: teamSquadProfile(team)?.label || '',
     record: `${wins}–${losses}`, wins, losses, ppg, rpg, apg, champion, ovr: playerOvr, averageMargin,
     gamesPlayed: roster.gamesPlayed, minutes: roster.minutes, rosterLabel: roster.label, rosterStartedAs: roster.startedAs, rosterMovement: roster.movement, benchRisk: roster.benchRisk,
-    progress: `${state.seasonIndex + 1} / ${SEASONS.length}`, leagueDifficulty: team.difficulty, leagueStrength: leagueStrengthLabel(team.difficulty),
+    progress: season.age <= CORE_CAREER_AGE ? `${state.seasonIndex + 1} / ${CORE_SEASON_COUNT} 基本篇` : `長青線 · AGE ${season.age}`, leagueDifficulty: team.difficulty, leagueStrength: leagueStrengthLabel(team.difficulty),
     playerStrength: playerStrengthProfile(playerOvr).label, role: roleAgainstLeague(playerOvr, team.difficulty), marketScore: marketScore(),
     earned, totalIncome: state.income, contract: { ...state.contract }, contractRisk: contractOutcome.risk,
-    contractResult: contractOutcome.result, contractContinues: contractOutcome.continues, released: contractOutcome.released, eliminated: contractOutcome.eliminated,
+    contractResult: contractOutcome.result, contractContinues: contractOutcome.continues, released: contractOutcome.released, eliminated: contractOutcome.eliminated, retired, maxAgeReached,
+    longevityReview,
     chaptersCompleted: AGE_CHAPTERS.length, ageBranches, lifeBranch: ageBranches.find((item) => item.chapter === 1)?.label || ageBranches.at(-1)?.label || '自由規劃',
     lifePath: { key: lifePath.key, name: lifePath.name, icon: lifePath.icon, count: lifePath.count }
   };
@@ -2088,23 +2272,26 @@ function finishSeason() {
 
 function renderSummary() {
   const summary = state.summary;
-  const careerEnded = summary.eliminated || state.careerStatus === 'eliminated';
+  const retired = summary.retired || state.careerStatus === 'retired';
+  const careerEnded = summary.eliminated || state.careerStatus === 'eliminated' || retired;
   const finalSeason = state.seasonIndex === SEASONS.length - 1;
-  const nextAction = careerEnded ? '生涯遭淘汰 · 查看結果' : finalSeason ? '完成生涯' : summary.contractContinues ? `履行長約 · 剩 ${summary.contract.yearsLeft} 年` : summary.released ? '成為自由球員 · 尋找機會' : '查看下一站合約';
+  const longevityPassed = summary.age >= CORE_CAREER_AGE && summary.longevityReview?.eligible && !careerEnded;
+  const nextAction = retired ? '查看長青生涯結果' : summary.eliminated ? '生涯遭淘汰 · 查看結果' : finalSeason ? '完成生涯' : longevityPassed ? `長青檢定通過 · 挑戰 ${summary.age + 1} 歲` : summary.contractContinues ? `履行長約 · 剩 ${summary.contract.yearsLeft} 年` : summary.released ? '成為自由球員 · 尋找機會' : '查看下一站合約';
   $('#decision-zone').innerHTML = `
     <div class="summary-zone">
-      <div class="summary-mark ${summary.champion ? 'champion' : ''} ${careerEnded ? 'eliminated' : ''}"><small>${careerEnded ? 'CAREER CUT' : summary.champion ? 'CHAMPION' : 'SEASON COMPLETE'}</small><b>${summary.record}</b><span>${summary.league}</span></div>
-      <div class="summary-copy"><small>${summary.year} · AGE ${summary.age} · 進度 ${summary.progress}</small><h2>${careerEnded ? '這次真的被淘汰了，生涯在這裡停下。' : summary.champion ? '冠軍拿到了！這季真的頂。' : '球季結束，這是你的進度報告。'}</h2>
+      <div class="summary-mark ${summary.champion ? 'champion' : ''} ${summary.eliminated ? 'eliminated' : ''} ${retired ? 'retired' : ''}"><small>${retired ? 'CAREER RETIRED' : summary.eliminated ? 'CAREER CUT' : summary.champion ? 'CHAMPION' : 'SEASON COMPLETE'}</small><b>${summary.record}</b><span>${summary.league}</span></div>
+      <div class="summary-copy"><small>${summary.year} · AGE ${summary.age} · 進度 ${summary.progress}</small><h2>${retired ? (summary.maxAgeReached ? `你把生涯延長到 ${MAX_CAREER_AGE} 歲。` : '身體告訴你：這一季該停了。') : summary.eliminated ? '這次真的被淘汰了，生涯在這裡停下。' : summary.champion ? '冠軍拿到了！這季真的頂。' : '球季結束，這是你的進度報告。'}</h2>
         <div class="box-score"><span><b>${summary.ppg}</b> PTS</span><span><b>${summary.rpg}</b> REB</span><span><b>${summary.apg}</b> AST</span><span><b>${summary.ovr}</b> OVR</span></div>
         <div class="season-report-grid">
           <span><small>自身強度</small><b>${summary.playerStrength}</b></span><span><small>聯賽難度</small><b>${summary.leagueStrength} · ${summary.leagueDifficulty}</b></span><span><small>目前定位</small><b>${summary.role}</b></span>
           <span class="${summary.benchRisk >= 55 ? 'danger' : ''}"><small>隊內角色 · 板凳風險 ${summary.benchRisk}%</small><b>${summary.rosterLabel}</b></span><span><small>出賽／場均時間</small><b>${summary.gamesPlayed} 場 · ${summary.minutes} 分</b></span><span><small>角色變化</small><b>${summary.rosterMovement}</b></span>
           <span><small>市場評級</small><b>${summary.marketScore.toFixed(1)}</b></span><span class="${summary.released || summary.eliminated ? 'danger' : ''}"><small>合約結果 · 風險 ${summary.contractRisk}%</small><b>${summary.contractResult}</b></span><span><small>本季／生涯收入</small><b>${moneyLabel(summary.earned, '學生')}／${moneyLabel(summary.totalIncome, '0 萬')}</b></span>
           <span><small>年度章節</small><b>${summary.chaptersCompleted} / ${AGE_CHAPTERS.length} 完成</b></span><span><small>年度人生支線</small><b>${summary.lifeBranch}</b></span><span><small>目前人生主線</small><b>${summary.lifePath?.icon || ''} ${summary.lifePath?.name || dominantLifePath().name}</b></span>
+          <span class="longevity-report ${summary.longevityReview?.eligible ? 'complete' : summary.age >= CORE_CAREER_AGE ? 'danger' : ''}"><small>長青分數 · ${summary.longevityReview?.label || '累積中'}</small><b>${summary.longevityReview?.score ?? 0} / 門檻 ${summary.longevityReview?.threshold ?? 52}</b></span><span><small>長青保養選擇</small><b>${summary.longevityReview?.totalChoices || 0} 次</b></span><span><small>生涯年齡上限</small><b>${summary.age < CORE_CAREER_AGE ? `視保養延長至 ${MAX_CAREER_AGE}` : summary.longevityReview?.eligible ? `可挑戰 ${Math.min(MAX_CAREER_AGE, summary.age + 1)} 歲` : `${summary.age} 歲`}</b></span>
           <span class="mode-report ${summary.modeQuest?.complete ? 'complete' : ''}"><small>${summary.modeQuest?.mode.name || activeCareerMode().name} · 劇本任務</small><b>${summary.modeQuest?.label || careerModeProgress().label}</b></span>
         </div>
         <p>${seasonSummaryLine(summary)}</p>
-        <button type="button" class="next-button" id="market-button"><span>${nextAction}</span><b aria-hidden="true">→</b></button>
+        <div class="summary-actions"><button type="button" class="next-button" id="market-button"><span>${nextAction}</span><b aria-hidden="true">→</b></button>${longevityPassed ? `<button type="button" class="retire-button" id="voluntary-retire-button">在 ${summary.age} 歲退休</button>` : ''}</div>
       </div>
     </div>`;
   $('#market-button').addEventListener('click', () => {
@@ -2112,9 +2299,22 @@ function renderSummary() {
     else if (summary.contractContinues) continueCurrentContract();
     else showOffers();
   });
+  $('#voluntary-retire-button')?.addEventListener('click', () => {
+    state.careerStatus = 'retired';
+    state.contract.status = 'retired';
+    summary.retired = true;
+    summary.voluntaryRetirement = true;
+    state.retirementHistory = state.retirementHistory || [];
+    state.retirementHistory.push({ year: summary.year, age: summary.age, reason: 'player_choice', score: summary.longevityReview.score, threshold: summary.longevityReview.threshold });
+    saveGame();
+    showEnding();
+  });
 }
 
 function seasonSummaryLine(summary) {
+  if (summary.retired && summary.maxAgeReached) return `你靠恢復、醫療追蹤、保障與身體保養走到 ${MAX_CAREER_AGE} 歲。這不是沒變老，而是每一年都願意調整角色和負荷。`;
+  if (summary.retired) return `長青分數 ${summary.longevityReview.score}，下一年門檻 ${summary.longevityReview.threshold}。能力仍在，但長期恢復與耗損已不適合再跑完整職業球季。`;
+  if (summary.age >= CORE_CAREER_AGE && summary.longevityReview?.eligible) return `長青分數 ${summary.longevityReview.score} 通過下一年門檻 ${summary.longevityReview.threshold}。你可以選擇退休，也能靠目前的醫療、恢復與保養計畫再挑戰一季。`;
   if (summary.eliminated) return '自由球員市場關閉前，沒有球隊願意再提供名額。這次生涯到此結束，但走過的學校、球隊與成就都會留在生涯卡。';
   if (summary.released) return `球隊在 ${summary.contract.type} 尚未走完前決定釋出你。接下來會以自由球員身分找隊，市場評級將直接影響你能拿到的合約。`;
   if (summary.squad === 'second') return `${summary.rosterMovement}。你已完成 ${COUNTRIES[summary.country].name} 的養成資歷；下一次進入轉隊市場時，當地一軍會開放，但仍要達到球隊要求的市場評級。`;
@@ -2150,11 +2350,13 @@ function applyAgeCurve(nextSeason) {
   const baseDecline = nextSeason.age >= 34 ? 2.8 : 1.45;
   const fatigueDecline = Math.max(0, state.load - 55) * .018;
   const ironProtection = state.profile.seedTrait === 'iron' ? .72 : 1;
+  const careLevel = Math.min(state.careerCare?.recovery || 0, 8) + Math.min(state.careerCare?.medical || 0, 8) + Math.min(state.careerCare?.maintenance || 0, 8);
+  const careProtection = clamp(1 - careLevel * .015, .64, 1);
   const declineWeights = { finish: .9, shooting: .45, playmaking: .35, defense: .75, athletic: 1.25, iq: .15 };
   const changes = {};
 
   Object.entries(declineWeights).forEach(([stat, weight]) => {
-    const loss = Math.round((baseDecline * weight + fatigueDecline) * ironProtection * 10) / 10;
+    const loss = Math.round((baseDecline * weight + fatigueDecline) * ironProtection * careProtection * 10) / 10;
     const oldValue = state.stats[stat];
     state.stats[stat] = clamp(oldValue - loss, 35, 99);
     changes[stat] = Math.round((state.stats[stat] - oldValue) * 10) / 10;
@@ -2163,7 +2365,7 @@ function applyAgeCurve(nextSeason) {
   const after = overall();
   const drop = Math.max(0, before - after);
   const salaryPenalty = clamp(drop * .055 + (nextSeason.age >= 34 ? .015 : 0), 0, .24);
-  const record = { year: nextSeason.year, age: nextSeason.age, before, after, drop, salaryPenalty, changes };
+  const record = { year: nextSeason.year, age: nextSeason.age, before, after, drop, salaryPenalty, careProtection: Math.round((1 - careProtection) * 100), changes };
   state.agingHistory.push(record);
   saveGame();
   return record;
@@ -2303,7 +2505,7 @@ function continueCurrentContract() {
   const nextSeason = SEASONS[state.seasonIndex + 1];
   const aging = applyAgeCurve(nextSeason);
   startNextSeason(team, false);
-  showToast(aging ? `續留 ${team.name} · ${state.rosterStatus.label} · 能力 ${aging.before} → ${aging.after}` : `續留 ${team.name} · ${state.rosterStatus.label}`);
+  showToast(aging ? `續留 ${team.name} · ${state.rosterStatus.label} · 能力 ${aging.before} → ${aging.after} · 保養減緩 ${aging.careProtection || 0}%` : `續留 ${team.name} · ${state.rosterStatus.label}`);
 }
 
 function startNextSeason(team, transfer) {
@@ -2352,7 +2554,7 @@ function legacyScore() {
 function hallOfFameProfile() {
   const score = legacyScore();
   const finalSeason = SEASONS.at(-1);
-  const careerComplete = state.careerStatus === 'eliminated' || (state.seasonIndex === SEASONS.length - 1 && state.history.some((item) => item.year === finalSeason.year));
+  const careerComplete = ['eliminated', 'retired'].includes(state.careerStatus) || (state.seasonIndex === SEASONS.length - 1 && state.history.some((item) => item.year === finalSeason.year));
   const inducted = careerComplete && score >= 125;
   let label = '尚未進入討論';
   let note = '繼續累積冠軍、旅外經歷與關鍵戰勝場。';
@@ -2412,6 +2614,8 @@ function careerAchievements(hall = hallOfFameProfile()) {
     { unlocked: state.contractHistory?.some((contract) => contract.yearsTotal >= 3), title: '長約到手', desc: '用表現換到至少三年的球隊保障' },
     { unlocked: state.endorsements?.length >= 1, title: '第一份代言', desc: `已完成 ${state.endorsements?.length || 0} 次品牌合作` },
     { unlocked: state.income >= 500, title: '五百萬俱樂部', desc: `生涯收入累積 ${Math.round(state.income)} 萬` },
+    { unlocked: state.history.some((item) => item.age >= 36), title: '長青球員', desc: `把生涯延長到 ${Math.max(...state.history.map((item) => item.age || 13))} 歲` },
+    { unlocked: state.history.some((item) => item.age >= 40), title: '四十歲仍在場上', desc: '用長期恢復、醫療與保養跨過四十大關' },
     { unlocked: hall.inducted, title: '名人堂成員', desc: '生涯履歷正式通過名人堂門檻' },
     { unlocked: modeQuest.complete, title: `${modeQuest.mode.name}通關`, desc: modeQuest.mode.objective }
   ];
@@ -2429,10 +2633,12 @@ function renderCard() {
   const endorsements = state.endorsements || [];
   const modeQuest = careerModeProgress();
   const lifePath = dominantLifePath();
+  const longevity = longevityProfile(Math.min(MAX_CAREER_AGE, Math.max(36, season.age + 1)));
   const storylineEntries = (state.storyFlags || []).filter((item) => item.chapter === 1);
   const seedIdentity = `<span><b>神秘種子</b><em>${state.profile.seed} · 隱藏能力會在生涯中慢慢展現</em></span>`;
   const modeIdentity = `<span><b>${modeQuest.mode.icon} ${modeQuest.mode.name} · ${modeQuest.label}</b><em>${modeQuest.detail}</em></span>`;
   const lifeIdentity = `<span><b>${lifePath.icon} 人生主線：${lifePath.name}</b><em>${lifePath.desc} · 累積 ${lifePath.count} 次相關選擇</em></span>`;
+  const longevityIdentity = `<span><b>⌁ 長青計畫：${longevity.label} · ${longevity.score}</b><em>下一階段門檻 ${longevity.threshold} · 已做 ${longevity.totalChoices} 次恢復／醫療／保障／保養選擇</em></span>`;
   const playIdentity = state.badges.map((badge) => `<span><b>${BADGES[badge].label}</b><em>${BADGES[badge].desc}</em></span>`).join('') || '<span><b>打法尚未成形</b><em>持續做選擇，三次後會形成你的打法印記。</em></span>';
   $('#card-content').innerHTML = `
     <div class="card-kicker"><span>COURTBOUND / ${state.profile.seed || 'PLAYER DOSSIER'}</span><b>${overall()}</b></div>
@@ -2444,13 +2650,14 @@ function renderCard() {
       <i style="--hof:${hall.progress}%"><b></b></i>
     </section>
     <div class="card-columns">
-      <section><small>MYSTERY SEED & CAREER SCRIPT</small><div class="badge-list">${seedIdentity}${modeIdentity}${lifeIdentity}${playIdentity}</div></section>
-      <section><small>CAREER NUMBERS</small><dl><div><dt>球季</dt><dd>${state.history.length}</dd></div><div><dt>故事支線</dt><dd>${storylineEntries.length}</dd></div><div><dt>國家</dt><dd>${state.visited.length}</dd></div><div><dt>冠軍</dt><dd>${state.trophies}</dd></div><div><dt>關鍵勝負</dt><dd>${state.wins}–${state.losses}</dd></div><div><dt>生涯得分</dt><dd>${state.careerPoints || 0}</dd></div><div><dt>生涯收入</dt><dd>${Math.round(state.income)} 萬</dd></div></dl></section>
+      <section><small>MYSTERY SEED & CAREER SCRIPT</small><div class="badge-list">${seedIdentity}${modeIdentity}${lifeIdentity}${longevityIdentity}${playIdentity}</div></section>
+      <section><small>CAREER NUMBERS</small><dl><div><dt>球季</dt><dd>${state.history.length}</dd></div><div><dt>目前年齡</dt><dd>${season.age}</dd></div><div><dt>故事支線</dt><dd>${storylineEntries.length}</dd></div><div><dt>國家</dt><dd>${state.visited.length}</dd></div><div><dt>冠軍</dt><dd>${state.trophies}</dd></div><div><dt>關鍵勝負</dt><dd>${state.wins}–${state.losses}</dd></div><div><dt>生涯得分</dt><dd>${state.careerPoints || 0}</dd></div><div><dt>生涯收入</dt><dd>${Math.round(state.income)} 萬</dd></div></dl></section>
     </div>
     <div class="career-card-details">
       <section><small>SCHOOLS & TEAMS / 生涯學校與球隊</small><div class="career-path-list">${route.map((item) => `<div class="${item.current ? 'current' : ''}"><i>${item.year}</i><b>${COUNTRIES[item.country]?.flag || item.country}</b><span><strong>${escapeHtml(item.team)}</strong><small>${item.stage}${item.squadLabel ? ` · ${item.squadLabel}` : ''}${item.rosterLabel ? ` · ${item.rosterLabel}` : ''}${item.minutes != null ? ` ${item.minutes} MPG` : ''} · ${item.record}${item.champion ? ' · 冠軍' : ''}</small></span></div>`).join('')}</div></section>
       <section><small>ACHIEVEMENTS / 生涯成就</small><div class="achievement-grid">${achievements.map((item, index) => `<div><i>${String(index + 1).padStart(2, '0')}</i><span><b>${item.title}</b><small>${item.desc}</small></span></div>`).join('')}</div></section>
       <section><small>LIFE STORY / 逐歲人生支線</small><div class="storyline-ledger">${storylineEntries.length ? storylineEntries.map((item) => `<div><i>${item.age}<small>歲</small></i><span><b>${LIFE_PATHS[item.path]?.icon || '·'} ${escapeHtml(item.label)}</b><small>${escapeHtml(item.outcome || LIFE_PATHS[item.path]?.name || '')}</small></span></div>`).join('') : '<p>完成「人生支線」章節後，這裡會留下每個年齡的故事選擇。</p>'}</div></section>
+      <section><small>LONGEVITY / 長青生涯計畫</small><div class="longevity-ledger"><header><span><b>${longevity.score}</b><small>長青分數</small></span><span><b>${longevity.threshold}</b><small>下一年門檻</small></span><span><b>${Math.max(13, ...state.history.map((item) => item.age || 13), season.age)}</b><small>生涯年齡</small></span></header>${Object.entries(LONGEVITY_CARE).map(([key, item]) => `<div><i>${item.icon}</i><span><b>${item.name} · ${state.careerCare?.[key] || 0} 次</b><small>${item.desc}</small></span></div>`).join('')}</div></section>
       <section class="contract-ledger"><small>CONTRACTS / 生涯合約</small><div>${contractHistory.map((contract) => { const contractTeam = TEAMS[contract.teamId] || TEAMS.tw_ms; const squadLabel = contract.squadLabel || teamSquadProfile(contractTeam)?.label || ''; const trend = contract.salaryTrendPenalty ? ` · 能力下滑影響 -${contract.salaryTrendPenalty}%` : ''; return `<span><i>${contract.signedYear}</i><b>${escapeHtml(contractTeam.name)}</b><em>${contract.type}${squadLabel ? ` · ${squadLabel}` : ''} · ${contract.yearsTotal} 年 · 年薪 ${moneyLabel(contract.annualSalary, '學生')} · 月薪 ${moneyLabel(contract.monthlySalary, '—')} · 簽約金 ${moneyLabel(contract.signingBonus)}${trend}</em></span>`; }).join('')}</div></section>
       ${endorsements.length ? `<section class="contract-ledger endorsement-ledger"><small>ENDORSEMENTS / 品牌合作</small><div>${endorsements.map((deal) => `<span><i>${deal.year}</i><b>${escapeHtml(deal.brand)}</b><em>${escapeHtml(deal.type)} · 收入 ${moneyLabel(deal.income)} · 曝光 +${deal.exposure || 0}</em></span>`).join('')}</div></section>` : ''}
     </div>
@@ -2480,12 +2687,14 @@ function showEnding() {
   const first = state.history[0];
   const last = state.history.at(-1);
   const wasEliminated = state.careerStatus === 'eliminated';
+  const wasRetired = state.careerStatus === 'retired';
+  const longevity = longevityProfile(Math.min(MAX_CAREER_AGE, Math.max(36, (last?.age || currentSeason().age) + 1)));
   const endingYear = last?.year || currentSeason().year;
   const routeCopy = first && last ? `${escapeHtml(state.profile.name)} 從 ${escapeHtml(first.team)} 開始打球，最後來到 ${escapeHtml(last.team)}。` : `${escapeHtml(state.profile.name)} 完成了這段籃球旅程。`;
   $('#ending-content').innerHTML = `
     <div class="ending-grade"><small>CAREER GRADE</small><b>${ending.grade}</b><span>${Math.round(ending.score)} LEGACY</span></div>
-    <div class="ending-copy"><small>${endingYear} · ${wasEliminated ? 'CAREER CUT' : 'CAREER COMPLETE'}</small><h2>${wasEliminated ? '這次沒守住名單，但你的紀錄都還在。' : ending.title}</h2><p>${routeCopy}你去過 ${state.visited.length} 個國家、拿到 ${state.trophies} 座冠軍。${wasEliminated ? '職業世界很硬，短約和表現真的會決定能不能留下。' : '每一站、每一個選擇，都是你自己決定的。'}人生主線是「${lifePath.name}」；劇本「${modeQuest.mode.name}」進度 ${modeQuest.label}；名人堂評選：${hall.label}。</p></div>
-    <div class="ending-numbers"><span><b>${overall()}</b> 最終 OVR</span><span><b>${Math.max(overall(), ...state.history.map((item) => item.ovr || 0))}</b> 巔峰 OVR</span><span><b>${state.wins}–${state.losses}</b> 關鍵回合</span><span><b>${state.trophies}</b> 冠軍</span><span><b>${state.history.length}</b> 球季</span><span><b>${state.visited.length}</b> 國家</span><span><b>${Math.round(state.income)}</b> 收入（萬）</span><span><b>${Math.round(hall.score)}</b> 名人堂分數</span></div>
+    <div class="ending-copy"><small>${endingYear} · ${wasEliminated ? 'CAREER CUT' : wasRetired ? 'PLAYER RETIRED' : 'CAREER COMPLETE'}</small><h2>${wasEliminated ? '這次沒守住名單，但你的紀錄都還在。' : wasRetired ? `${last?.age || currentSeason().age} 歲，球鞋先放下了。` : ending.title}</h2><p>${routeCopy}你去過 ${state.visited.length} 個國家、拿到 ${state.trophies} 座冠軍。${wasEliminated ? '職業世界很硬，短約和表現真的會決定能不能留下。' : `你靠 ${longevity.totalChoices} 次長青選擇，把生涯走到 ${last?.age || currentSeason().age} 歲。`}人生主線是「${lifePath.name}」；劇本「${modeQuest.mode.name}」進度 ${modeQuest.label}；名人堂評選：${hall.label}。</p></div>
+    <div class="ending-numbers"><span><b>${overall()}</b> 最終 OVR</span><span><b>${Math.max(overall(), ...state.history.map((item) => item.ovr || 0))}</b> 巔峰 OVR</span><span><b>${last?.age || currentSeason().age}</b> 最終年齡</span><span><b>${longevity.score}</b> 長青分數</span><span><b>${state.wins}–${state.losses}</b> 關鍵回合</span><span><b>${state.trophies}</b> 冠軍</span><span><b>${state.history.length}</b> 球季</span><span><b>${state.visited.length}</b> 國家</span><span><b>${Math.round(state.income)}</b> 收入（萬）</span><span><b>${Math.round(hall.score)}</b> 名人堂分數</span></div>
     <div class="ending-route">${state.history.map((item) => `<div><i>${item.year}</i><b>${COUNTRIES[item.country].flag}</b><span>${item.team}<small>${item.record} · ${item.rosterLabel || item.role} · ${item.minutes ?? '—'} MPG · ${item.ppg} PTS</small></span></div>`).join('')}</div>
     <div class="ending-actions"><button type="button" id="download-card">下載詳細結算圖</button><button type="button" id="restart-ending">再走一條路</button></div>`;
   $('#ending-dialog').showModal();
@@ -2522,6 +2731,7 @@ function downloadCareerCard() {
   const hall = hallOfFameProfile();
   const modeQuest = careerModeProgress();
   const lifePath = dominantLifePath();
+  const longevity = longevityProfile(Math.min(MAX_CAREER_AGE, Math.max(36, (state.history.at(-1)?.age || currentSeason().age) + 1)));
   const achievements = careerAchievements(hall);
   const currentOvr = overall();
   const peakOvr = Math.max(currentOvr, state.startingOvr || currentOvr, ...state.history.map((item) => item.ovr || 0));
@@ -2605,7 +2815,7 @@ function downloadCareerCard() {
 
   const metrics = [
     ['球季', state.history.length], ['巔峰 OVR', peakOvr], ['冠軍', state.trophies], ['國家', state.visited.length],
-    ['生涯收入', `${Math.round(state.income)} 萬`], ['生涯得分', state.careerPoints || 0], ['代言合作', (state.endorsements || []).length], ['最高年薪', `${Math.round(highestSalary)} 萬`]
+    ['生涯收入', `${Math.round(state.income)} 萬`], ['生涯得分', state.careerPoints || 0], ['最終年齡', last?.age || currentSeason().age], ['長青分數', longevity.score]
   ];
   metrics.forEach(([label, value], index) => {
     const column = index % 4;
@@ -2682,20 +2892,20 @@ function downloadCareerCard() {
     year: currentSeason().year, country: currentTeam().country, team: currentTeam().name, record: '進行中', rosterLabel: state.rosterStatus?.label || '競爭中', ppg: '—'
   }];
   journey.forEach((item, index) => {
-    const column = Math.floor(index / 8);
-    const row = index % 8;
-    const x = 64 + column * 320;
-    const y = 1252 + row * 36;
-    sharePanel(ctx, x, y, 304, 30, '#141a15', '#29342c');
+    const column = Math.floor(index / 9);
+    const row = index % 9;
+    const x = 64 + column * 240;
+    const y = 1252 + row * 32;
+    sharePanel(ctx, x, y, 224, 26, '#141a15', '#29342c');
     ctx.fillStyle = item.champion ? '#d9ed83' : '#ff7654';
-    ctx.font = `800 12px ${fontFamily}`;
-    ctx.fillText(`${String(item.year).slice(-2)} ${COUNTRIES[item.country]?.flag || item.country}`, x + 9, y + 19);
+    ctx.font = `800 10px ${fontFamily}`;
+    ctx.fillText(`${String(item.year).slice(-2)} ${COUNTRIES[item.country]?.flag || item.country}`, x + 8, y + 17);
     ctx.fillStyle = '#f5f1e7';
-    ctx.font = `800 12px ${fontFamily}`;
-    shareFitText(ctx, `${item.team}${item.champion ? ' ★' : ''}`, x + 58, y + 13, 150);
+    ctx.font = `800 10px ${fontFamily}`;
+    shareFitText(ctx, `${item.team}${item.champion ? ' ★' : ''}`, x + 46, y + 11, 105);
     ctx.fillStyle = '#91a095';
-    ctx.font = `600 9px ${fontFamily}`;
-    shareFitText(ctx, `${item.record} · ${item.rosterLabel || item.role || '輪替'} · ${item.ppg ?? '—'} PTS`, x + 58, y + 25, 228);
+    ctx.font = `600 8px ${fontFamily}`;
+    shareFitText(ctx, `${item.record} · ${item.rosterLabel || item.role || '輪替'} · ${item.ppg ?? '—'} PTS`, x + 46, y + 22, 165);
   });
 
   sharePanel(ctx, 64, 1564, 952, 244, '#151b16', '#344137');
@@ -2711,10 +2921,10 @@ function downloadCareerCard() {
   ctx.fillRect(88, 1655, 864 * clamp(modeQuest.value / 100), 14);
   ctx.fillStyle = '#91a095';
   ctx.font = `700 14px ${fontFamily}`;
-  ctx.fillText('人生主線 / LIFE STORY', 88, 1703);
+  ctx.fillText('人生主線與長青計畫 / LIFE & LONGEVITY', 88, 1703);
   ctx.fillStyle = '#f5f1e7';
   ctx.font = `700 17px ${fontFamily}`;
-  shareFitText(ctx, `${lifePath.icon} ${lifePath.name} · ${lifePath.desc} · ${(state.storyFlags || []).filter((item) => item.chapter === 1).length} 個逐歲故事`, 88, 1732, 875);
+  shareFitText(ctx, `${lifePath.icon} ${lifePath.name} · 長青 ${longevity.score}/${longevity.threshold} · ${longevity.totalChoices} 次保養選擇 · ${(state.storyFlags || []).filter((item) => item.chapter === 1).length} 個逐歲故事`, 88, 1732, 875);
   ctx.fillStyle = '#91a095';
   ctx.font = `700 14px ${fontFamily}`;
   ctx.fillText('成就、合約與商業', 88, 1767);
@@ -2732,7 +2942,7 @@ function downloadCareerCard() {
   ctx.fillText('allenyuu.github.io/courtbound-career/', 64, 1905);
   ctx.textAlign = 'right';
   ctx.fillStyle = '#91a095';
-  ctx.fillText('13–35 歲，每一章都由你自己選。', 1016, 1905);
+  ctx.fillText(`基本篇 13–35 歲，長青線最高 ${MAX_CAREER_AGE} 歲。`, 1016, 1905);
   ctx.textAlign = 'left';
 
   shareCardDataUrl = canvas.toDataURL('image/png');
