@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0b0b09" />
   <meta name="description" content="《籃途 COURTBOUND》原創籃球生涯模擬器——從台灣國中出發，走向台、日、韓、中、美職業舞台。" />
   <title>籃途 COURTBOUND｜原創籃球生涯模擬器</title>
-  <link rel="stylesheet" href="styles.css?v=courtbound16" />
+  <link rel="stylesheet" href="styles.css?v=courtbound17" />
 </head>
 <body>
   <div class="noise" aria-hidden="true"></div>
@@ -55,7 +55,6 @@
       </div>
       <div class="seed-builder">
         <label class="seed-field"><span>神秘種子碼 <small>同碼＝同一份隱藏命運</small></span><div class="field-action"><input id="career-seed" maxlength="18" autocomplete="off" spellcheck="false" /><button type="button" id="random-seed-button">重抽</button></div></label>
-        <div class="seed-preview" id="seed-preview" aria-live="polite"></div>
       </div>
       <fieldset>
         <legend>場上位置</legend>
@@ -77,7 +76,7 @@
       <div class="setup-footer">
         <button class="continue-button" type="button" id="continue-button" hidden>繼續上次生涯</button>
         <span>單局約 20–30 分鐘 · 本機自動存檔</span>
-        <button class="start-button" type="submit">建立球員檔案 <b>→</b></button>
+        <button class="start-button" type="submit"><span>建立球員檔案</span><b aria-hidden="true">→</b></button>
       </div>
     </form>
   </dialog>
@@ -141,7 +140,7 @@
 
   <canvas id="share-canvas" width="1080" height="1750" hidden></canvas>
   <div class="toast" id="toast" role="status"></div>
-  <script src="app.js?v=courtbound16"></script>
+  <script src="app.js?v=courtbound17"></script>
 </body>
 </html>
 

@@ -1282,3 +1282,32 @@ body {
 @media (max-width:400px) {
   .attribute-builder { grid-template-columns:1fr; }
 }
+
+/* Cleaner seed row and truly centered button labels. */
+.seed-builder { grid-template-columns:minmax(0,1fr); }
+.setup-footer button,
+.build-heading > button,
+.attribute-pick button {
+  align-items:center;
+  justify-content:center;
+  line-height:1.2;
+  text-align:center;
+}
+.setup-footer button { display:flex; }
+.setup-footer .start-button {
+  position:relative;
+  display:grid;
+  place-items:center;
+  padding-inline:42px;
+}
+.setup-footer .start-button > span { line-height:1.2; }
+.setup-footer .start-button > b {
+  position:absolute;
+  right:18px;
+  top:50%;
+  margin:0;
+  line-height:1;
+  transform:translateY(-50%);
+}
+.build-heading > button { display:flex; }
+.attribute-pick button { display:grid; }
