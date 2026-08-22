@@ -1311,3 +1311,83 @@ body {
 }
 .build-heading > button { display:flex; }
 .attribute-pick button { display:grid; }
+
+/* Unified rounded buttons and centered button typography. */
+button {
+  border-radius:14px;
+  line-height:1.25;
+}
+.top-actions button,
+.field-action button,
+.setup-footer button,
+.build-heading > button,
+.next-button,
+.offer-country-filter button,
+.offer-squad-filter button,
+.ending-actions button {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+.position-grid button,
+.style-grid button,
+.settings-actions button,
+.option-grid button {
+  justify-items:center;
+  text-align:center;
+}
+.position-grid button,
+.style-grid button { border-radius:14px; }
+.position-grid button,
+.style-grid button { align-content:center; }
+.settings-actions button,
+.option-grid button,
+.offer-grid > button { border-radius:18px; }
+.settings-actions button { align-content:center; }
+.option-grid button { align-content:start; }
+.option-grid button small,
+.option-grid button small i { text-align:center; }
+.offer-grid > button {
+  justify-items:stretch;
+  text-align:center;
+}
+.offer-grid > button > div {
+  justify-content:center;
+  width:100%;
+}
+.offer-grid > button > div em { margin-left:0; }
+.offer-grid > button > small { text-align:center; }
+.offer-grid dl div { display:grid; grid-template-columns:1fr 1fr; align-items:center; }
+.offer-grid dt,
+.offer-grid dd { text-align:center; }
+.attribute-pick button,
+.dialog-close { border-radius:999px; }
+.dialog-close {
+  display:grid;
+  place-items:center;
+  padding:0;
+  line-height:1;
+  text-align:center;
+}
+.next-button {
+  position:relative;
+  min-width:150px;
+  padding-inline:38px;
+}
+.next-button > span { line-height:1.25; }
+.next-button > b {
+  position:absolute;
+  right:14px;
+  top:50%;
+  margin:0;
+  line-height:1;
+  transform:translateY(-50%);
+}
+.top-actions button,
+.build-heading > button,
+.setup-footer button,
+.next-button,
+.ending-actions button { border-radius:14px; }
+body:not(.interface-mobile) .top-actions button,
+body:not(.interface-mobile) .setup-footer button { border-radius:14px; }

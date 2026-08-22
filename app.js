@@ -1465,7 +1465,7 @@ function renderResult() {
         ${result.growth ? `<div class="growth-feedback"><small>這次真的變強了</small><div><span><b>${STAT_META[action.primary].label}</b><em>${result.growth.primaryBefore.toFixed(1)} → ${result.growth.primaryAfter.toFixed(1)}</em></span>${action.secondary !== action.primary ? `<span><b>${STAT_META[action.secondary].label}</b><em>${result.growth.secondaryBefore.toFixed(1)} → ${result.growth.secondaryAfter.toFixed(1)}</em></span>` : ''}<span><b>同類選擇</b><em>${result.growth.chanceBefore}% → ${result.growth.chanceAfter}%</em></span></div></div>` : ''}
         ${result.growth?.tierUp ? `<div class="mastery-unlock">能力突破：<b>${STAT_META[result.growth.tierUp.stat].label} · ${result.growth.tierUp.label}</b>，之後同類選擇永久 +${result.growth.tierUp.bonus}</div>` : ''}
         ${result.badges.length ? `<div class="badge-unlock">打法印記解鎖：<b>${result.badges.join('、')}</b></div>` : ''}
-        <button type="button" class="next-button" id="next-button">${state.week === 2 ? '結算本季' : '進入下一週'} <b>→</b></button>
+        <button type="button" class="next-button" id="next-button"><span>${state.week === 2 ? '結算本季' : '進入下一週'}</span><b aria-hidden="true">→</b></button>
       </div>
     </div>`;
   $('#next-button').addEventListener('click', advanceAfterResult);
@@ -1573,7 +1573,7 @@ function renderSummary() {
           <span><small>市場評級</small><b>${summary.marketScore.toFixed(1)}</b></span><span class="${summary.released || summary.eliminated ? 'danger' : ''}"><small>合約結果 · 風險 ${summary.contractRisk}%</small><b>${summary.contractResult}</b></span><span><small>本季／生涯收入</small><b>${moneyLabel(summary.earned, '學生')}／${moneyLabel(summary.totalIncome, '0 萬')}</b></span>
         </div>
         <p>${seasonSummaryLine(summary)}</p>
-        <button type="button" class="next-button" id="market-button">${nextAction} <b>→</b></button>
+        <button type="button" class="next-button" id="market-button"><span>${nextAction}</span><b aria-hidden="true">→</b></button>
       </div>
     </div>`;
   $('#market-button').addEventListener('click', () => {
