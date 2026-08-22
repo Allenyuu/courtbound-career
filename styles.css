@@ -1391,3 +1391,14 @@ button {
 .ending-actions button { border-radius:14px; }
 body:not(.interface-mobile) .top-actions button,
 body:not(.interface-mobile) .setup-footer button { border-radius:14px; }
+
+/* Keep native dropdown menus readable in the dark game theme. */
+.setup-fields select { color-scheme:dark; }
+.setup-fields select option {
+  color:var(--paper);
+  background:#222a24;
+}
+.setup-fields select option:checked {
+  color:#111;
+  background:var(--lime);
+}
