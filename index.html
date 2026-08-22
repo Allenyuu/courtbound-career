@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0b0b09" />
   <meta name="description" content="《籃途 COURTBOUND》原創籃球生涯模擬器——從台灣國中出發，走向台、日、韓、中、美職業舞台。" />
   <title>籃途 COURTBOUND｜原創籃球生涯模擬器</title>
-  <link rel="stylesheet" href="styles.css?v=courtbound19" />
+  <link rel="stylesheet" href="styles.css?v=courtbound20" />
 </head>
 <body>
   <div class="noise" aria-hidden="true"></div>
@@ -56,6 +56,11 @@
       <div class="seed-builder">
         <label class="seed-field"><span>神秘種子碼 <small>同碼＝同一份隱藏命運</small></span><div class="field-action"><input id="career-seed" maxlength="18" autocomplete="off" spellcheck="false" /><button type="button" id="random-seed-button">重抽</button></div></label>
       </div>
+      <fieldset class="career-mode-builder">
+        <legend>生涯劇本 <small>不同劇本會改變成長、旅外與球隊信任</small></legend>
+        <div class="career-mode-grid" id="career-mode-grid"></div>
+        <p class="career-mode-preview" id="career-mode-preview"></p>
+      </fieldset>
       <fieldset>
         <legend>場上位置</legend>
         <div class="position-grid" id="position-grid"></div>
@@ -112,6 +117,8 @@
         <div><b>09 / 板凳與升降</b><span>第一次進入某國職業環境，要先完成當地二軍一季；升上一軍或轉進新隊後，先從板凳觀察，再搶輪替與先發。</span></div>
         <div><b>10 / 骰點與體型</b><span>開局隨機擲出 1–6 顆骰子並自由分配能力；位置、成年身高與體重會調整能力上限與場上取捨。</span></div>
         <div><b>11 / 訓練與品牌</b><span>訓練師、職業球員夏令營與代言事件會帶來能力、收入、聲望或曝光，但也可能增加疲勞。</span></div>
+        <div><b>12 / 生涯劇本</b><span>真實征途、五國遠征、一城王朝與逆風翻盤會改變成長、旅外門檻、球隊信任或逆風脈衝。</span></div>
+        <div><b>13 / 分享結算圖</b><span>球員卡可隨時生成 1080 × 1920 預覽，整理能力曲線、逐季旅程、收入、代言、成就與名人堂評級。</span></div>
       </div>
       <p class="engine-note">每次結果都會告訴你加分和扣分在哪裡。運氣只占一小部分，練球和選擇更重要。</p>
     </article>
@@ -138,9 +145,17 @@
     <article class="ending-card" id="ending-content"></article>
   </dialog>
 
-  <canvas id="share-canvas" width="1080" height="1750" hidden></canvas>
+  <dialog id="share-dialog" class="game-dialog">
+    <article class="share-preview-card">
+      <header><div><small>SHARE RECAP / 1080 × 1920</small><h2>詳細生涯結算圖</h2><p>確認內容後下載 PNG，就能直接分享你的球員生涯。</p></div><button type="button" data-close="share-dialog" aria-label="關閉預覽">×</button></header>
+      <div class="share-preview-frame"><img id="share-preview-image" alt="籃途詳細生涯結算圖預覽" /></div>
+      <footer><button type="button" data-close="share-dialog">返回遊戲</button><button type="button" id="confirm-download-share">下載 PNG</button></footer>
+    </article>
+  </dialog>
+
+  <canvas id="share-canvas" width="1080" height="1920" hidden></canvas>
   <div class="toast" id="toast" role="status"></div>
-  <script src="app.js?v=courtbound19"></script>
+  <script src="app.js?v=courtbound20"></script>
 </body>
 </html>
 

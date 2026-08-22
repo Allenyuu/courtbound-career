@@ -35,6 +35,33 @@ const STYLES = {
   none: { name: '尚未成形', code: 'OPEN', desc: '你的打法會由生涯中的選擇慢慢長出來。', bonus: {}, pulse: {} }
 };
 
+const CAREER_MODES = {
+  classic: {
+    code: 'REAL', name: '真實征途', icon: '◎',
+    short: '完整寫實平衡',
+    desc: '沒有額外加成。從國中板凳一路拚到職業與名人堂，適合第一次玩。',
+    objective: '完成 12 段生涯'
+  },
+  odyssey: {
+    code: 'WORLD', name: '五國遠征', icon: '↗',
+    short: '旅外越多越有機會',
+    desc: '跨國適應更快，海外門檻稍微降低；目標是踏上至少四個國家的球場。',
+    objective: '造訪 4 個國家'
+  },
+  dynasty: {
+    code: 'DYNASTY', name: '一城王朝', icon: '♜',
+    short: '把一支隊伍變王朝',
+    desc: '續留同隊能保留更多信任，長約更容易出現；目標是在同一職業隊打滿四季並奪冠。',
+    objective: '同一職業隊 4 季＋1 冠'
+  },
+  underdog: {
+    code: 'UPSET', name: '逆風翻盤', icon: 'ϟ',
+    short: '低起點、高逆襲成長',
+    desc: '開局能力較低，但失敗後成長更快，落後時還會累積逆風脈衝；目標是衝上 80 OVR。',
+    objective: '從低起點練到 80 OVR'
+  }
+};
+
 const PLAYER_NAMES = [
   '林拓海', '陳昱安', '張凱翔', '李承恩', '王柏鈞', '吳宇辰', '劉冠廷', '黃子軒', '趙品睿', '周宥廷',
   '蔡沛洋', '楊哲宇', '鄭維新', '謝孟軒', '洪睿哲', '郭奕辰', '曾柏翰', '徐浩然', '賴彥廷', '蘇祐晨',
@@ -498,11 +525,13 @@ const CAREER_SCENARIOS = [
 
 let state = null;
 let selectedPosition = 'PG';
+let selectedCareerMode = 'classic';
 let selectedHeight = POSITIONS.PG.height;
 let selectedWeight = POSITIONS.PG.weight;
 let setupDiceRoll = null;
 let setupAllocations = { finish: 0, shooting: 0, playmaking: 0, defense: 0, athletic: 0, iq: 0 };
 let toastTimer = null;
+let shareCardDataUrl = '';
 let offerCountryFilter = 'ALL';
 let offerSquadFilter = 'ALL';
 
@@ -698,6 +727,60 @@ function currentTeam() {
   return TEAMS[state.teamId] || TEAMS.tw_ms;
 }
 
+function activeCareerMode(source = state) {
+  return CAREER_MODES[source?.profile?.careerMode] || CAREER_MODES.classic;
+}
+
+function longestProTeamStay(source = state) {
+  const counts = {};
+  (source?.history || []).forEach((item) => {
+    const team = TEAMS[item.teamId] || Object.values(TEAMS).find((candidate) => candidate.name === item.team);
+    if (team?.level === 'pro') counts[team.id] = (counts[team.id] || 0) + 1;
+  });
+  return Math.max(0, ...Object.values(counts));
+}
+
+function careerModeProgress(source = state) {
+  const key = source?.profile?.careerMode || 'classic';
+  const mode = CAREER_MODES[key] || CAREER_MODES.classic;
+  const sourceOverall = source?.stats ? overall(source) : 0;
+  let value = 0;
+  let label = '0%';
+  let detail = mode.objective;
+
+  if (key === 'odyssey') {
+    const countries = source?.visited?.length || 1;
+    value = clamp((countries / 4) * 100);
+    label = `${countries} / 4 國`;
+    detail = countries >= 4 ? '遠征完成，世界都看過你的球。' : `再踏上 ${Math.max(0, 4 - countries)} 個國家的球場。`;
+  } else if (key === 'dynasty') {
+    const stay = longestProTeamStay(source);
+    const trophies = source?.trophies || 0;
+    value = clamp((Math.min(stay, 4) / 4) * 75 + (trophies > 0 ? 25 : 0));
+    label = `${stay} / 4 季 · ${trophies} 冠`;
+    detail = value >= 100 ? '你真的把球隊打成了王朝。' : '同隊累積季數，再補上一座冠軍。';
+  } else if (key === 'underdog') {
+    value = clamp(((sourceOverall - 42) / 38) * 100);
+    label = `${sourceOverall} / 80 OVR`;
+    detail = sourceOverall >= 80 ? '逆襲完成，低起點也能練成王牌。' : `距離逆襲目標還差 ${Math.max(0, 80 - sourceOverall)} OVR。`;
+  } else {
+    const seasons = source?.history?.length || 0;
+    value = clamp((seasons / SEASONS.length) * 100);
+    label = `${seasons} / ${SEASONS.length} 段`;
+    detail = seasons >= SEASONS.length ? '完整生涯已通關。' : `還有 ${Math.max(0, SEASONS.length - seasons)} 段生涯。`;
+  }
+
+  return { key, mode, value, label, detail, complete: value >= 100 };
+}
+
+function careerModeGrowthMultiplier(success) {
+  const key = state?.profile?.careerMode || 'classic';
+  if (key === 'underdog') return success ? 1.04 : 1.24;
+  if (key === 'odyssey' && currentTeam().country !== 'TW') return 1.08;
+  if (key === 'dynasty' && state.history.at(-1)?.teamId === state.teamId) return 1.06;
+  return 1;
+}
+
 function teamSquadProfile(team) {
   if (!team || team.level !== 'pro') return null;
   const key = team.squad === 'second' ? 'second' : 'first';
@@ -876,6 +959,11 @@ function contractForOffer(team, nextSeason, score) {
     type = years >= 3 ? '球隊長約' : years === 2 ? '標準合約' : '一年證明約';
   }
 
+  if (state.profile.careerMode === 'dynasty' && team.level === 'pro' && team.id === state.teamId && margin >= 0 && years < 3) {
+    years += 1;
+    type = years >= 3 ? '王朝核心長約' : '續留標準合約';
+  }
+
   const salaryMultiplier = clamp(.82 + margin * .025 + random() * .08, .68, 1.38) * (years === 1 ? 1.08 : years >= 3 ? .96 : 1) * (1 - trendPenalty);
   const annualSalary = roundMoney((team.salary || 0) * salaryMultiplier);
   const bonusRate = nextSeason.age <= 18 ? 0 : years >= 3 ? .2 : years === 2 ? .1 : .04;
@@ -892,7 +980,7 @@ function contractForOffer(team, nextSeason, score) {
 }
 
 function ensureStateSchema(parsed) {
-  parsed.version = 3;
+  parsed.version = 4;
   parsed.contractHistory = Array.isArray(parsed.contractHistory) ? parsed.contractHistory : [];
   parsed.agingHistory = Array.isArray(parsed.agingHistory) ? parsed.agingHistory : [];
   parsed.endorsements = Array.isArray(parsed.endorsements) ? parsed.endorsements : [];
@@ -903,6 +991,8 @@ function ensureStateSchema(parsed) {
   parsed.profile.weight = Number(parsed.profile.weight) || savedPosition.weight;
   parsed.profile.allocations = parsed.profile.allocations || emptyAllocations();
   parsed.profile.diceRoll = parsed.profile.diceRoll || { count: 0, faces: [], total: 0 };
+  parsed.profile.careerMode = CAREER_MODES[parsed.profile.careerMode] ? parsed.profile.careerMode : 'classic';
+  parsed.startingOvr = Number(parsed.startingOvr) || overall(parsed);
   const upgradeSummary = (item) => {
     if (!item) return item;
     const team = TEAMS[item.teamId] || Object.values(TEAMS).find((candidate) => candidate.name === item.team) || TEAMS.tw_ms;
@@ -964,12 +1054,16 @@ function createState(profile) {
     loadModifier: seedProfile.trait.load
   };
   const stats = statsForProfile(fullProfile, seedProfile);
+  if (fullProfile.careerMode === 'underdog') {
+    Object.keys(stats).forEach((key) => { stats[key] = clamp(stats[key] - 3, 35, 99); });
+  }
   const contract = startingContract('tw_ms', 0);
   const rosterStatus = buildRosterStatus(TEAMS.tw_ms, { source: { stats, trust: 22, history: [], seasonIndex: 0 }, transfer: false, season: SEASONS[0] });
   return {
-    version: 3,
+    version: 4,
     profile: fullProfile,
     stats,
+    startingOvr: Math.round(Object.values(stats).reduce((sum, value) => sum + value, 0) / Object.keys(stats).length),
     seasonIndex: 0,
     week: 0,
     teamId: 'tw_ms',
@@ -1012,7 +1106,7 @@ function saveGame() {
 function loadGame() {
   try {
     const parsed = JSON.parse(localStorage.getItem(SAVE_KEY));
-    if (!parsed || ![1, 2, 3].includes(parsed.version) || !parsed.profile || !parsed.stats) return null;
+    if (!parsed || ![1, 2, 3, 4].includes(parsed.version) || !parsed.profile || !parsed.stats) return null;
     return ensureStateSchema(parsed);
   } catch (_error) {
     return null;
@@ -1139,6 +1233,22 @@ function rollBuildDice() {
   renderBuildLab();
 }
 
+function renderCareerModeOptions() {
+  const grid = $('#career-mode-grid');
+  const preview = $('#career-mode-preview');
+  if (!grid || !preview) return;
+  grid.innerHTML = Object.entries(CAREER_MODES).map(([key, mode]) => `
+    <button type="button" data-career-mode="${key}" class="${key === selectedCareerMode ? 'selected' : ''}" aria-pressed="${key === selectedCareerMode}">
+      <i>${mode.icon}</i><span><b>${mode.name}</b><small>${mode.short}</small></span><em>${mode.code}</em>
+    </button>`).join('');
+  const selected = CAREER_MODES[selectedCareerMode];
+  preview.innerHTML = `<b>${selected.name}</b><span>${selected.desc}</span><em>劇本任務：${selected.objective}</em>`;
+  document.querySelectorAll('[data-career-mode]').forEach((button) => button.addEventListener('click', () => {
+    selectedCareerMode = button.dataset.careerMode;
+    renderCareerModeOptions();
+  }));
+}
+
 function renderSetupOptions() {
   $('#position-grid').innerHTML = Object.entries(POSITIONS).map(([key, item]) => `
     <button type="button" data-position="${key}" class="${key === selectedPosition ? 'selected' : ''}">
@@ -1151,6 +1261,7 @@ function renderSetupOptions() {
     setupAllocations = emptyAllocations();
     renderSetupOptions();
   }));
+  renderCareerModeOptions();
   renderBuildLab();
 }
 
@@ -1219,6 +1330,7 @@ function renderWorldPanel() {
   const squad = teamSquadProfile(team);
   const roster = state.rosterStatus;
   const contract = state.contract || startingContract(team.id, state.seasonIndex);
+  const modeProgress = careerModeProgress();
   const contractStatus = { active: '合約中', expired: '到期', released: '被釋出', eliminated: '遭淘汰' }[contract.status] || '待確認';
   $('#world-panel').innerHTML = `
     <div class="eyebrow">WORLD BOARD / ${season.year}</div>
@@ -1240,6 +1352,7 @@ function renderWorldPanel() {
       <dl><div><dt>剩餘</dt><dd>${contract.yearsLeft} 年</dd></div><div><dt>月薪</dt><dd>${moneyLabel(contract.monthlySalary, '學生')}</dd></div><div><dt>淘汰風險</dt><dd>${contract.cutRisk}%</dd></div></dl>
     </div>
     <div class="roster-card ${roster?.benchRisk >= 55 ? 'roster-alert' : ''}"><div><small>ROTATION / 隊內角色</small><b>${roster?.label || '等待定位'}</b></div><p>預估場均 ${roster?.minutes || '—'} 分鐘 · 板凳風險 ${roster?.benchRisk ?? '—'}%</p><span>${roster?.reason || '教練會依表現安排上場時間'}</span></div>
+    <div class="career-mode-card ${modeProgress.complete ? 'complete' : ''}"><div><small>CAREER SCRIPT / ${modeProgress.mode.code}</small><b>${modeProgress.mode.icon} ${modeProgress.mode.name}</b><em>${modeProgress.label}</em></div><p>${modeProgress.detail}</p><i style="--mode-progress:${modeProgress.value}%"><span></span></i></div>
     <div class="goal-card"><small>SEASON TARGET</small><b>${season.target}</b><p>${team.name} · ${season.name}</p></div>
     <div class="career-feed"><small>CAREER LOG</small>${state.history.slice(-3).reverse().map((item) => `<p><b>${item.year}</b><span>${COUNTRIES[item.country].flag} ${item.team}</span><em>${item.record}</em></p>`).join('') || '<p class="empty">第一筆紀錄會在賽季結束後出現。</p>'}</div>`;
 }
@@ -1363,9 +1476,12 @@ function pulseBase(action, source = state) {
   const identity = badgeBonus(action.tag, source);
   const seedSpecialty = source.profile.seedSpecialties?.includes(action.primary) ? 1.5 : 0;
   const mastery = statTier(primary).bonus;
+  const storyMode = source.profile?.careerMode === 'underdog'
+    ? clamp(Math.max(0, (source.losses || 0) - (source.wins || 0)) * .75 + (source.rhythm < 45 ? 1 : 0), 0, 4)
+    : 0;
   const difficulty = clamp(action.difficulty, 36, 96);
-  const baseTotal = skill + rhythm + trust + load + identity + seedSpecialty + mastery;
-  return { primary, secondary, skill, rhythm, trust, load, identity, seedSpecialty, mastery, baseTotal, difficulty };
+  const baseTotal = skill + rhythm + trust + load + identity + seedSpecialty + mastery + storyMode;
+  return { primary, secondary, skill, rhythm, trust, load, identity, seedSpecialty, mastery, storyMode, baseTotal, difficulty };
 }
 
 function pulseCalculation(action) {
@@ -1415,7 +1531,7 @@ function resolveAction(action) {
     });
   }
   const specialtyGrowth = state.profile.seedSpecialties?.includes(action.primary) ? 1.08 : 1;
-  const growth = action.growth * 1.35 * (state.profile.growthModifier || 1) * specialtyGrowth * (success ? 1 : .7);
+  const growth = action.growth * 1.35 * (state.profile.growthModifier || 1) * specialtyGrowth * careerModeGrowthMultiplier(success) * (success ? 1 : .7);
   state.stats[action.primary] = clamp(state.stats[action.primary] + growth, 0, 99);
   state.stats[action.secondary] = clamp(state.stats[action.secondary] + growth * .42, 0, 99);
   const primaryAfter = state.stats[action.primary];
@@ -1461,7 +1577,7 @@ function renderResult() {
         <small>${result.success ? 'READ COMPLETE' : 'READ BROKEN'} · ${margin >= 0 ? '+' : ''}${margin.toFixed(1)}</small>
         <h2>${result.game ? (result.success ? '關鍵攻防拿下了！' : '這波沒能守住。') : (result.success ? '成功，訓練有收到效果。' : '這次沒做好，但問題更清楚了。')}</h2>
         <p>${result.success ? action.success : action.failure}</p>
-        <div class="formula-strip"><span>技術 <b>${result.calc.skill.toFixed(1)}</b></span><span>節奏 <b>${signed(result.calc.rhythm)}</b></span><span>信任 <b>${signed(result.calc.trust)}</b></span><span>負荷 <b>${signed(result.calc.load)}</b></span><span>打法 <b>+${result.calc.identity}</b></span>${result.calc.mastery ? `<span>能力階級 <b>+${result.calc.mastery}</b></span>` : ''}${result.calc.seedSpecialty ? '<span>神秘種子 <b>?</b></span>' : ''}<span>臨場 <b>${signed(result.calc.variation)}</b></span></div>
+        <div class="formula-strip"><span>技術 <b>${result.calc.skill.toFixed(1)}</b></span><span>節奏 <b>${signed(result.calc.rhythm)}</b></span><span>信任 <b>${signed(result.calc.trust)}</b></span><span>負荷 <b>${signed(result.calc.load)}</b></span><span>打法 <b>+${result.calc.identity}</b></span>${result.calc.storyMode ? `<span>逆風脈衝 <b>+${result.calc.storyMode.toFixed(1)}</b></span>` : ''}${result.calc.mastery ? `<span>能力階級 <b>+${result.calc.mastery}</b></span>` : ''}${result.calc.seedSpecialty ? '<span>神秘種子 <b>?</b></span>' : ''}<span>臨場 <b>${signed(result.calc.variation)}</b></span></div>
         ${result.growth ? `<div class="growth-feedback"><small>這次真的變強了</small><div><span><b>${STAT_META[action.primary].label}</b><em>${result.growth.primaryBefore.toFixed(1)} → ${result.growth.primaryAfter.toFixed(1)}</em></span>${action.secondary !== action.primary ? `<span><b>${STAT_META[action.secondary].label}</b><em>${result.growth.secondaryBefore.toFixed(1)} → ${result.growth.secondaryAfter.toFixed(1)}</em></span>` : ''}<span><b>同類選擇</b><em>${result.growth.chanceBefore}% → ${result.growth.chanceAfter}%</em></span></div></div>` : ''}
         ${result.growth?.tierUp ? `<div class="mastery-unlock">能力突破：<b>${STAT_META[result.growth.tierUp.stat].label} · ${result.growth.tierUp.label}</b>，之後同類選擇永久 +${result.growth.tierUp.bonus}</div>` : ''}
         ${result.badges.length ? `<div class="badge-unlock">打法印記解鎖：<b>${result.badges.join('、')}</b></div>` : ''}
@@ -1553,6 +1669,7 @@ function finishSeason() {
     contractResult: contractOutcome.result, contractContinues: contractOutcome.continues, released: contractOutcome.released, eliminated: contractOutcome.eliminated
   };
   state.history.push(summary);
+  summary.modeQuest = careerModeProgress();
   state.summary = summary;
   state.mode = 'summary';
 }
@@ -1571,6 +1688,7 @@ function renderSummary() {
           <span><small>自身強度</small><b>${summary.playerStrength}</b></span><span><small>聯賽難度</small><b>${summary.leagueStrength} · ${summary.leagueDifficulty}</b></span><span><small>目前定位</small><b>${summary.role}</b></span>
           <span class="${summary.benchRisk >= 55 ? 'danger' : ''}"><small>隊內角色 · 板凳風險 ${summary.benchRisk}%</small><b>${summary.rosterLabel}</b></span><span><small>出賽／場均時間</small><b>${summary.gamesPlayed} 場 · ${summary.minutes} 分</b></span><span><small>角色變化</small><b>${summary.rosterMovement}</b></span>
           <span><small>市場評級</small><b>${summary.marketScore.toFixed(1)}</b></span><span class="${summary.released || summary.eliminated ? 'danger' : ''}"><small>合約結果 · 風險 ${summary.contractRisk}%</small><b>${summary.contractResult}</b></span><span><small>本季／生涯收入</small><b>${moneyLabel(summary.earned, '學生')}／${moneyLabel(summary.totalIncome, '0 萬')}</b></span>
+          <span class="mode-report ${summary.modeQuest?.complete ? 'complete' : ''}"><small>${summary.modeQuest?.mode.name || activeCareerMode().name} · 劇本任務</small><b>${summary.modeQuest?.label || careerModeProgress().label}</b></span>
         </div>
         <p>${seasonSummaryLine(summary)}</p>
         <button type="button" class="next-button" id="market-button"><span>${nextAction}</span><b aria-hidden="true">→</b></button>
@@ -1598,7 +1716,15 @@ function seasonSummaryLine(summary) {
 }
 
 function marketScore() {
-  return overall() + state.scout * .14 + state.reputation * .06 + state.trophies * 1.5;
+  const key = state.profile.careerMode || 'classic';
+  const modeBonus = key === 'odyssey'
+    ? Math.max(0, state.visited.length - 1) * 1.8
+    : key === 'dynasty'
+      ? longestProTeamStay() * 1.1
+      : key === 'underdog'
+        ? Math.max(0, overall() - (state.startingOvr || overall())) * .12
+        : 0;
+  return overall() + state.scout * .14 + state.reputation * .06 + state.trophies * 1.5 + modeBonus;
 }
 
 function applyAgeCurve(nextSeason) {
@@ -1660,7 +1786,8 @@ function offerThreshold(team) {
   if (team.id === 'tw_ms') return 0;
   const localAdjustment = team.country === 'TW' ? (state.careerStatus === 'free_agent' ? 12 : 5) : 0;
   const secondTeamAdjustment = team.squad === 'second' ? 3 : 0;
-  return Math.max(0, base - localAdjustment - secondTeamAdjustment);
+  const odysseyAdjustment = state.profile.careerMode === 'odyssey' && team.country !== currentTeam().country ? 2 : 0;
+  return Math.max(0, base - localAdjustment - secondTeamAdjustment - odysseyAdjustment);
 }
 
 function offerEligibility(team, score) {
@@ -1780,7 +1907,14 @@ function startNextSeason(team, transfer) {
   state.seasonScenarioIds = [];
   state.rosterStatus = rosterStatus;
   state.rhythm = clamp(48 + (state.rhythm - 50) * .35);
-  state.trust = transfer ? (team.country === previousCountry ? clamp(state.trust * .7) : 20) : clamp(state.trust * .82 + 6);
+  const modeKey = state.profile.careerMode || 'classic';
+  if (transfer) {
+    state.trust = team.country === previousCountry
+      ? clamp(state.trust * .7)
+      : modeKey === 'odyssey' ? 28 : 20;
+  } else {
+    state.trust = modeKey === 'dynasty' ? clamp(state.trust * .92 + 8) : clamp(state.trust * .82 + 6);
+  }
   state.load = clamp(state.load - 12);
   saveGame();
   renderAll();
@@ -1848,6 +1982,7 @@ function careerRouteEntries() {
 }
 
 function careerAchievements(hall = hallOfFameProfile()) {
+  const modeQuest = careerModeProgress();
   const achievements = [
     { unlocked: true, title: '13 歲開打', desc: '從台灣國中校隊開始生涯' },
     { unlocked: state.history.length >= 1, title: '完成第一季', desc: '正式留下第一筆球季紀錄' },
@@ -1860,7 +1995,8 @@ function careerAchievements(hall = hallOfFameProfile()) {
     { unlocked: state.contractHistory?.some((contract) => contract.yearsTotal >= 3), title: '長約到手', desc: '用表現換到至少三年的球隊保障' },
     { unlocked: state.endorsements?.length >= 1, title: '第一份代言', desc: `已完成 ${state.endorsements?.length || 0} 次品牌合作` },
     { unlocked: state.income >= 500, title: '五百萬俱樂部', desc: `生涯收入累積 ${Math.round(state.income)} 萬` },
-    { unlocked: hall.inducted, title: '名人堂成員', desc: '生涯履歷正式通過名人堂門檻' }
+    { unlocked: hall.inducted, title: '名人堂成員', desc: '生涯履歷正式通過名人堂門檻' },
+    { unlocked: modeQuest.complete, title: `${modeQuest.mode.name}通關`, desc: modeQuest.mode.objective }
   ];
   return achievements.filter((item) => item.unlocked);
 }
@@ -1874,7 +2010,9 @@ function renderCard() {
   const achievements = careerAchievements(hall);
   const contractHistory = state.contractHistory || [];
   const endorsements = state.endorsements || [];
+  const modeQuest = careerModeProgress();
   const seedIdentity = `<span><b>神秘種子</b><em>${state.profile.seed} · 隱藏能力會在生涯中慢慢展現</em></span>`;
+  const modeIdentity = `<span><b>${modeQuest.mode.icon} ${modeQuest.mode.name} · ${modeQuest.label}</b><em>${modeQuest.detail}</em></span>`;
   const playIdentity = state.badges.map((badge) => `<span><b>${BADGES[badge].label}</b><em>${BADGES[badge].desc}</em></span>`).join('') || '<span><b>打法尚未成形</b><em>持續做選擇，三次後會形成你的打法印記。</em></span>';
   $('#card-content').innerHTML = `
     <div class="card-kicker"><span>COURTBOUND / ${state.profile.seed || 'PLAYER DOSSIER'}</span><b>${overall()}</b></div>
@@ -1886,7 +2024,7 @@ function renderCard() {
       <i style="--hof:${hall.progress}%"><b></b></i>
     </section>
     <div class="card-columns">
-      <section><small>MYSTERY SEED & PLAY IDENTITY</small><div class="badge-list">${seedIdentity}${playIdentity}</div></section>
+      <section><small>MYSTERY SEED & CAREER SCRIPT</small><div class="badge-list">${seedIdentity}${modeIdentity}${playIdentity}</div></section>
       <section><small>CAREER NUMBERS</small><dl><div><dt>球季</dt><dd>${state.history.length}</dd></div><div><dt>國家</dt><dd>${state.visited.length}</dd></div><div><dt>冠軍</dt><dd>${state.trophies}</dd></div><div><dt>關鍵勝負</dt><dd>${state.wins}–${state.losses}</dd></div><div><dt>生涯得分</dt><dd>${state.careerPoints || 0}</dd></div><div><dt>生涯收入</dt><dd>${Math.round(state.income)} 萬</dd></div></dl></section>
     </div>
     <div class="career-card-details">
@@ -1894,8 +2032,10 @@ function renderCard() {
       <section><small>ACHIEVEMENTS / 生涯成就</small><div class="achievement-grid">${achievements.map((item, index) => `<div><i>${String(index + 1).padStart(2, '0')}</i><span><b>${item.title}</b><small>${item.desc}</small></span></div>`).join('')}</div></section>
       <section class="contract-ledger"><small>CONTRACTS / 生涯合約</small><div>${contractHistory.map((contract) => { const contractTeam = TEAMS[contract.teamId] || TEAMS.tw_ms; const squadLabel = contract.squadLabel || teamSquadProfile(contractTeam)?.label || ''; const trend = contract.salaryTrendPenalty ? ` · 能力下滑影響 -${contract.salaryTrendPenalty}%` : ''; return `<span><i>${contract.signedYear}</i><b>${escapeHtml(contractTeam.name)}</b><em>${contract.type}${squadLabel ? ` · ${squadLabel}` : ''} · ${contract.yearsTotal} 年 · 年薪 ${moneyLabel(contract.annualSalary, '學生')} · 月薪 ${moneyLabel(contract.monthlySalary, '—')} · 簽約金 ${moneyLabel(contract.signingBonus)}${trend}</em></span>`; }).join('')}</div></section>
       ${endorsements.length ? `<section class="contract-ledger endorsement-ledger"><small>ENDORSEMENTS / 品牌合作</small><div>${endorsements.map((deal) => `<span><i>${deal.year}</i><b>${escapeHtml(deal.brand)}</b><em>${escapeHtml(deal.type)} · 收入 ${moneyLabel(deal.income)} · 曝光 +${deal.exposure || 0}</em></span>`).join('')}</div></section>` : ''}
-    </div>`;
+    </div>
+    <div class="card-share-bar"><span><small>SHARE RECAP / 1080 × 1920</small><b>生成詳細生涯結算圖</b><em>能力曲線、球隊旅程、合約收入、成就與名人堂一次整理。</em></span><button type="button" id="download-share-card">下載 PNG</button></div>`;
   $('#card-dialog').showModal();
+  $('#download-share-card').addEventListener('click', downloadCareerCard);
 }
 
 function endingProfile() {
@@ -1914,6 +2054,7 @@ function endingProfile() {
 function showEnding() {
   const ending = endingProfile();
   const hall = hallOfFameProfile();
+  const modeQuest = careerModeProgress();
   const first = state.history[0];
   const last = state.history.at(-1);
   const wasEliminated = state.careerStatus === 'eliminated';
@@ -1921,66 +2062,260 @@ function showEnding() {
   const routeCopy = first && last ? `${escapeHtml(state.profile.name)} 從 ${escapeHtml(first.team)} 開始打球，最後來到 ${escapeHtml(last.team)}。` : `${escapeHtml(state.profile.name)} 完成了這段籃球旅程。`;
   $('#ending-content').innerHTML = `
     <div class="ending-grade"><small>CAREER GRADE</small><b>${ending.grade}</b><span>${Math.round(ending.score)} LEGACY</span></div>
-    <div class="ending-copy"><small>${endingYear} · ${wasEliminated ? 'CAREER CUT' : 'CAREER COMPLETE'}</small><h2>${wasEliminated ? '這次沒守住名單，但你的紀錄都還在。' : ending.title}</h2><p>${routeCopy}你去過 ${state.visited.length} 個國家、拿到 ${state.trophies} 座冠軍。${wasEliminated ? '職業世界很硬，短約和表現真的會決定能不能留下。' : '每一站、每一個選擇，都是你自己決定的。'}名人堂評選：${hall.label}。</p></div>
-    <div class="ending-numbers"><span><b>${overall()}</b> 最終 OVR</span><span><b>${state.wins}–${state.losses}</b> 關鍵回合</span><span><b>${state.trophies}</b> 冠軍</span><span><b>${state.visited.length}</b> 國家</span></div>
+    <div class="ending-copy"><small>${endingYear} · ${wasEliminated ? 'CAREER CUT' : 'CAREER COMPLETE'}</small><h2>${wasEliminated ? '這次沒守住名單，但你的紀錄都還在。' : ending.title}</h2><p>${routeCopy}你去過 ${state.visited.length} 個國家、拿到 ${state.trophies} 座冠軍。${wasEliminated ? '職業世界很硬，短約和表現真的會決定能不能留下。' : '每一站、每一個選擇，都是你自己決定的。'}劇本「${modeQuest.mode.name}」進度 ${modeQuest.label}；名人堂評選：${hall.label}。</p></div>
+    <div class="ending-numbers"><span><b>${overall()}</b> 最終 OVR</span><span><b>${Math.max(overall(), ...state.history.map((item) => item.ovr || 0))}</b> 巔峰 OVR</span><span><b>${state.wins}–${state.losses}</b> 關鍵回合</span><span><b>${state.trophies}</b> 冠軍</span><span><b>${state.history.length}</b> 球季</span><span><b>${state.visited.length}</b> 國家</span><span><b>${Math.round(state.income)}</b> 收入（萬）</span><span><b>${Math.round(hall.score)}</b> 名人堂分數</span></div>
     <div class="ending-route">${state.history.map((item) => `<div><i>${item.year}</i><b>${COUNTRIES[item.country].flag}</b><span>${item.team}<small>${item.record} · ${item.rosterLabel || item.role} · ${item.minutes ?? '—'} MPG · ${item.ppg} PTS</small></span></div>`).join('')}</div>
-    <div class="ending-actions"><button type="button" id="download-card">下載生涯卡</button><button type="button" id="restart-ending">再走一條路</button></div>`;
+    <div class="ending-actions"><button type="button" id="download-card">下載詳細結算圖</button><button type="button" id="restart-ending">再走一條路</button></div>`;
   $('#ending-dialog').showModal();
   $('#download-card').addEventListener('click', downloadCareerCard);
   $('#restart-ending').addEventListener('click', restartGame);
 }
 
+function sharePanel(ctx, x, y, width, height, fill = '#171d18', stroke = '#334036') {
+  ctx.fillStyle = fill;
+  ctx.fillRect(x, y, width, height);
+  ctx.strokeStyle = stroke;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x, y, width, height);
+}
+
+function shareFitText(ctx, value, x, y, maxWidth) {
+  const text = String(value);
+  if (ctx.measureText(text).width <= maxWidth) {
+    ctx.fillText(text, x, y);
+    return;
+  }
+  let clipped = text;
+  while (clipped.length > 1 && ctx.measureText(`${clipped}…`).width > maxWidth) clipped = clipped.slice(0, -1);
+  ctx.fillText(`${clipped}…`, x, y);
+}
+
 function downloadCareerCard() {
   const canvas = $('#share-canvas');
   canvas.width = 1080;
-  canvas.height = 1750;
+  canvas.height = 1920;
   const ctx = canvas.getContext('2d');
+  const fontFamily = `'Noto Sans TC','Microsoft JhengHei',sans-serif`;
   const ending = endingProfile();
   const hall = hallOfFameProfile();
-  const route = careerRouteEntries();
+  const modeQuest = careerModeProgress();
   const achievements = careerAchievements(hall);
-  ctx.fillStyle = '#11110e'; ctx.fillRect(0, 0, 1080, 1750);
-  ctx.fillStyle = '#ff5a1f'; ctx.fillRect(56, 56, 968, 18);
-  ctx.fillStyle = '#dfff00'; ctx.font = '700 28px sans-serif'; ctx.fillText('籃途 / COURTBOUND', 68, 132);
-  ctx.fillStyle = '#f1efe8'; ctx.font = '900 88px sans-serif'; ctx.fillText(state.profile.name, 68, 255);
-  ctx.fillStyle = '#8b8980'; ctx.font = '500 28px sans-serif'; ctx.fillText(`${state.profile.position} · ${POSITIONS[state.profile.position].name} · ${state.visited.length} 國生涯`, 72, 310);
-  ctx.fillStyle = '#ff5a1f'; ctx.font = '900 280px sans-serif'; ctx.fillText(ending.grade, 62, 595);
-  ctx.fillStyle = '#f1efe8'; ctx.font = '800 47px sans-serif'; ctx.fillText(ending.title, 72, 680);
-  const labels = [['目前 OVR', overall()], ['冠軍', state.trophies], ['關鍵勝負', `${state.wins}–${state.losses}`], ['生涯國家', state.visited.length]];
-  labels.forEach(([label, value], index) => {
-    const x = 68 + (index % 2) * 480; const y = 755 + Math.floor(index / 2) * 145;
-    ctx.strokeStyle = '#393934'; ctx.strokeRect(x, y, 440, 120);
-    ctx.fillStyle = '#8b8980'; ctx.font = '600 22px sans-serif'; ctx.fillText(label, x + 22, y + 35);
-    ctx.fillStyle = '#f1efe8'; ctx.font = '900 50px sans-serif'; ctx.fillText(String(value), x + 22, y + 91);
-  });
-  ctx.fillStyle = hall.inducted ? '#dfff00' : '#ff5a1f'; ctx.fillRect(68, 1060, 944, 112);
-  ctx.fillStyle = '#11110e'; ctx.font = '800 20px sans-serif'; ctx.fillText('HALL OF FAME WATCH', 90, 1096);
-  ctx.font = '900 36px sans-serif'; ctx.fillText(hall.label, 90, 1143, 700);
-  ctx.textAlign = 'right'; ctx.font = '900 44px sans-serif'; ctx.fillText(`${Math.round(hall.score)} / 125`, 990, 1139);
+  const currentOvr = overall();
+  const peakOvr = Math.max(currentOvr, state.startingOvr || currentOvr, ...state.history.map((item) => item.ovr || 0));
+  const highestSalary = Math.max(0, ...(state.contractHistory || []).map((contract) => contract.annualSalary || 0));
+  const totalSigningBonus = (state.contractHistory || []).reduce((sum, contract) => sum + (contract.signingBonus || 0), 0);
+  const longestContract = Math.max(0, ...(state.contractHistory || []).map((contract) => contract.yearsTotal || 0));
+  const last = state.history.at(-1);
+  const body = bodyAtAge(state.profile, currentSeason().age);
+
+  const background = ctx.createLinearGradient(0, 0, 1080, 1920);
+  background.addColorStop(0, '#202b22');
+  background.addColorStop(.5, '#101510');
+  background.addColorStop(1, '#171713');
+  ctx.fillStyle = background;
+  ctx.fillRect(0, 0, 1080, 1920);
+  ctx.fillStyle = '#d9ed83';
+  ctx.fillRect(48, 42, 984, 12);
+  ctx.fillStyle = '#ff7654';
+  ctx.fillRect(48, 54, 235, 6);
+
+  ctx.fillStyle = '#d9ed83';
+  ctx.font = `800 27px ${fontFamily}`;
+  ctx.fillText('籃途 / COURTBOUND', 64, 112);
+  ctx.fillStyle = '#91a095';
+  ctx.font = `700 17px ${fontFamily}`;
+  ctx.fillText('CAREER RECAP · v0.1', 64, 143);
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#f5f1e7';
+  ctx.font = `800 19px ${fontFamily}`;
+  ctx.fillText(`${modeQuest.mode.code} / ${state.profile.seed}`, 1016, 112);
+  ctx.fillStyle = modeQuest.complete ? '#d9ed83' : '#ff7654';
+  ctx.fillText(`${modeQuest.mode.name} · ${modeQuest.label}`, 1016, 143);
   ctx.textAlign = 'left';
 
-  ctx.fillStyle = '#dfff00'; ctx.font = '800 22px sans-serif'; ctx.fillText('生涯學校 / 球隊', 68, 1228);
-  const routeLines = [];
-  for (let index = 0; index < route.length; index += 3) {
-    routeLines.push(route.slice(index, index + 3).map((item) => `${item.year} ${item.team}${item.champion ? ' ★' : ''}`).join('  →  '));
-  }
-  ctx.fillStyle = '#f1efe8'; ctx.font = '600 23px sans-serif';
-  routeLines.slice(-4).forEach((line, index) => ctx.fillText(line, 68, 1272 + index * 39, 944));
+  ctx.fillStyle = '#f5f1e7';
+  ctx.font = `900 68px ${fontFamily}`;
+  shareFitText(ctx, state.profile.name, 64, 232, 670);
+  ctx.fillStyle = '#aeb8b0';
+  ctx.font = `600 22px ${fontFamily}`;
+  shareFitText(ctx, `${state.profile.position} ${POSITIONS[state.profile.position].name} · ${body.height} cm / ${body.weight} kg · ${state.profile.hometown} · ${state.profile.hand}`, 68, 274, 780);
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#ff7654';
+  ctx.font = `900 58px ${fontFamily}`;
+  ctx.fillText(`${currentOvr} OVR`, 1016, 242);
+  ctx.fillStyle = '#91a095';
+  ctx.font = `700 17px ${fontFamily}`;
+  ctx.fillText(`${currentSeason().age} 歲 · ${currentTeam().name}`, 1016, 274);
+  ctx.textAlign = 'left';
 
-  const achievementStart = 1450;
-  ctx.fillStyle = '#ff5a1f'; ctx.font = '800 22px sans-serif'; ctx.fillText('生涯成就', 68, achievementStart);
-  const achievementLines = [];
-  for (let index = 0; index < achievements.length; index += 3) achievementLines.push(achievements.slice(index, index + 3).map((item) => item.title).join('  ·  '));
-  ctx.fillStyle = '#f1efe8'; ctx.font = '600 23px sans-serif';
-  achievementLines.slice(0, 3).forEach((line, index) => ctx.fillText(line, 68, achievementStart + 43 + index * 38, 944));
+  sharePanel(ctx, 64, 314, 270, 250, modeQuest.complete ? '#d9ed83' : '#ff7654', 'transparent');
+  ctx.fillStyle = '#101510';
+  ctx.font = `800 18px ${fontFamily}`;
+  ctx.fillText('CAREER GRADE', 86, 353);
+  ctx.font = `900 142px ${fontFamily}`;
+  ctx.fillText(ending.grade, 82, 498);
+  ctx.font = `800 20px ${fontFamily}`;
+  ctx.fillText(`${Math.round(ending.score)} LEGACY`, 86, 538);
 
-  ctx.fillStyle = '#8b8980'; ctx.font = '500 22px sans-serif'; ctx.fillText(`球季 ${state.history.length} · 生涯收入 ${Math.round(state.income)} 萬 · 13 歲開打，每一站都由你自己選。`, 68, 1670, 944);
-  ctx.fillStyle = '#dfff00'; ctx.fillRect(68, 1705, 944, 8);
-  const link = document.createElement('a');
-  link.download = `${state.profile.name}-籃途生涯卡.png`;
-  link.href = canvas.toDataURL('image/png');
-  link.click();
-  showToast('生涯卡已下載');
+  sharePanel(ctx, 354, 314, 662, 250);
+  ctx.fillStyle = '#ff7654';
+  ctx.font = `800 17px ${fontFamily}`;
+  ctx.fillText('CAREER VERDICT', 382, 352);
+  ctx.fillStyle = '#f5f1e7';
+  ctx.font = `900 36px ${fontFamily}`;
+  shareFitText(ctx, ending.title || '這段生涯由你打出來', 382, 400, 592);
+  ctx.fillStyle = '#aeb8b0';
+  ctx.font = `600 18px ${fontFamily}`;
+  shareFitText(ctx, `${state.history.length} 季 · ${state.visited.length} 國 · ${state.trophies} 冠 · 關鍵回合 ${state.wins}–${state.losses}`, 382, 438, 592);
+  ctx.fillStyle = hall.inducted ? '#d9ed83' : '#f5f1e7';
+  ctx.font = `800 25px ${fontFamily}`;
+  shareFitText(ctx, `名人堂：${hall.label}`, 382, 486, 440);
+  ctx.textAlign = 'right';
+  ctx.fillStyle = hall.inducted ? '#d9ed83' : '#ff7654';
+  ctx.font = `900 32px ${fontFamily}`;
+  ctx.fillText(`${Math.round(hall.score)} / 125`, 986, 486);
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#263128';
+  ctx.fillRect(382, 515, 604, 16);
+  ctx.fillStyle = hall.inducted ? '#d9ed83' : '#ff7654';
+  ctx.fillRect(382, 515, 604 * clamp(hall.progress / 100), 16);
+
+  const metrics = [
+    ['球季', state.history.length], ['巔峰 OVR', peakOvr], ['冠軍', state.trophies], ['國家', state.visited.length],
+    ['生涯收入', `${Math.round(state.income)} 萬`], ['生涯得分', state.careerPoints || 0], ['代言合作', (state.endorsements || []).length], ['最高年薪', `${Math.round(highestSalary)} 萬`]
+  ];
+  metrics.forEach(([label, value], index) => {
+    const column = index % 4;
+    const row = Math.floor(index / 4);
+    const x = 64 + column * 244;
+    const y = 592 + row * 104;
+    sharePanel(ctx, x, y, 226, 86, '#151b16', '#2c382f');
+    ctx.fillStyle = '#91a095';
+    ctx.font = `700 15px ${fontFamily}`;
+    ctx.fillText(label, x + 17, y + 27);
+    ctx.fillStyle = '#f5f1e7';
+    ctx.font = `900 30px ${fontFamily}`;
+    shareFitText(ctx, value, x + 17, y + 65, 192);
+  });
+
+  sharePanel(ctx, 64, 820, 454, 350);
+  ctx.fillStyle = '#d9ed83';
+  ctx.font = `800 18px ${fontFamily}`;
+  ctx.fillText('PLAYER BUILD / 六維能力', 88, 855);
+  Object.entries(STAT_META).forEach(([key, meta], index) => {
+    const value = Math.round(state.stats[key]);
+    const y = 893 + index * 43;
+    ctx.fillStyle = '#aeb8b0';
+    ctx.font = `700 16px ${fontFamily}`;
+    ctx.fillText(`${meta.code}  ${meta.label}`, 88, y);
+    ctx.fillStyle = '#2b362e';
+    ctx.fillRect(220, y - 14, 236, 15);
+    ctx.fillStyle = value >= 80 ? '#ff7654' : '#d9ed83';
+    ctx.fillRect(220, y - 14, 236 * value / 99, 15);
+    ctx.fillStyle = '#f5f1e7';
+    ctx.font = `900 18px ${fontFamily}`;
+    ctx.textAlign = 'right';
+    ctx.fillText(value, 488, y);
+    ctx.textAlign = 'left';
+  });
+
+  sharePanel(ctx, 538, 820, 478, 350);
+  ctx.fillStyle = '#ff7654';
+  ctx.font = `800 18px ${fontFamily}`;
+  ctx.fillText('OVR CURVE / 生涯能力曲線', 562, 855);
+  const curve = [{ year: '起點', ovr: state.startingOvr || currentOvr }, ...state.history.map((item) => ({ year: item.year, ovr: item.ovr || currentOvr }))];
+  if (!curve.length || curve.at(-1).ovr !== currentOvr) curve.push({ year: currentSeason().year, ovr: currentOvr });
+  const plot = { x: 574, y: 892, width: 404, height: 205 };
+  ctx.strokeStyle = '#2e3a31';
+  ctx.lineWidth = 1;
+  [40, 60, 80, 99].forEach((score) => {
+    const y = plot.y + plot.height - ((score - 35) / 64) * plot.height;
+    ctx.beginPath(); ctx.moveTo(plot.x, y); ctx.lineTo(plot.x + plot.width, y); ctx.stroke();
+    ctx.fillStyle = '#718078'; ctx.font = `600 12px ${fontFamily}`; ctx.fillText(score, plot.x - 3, y - 5);
+  });
+  ctx.strokeStyle = '#d9ed83';
+  ctx.lineWidth = 6;
+  ctx.beginPath();
+  curve.forEach((item, index) => {
+    const x = plot.x + (curve.length === 1 ? 0 : index / (curve.length - 1)) * plot.width;
+    const y = plot.y + plot.height - ((clamp(item.ovr, 35, 99) - 35) / 64) * plot.height;
+    if (index === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+  curve.forEach((item, index) => {
+    const x = plot.x + (curve.length === 1 ? 0 : index / (curve.length - 1)) * plot.width;
+    const y = plot.y + plot.height - ((clamp(item.ovr, 35, 99) - 35) / 64) * plot.height;
+    ctx.fillStyle = index === curve.length - 1 ? '#ff7654' : '#f5f1e7';
+    ctx.beginPath(); ctx.arc(x, y, index === curve.length - 1 ? 7 : 4, 0, Math.PI * 2); ctx.fill();
+  });
+  ctx.fillStyle = '#91a095';
+  ctx.font = `600 14px ${fontFamily}`;
+  ctx.fillText(`起點 ${state.startingOvr || currentOvr}  →  巔峰 ${peakOvr}  →  最終 ${currentOvr}`, 574, 1136);
+
+  ctx.fillStyle = '#f5f1e7';
+  ctx.font = `900 25px ${fontFamily}`;
+  ctx.fillText('生涯旅程 / CAREER JOURNEY', 64, 1220);
+  const journey = state.history.length ? state.history.slice(-12) : [{
+    year: currentSeason().year, country: currentTeam().country, team: currentTeam().name, record: '進行中', rosterLabel: state.rosterStatus?.label || '競爭中', ppg: '—'
+  }];
+  journey.forEach((item, index) => {
+    const column = Math.floor(index / 6);
+    const row = index % 6;
+    const x = 64 + column * 484;
+    const y = 1252 + row * 49;
+    sharePanel(ctx, x, y, 464, 41, '#141a15', '#29342c');
+    ctx.fillStyle = item.champion ? '#d9ed83' : '#ff7654';
+    ctx.font = `800 15px ${fontFamily}`;
+    ctx.fillText(`${item.year} ${COUNTRIES[item.country]?.flag || item.country}`, x + 12, y + 17);
+    ctx.fillStyle = '#f5f1e7';
+    ctx.font = `800 16px ${fontFamily}`;
+    shareFitText(ctx, `${item.team}${item.champion ? ' ★' : ''}`, x + 115, y + 18, 220);
+    ctx.fillStyle = '#91a095';
+    ctx.font = `600 12px ${fontFamily}`;
+    shareFitText(ctx, `${item.record} · ${item.rosterLabel || item.role || '輪替'} · ${item.ppg ?? '—'} PTS`, x + 115, y + 35, 325);
+  });
+
+  sharePanel(ctx, 64, 1564, 952, 244, '#151b16', '#344137');
+  ctx.fillStyle = modeQuest.complete ? '#d9ed83' : '#ff7654';
+  ctx.font = `800 17px ${fontFamily}`;
+  ctx.fillText(`CAREER SCRIPT / ${modeQuest.mode.name}`, 88, 1600);
+  ctx.fillStyle = '#f5f1e7';
+  ctx.font = `900 25px ${fontFamily}`;
+  shareFitText(ctx, `${modeQuest.label} · ${modeQuest.detail}`, 88, 1635, 875);
+  ctx.fillStyle = '#29342c';
+  ctx.fillRect(88, 1655, 864, 14);
+  ctx.fillStyle = modeQuest.complete ? '#d9ed83' : '#ff7654';
+  ctx.fillRect(88, 1655, 864 * clamp(modeQuest.value / 100), 14);
+  ctx.fillStyle = '#91a095';
+  ctx.font = `700 14px ${fontFamily}`;
+  ctx.fillText('生涯成就', 88, 1703);
+  ctx.fillStyle = '#f5f1e7';
+  ctx.font = `700 17px ${fontFamily}`;
+  shareFitText(ctx, achievements.slice(-6).map((item) => item.title).join('  ·  ') || '還在累積第一個成就', 88, 1732, 875);
+  ctx.fillStyle = '#91a095';
+  ctx.font = `700 14px ${fontFamily}`;
+  ctx.fillText('合約與商業', 88, 1767);
+  ctx.fillStyle = '#f5f1e7';
+  ctx.font = `700 17px ${fontFamily}`;
+  shareFitText(ctx, `最長 ${longestContract} 年約 · 最高年薪 ${Math.round(highestSalary)} 萬 · 簽約金共 ${Math.round(totalSigningBonus)} 萬 · ${(state.endorsements || []).length} 次代言`, 88, 1794, 875);
+
+  ctx.fillStyle = '#91a095';
+  ctx.font = `600 16px ${fontFamily}`;
+  ctx.fillText(`最後一季：${last ? `${last.year} ${last.team} · ${last.record} · ${last.ppg} PTS / ${last.rpg} REB / ${last.apg} AST` : '生涯剛開始'}`, 64, 1852);
+  ctx.fillStyle = '#d9ed83';
+  ctx.fillRect(64, 1873, 952, 6);
+  ctx.fillStyle = '#f5f1e7';
+  ctx.font = `800 17px ${fontFamily}`;
+  ctx.fillText('allenyuu.github.io/courtbound-career/', 64, 1905);
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#91a095';
+  ctx.fillText('13 歲開打，每一次選擇都留下紀錄。', 1016, 1905);
+  ctx.textAlign = 'left';
+
+  shareCardDataUrl = canvas.toDataURL('image/png');
+  $('#share-preview-image').src = shareCardDataUrl;
+  $('#share-dialog').showModal();
+  showToast('1080 × 1920 詳細結算圖預覽完成');
 }
 
 function restartGame() {
@@ -2006,6 +2341,7 @@ function bindStaticEvents() {
     $('#career-seed').value = seed;
     state = createState({
       name, seed, hometown: $('#hometown').value, hand: $('#hand').value, position: selectedPosition, style: 'none',
+      careerMode: selectedCareerMode,
       height: selectedHeight, weight: selectedWeight, allocations: { ...setupAllocations }, diceRoll: { ...setupDiceRoll, faces: [...setupDiceRoll.faces] }
     });
     saveGame();
@@ -2048,6 +2384,14 @@ function bindStaticEvents() {
   $('#settings-button').addEventListener('click', openSettings);
   $('#restart-career-button').addEventListener('click', restartGame);
   $('#close-settings-button').addEventListener('click', () => $('#settings-dialog').close());
+  $('#confirm-download-share').addEventListener('click', () => {
+    if (!shareCardDataUrl || !state) return;
+    const link = document.createElement('a');
+    link.download = `${state.profile.name}-籃途詳細結算圖.png`;
+    link.href = shareCardDataUrl;
+    link.click();
+    showToast('詳細結算圖已下載');
+  });
   document.querySelectorAll('[data-interface-mode]').forEach((button) => button.addEventListener('click', () => applyInterfaceMode(button.dataset.interfaceMode, true)));
   document.querySelectorAll('[data-close]').forEach((button) => button.addEventListener('click', () => $(`#${button.dataset.close}`).close()));
 }
